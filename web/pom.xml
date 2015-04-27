@@ -2,21 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>sola-opentenure-boundary</artifactId>
-        <groupId>org.sola.opentenure.services</groupId>
-        <version>1504a-SNAPSHOT</version>
+        <artifactId>sola-cs-boundary</artifactId>
+        <groupId>org.sola.cs.services</groupId>
+        <version>1504a</version>
     </parent>
 
-    <groupId>org.sola.opentenure.services.boundary</groupId>
-    <artifactId>sola-opentenure-web</artifactId>
-    <version>1504a-SNAPSHOT</version>
+    <groupId>org.sola.cs.services.boundary</groupId>
+    <artifactId>sola-cs-web</artifactId>
+    <version>1504a</version>
     <packaging>war</packaging>
 
-    <name>Boundary OT Web</name>
+    <name>Boundary CS Web</name>
 
     <properties>
-        <sola.version>1503a</sola.version>
-        <sola.services.group.id>org.sola.services</sola.services.group.id>
+        <sola.services.group.id>org.sola.cs.services</sola.services.group.id>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -75,18 +74,18 @@
         </dependency>
         <dependency>
             <groupId>${sola.services.group.id}</groupId>
-            <artifactId>sola-services-common</artifactId>
-            <version>${sola.version}</version>
+            <artifactId>sola-cs-services-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${sola.services.group.id}.boundary</groupId>
-            <artifactId>sola-transfer-objects</artifactId>
-            <version>${sola.version}</version>
+            <artifactId>sola-cs-transfer-objects</artifactId>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.sola.opentenure.services.ejbs</groupId>
-            <artifactId>sola-opentenure-claim</artifactId>
+            <groupId>org.sola.cs.services.ejbs</groupId>
+            <artifactId>sola-cs-claim</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -99,8 +98,8 @@
         </dependency>
         <dependency>
             <groupId>${sola.services.group.id}.ejbs</groupId>
-            <artifactId>sola-admin</artifactId>
-            <version>${sola.version}</version>
+            <artifactId>sola-cs-admin</artifactId>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>servlet-api</artifactId>
@@ -112,8 +111,8 @@
         </dependency>
         <dependency>
             <groupId>${sola.services.group.id}.ejbs</groupId>
-            <artifactId>sola-refdata</artifactId>
-            <version>${sola.version}</version>
+            <artifactId>sola-cs-refdata</artifactId>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>servlet-api</artifactId>
