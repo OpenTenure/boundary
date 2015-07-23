@@ -53,6 +53,10 @@
                                          rendered="#{claimPageBean.canApproveReview}"
                                          action="#{claimPageBean.approveReviewClaim()}"
                                          onclick="return confirm('#{msg.CLAIM_PAGE_APPROVE_REVIEW_WARNING}') ? blockUI() : false" />
+                        <h:commandButton class="btn btn-default" value="#{msg.CLAIM_PAGE_REVERT_REVIEW}"
+                                         rendered="#{claimPageBean.canRevertReview}"
+                                         action="#{claimPageBean.revertClaimReview()}"
+                                         onclick="return confirm('#{msg.CLAIM_PAGE_REVERT_REVIEW_WARNING}') ? blockUI() : false" />
                         <h:commandButton class="btn btn-default" value="#{msg.CLAIM_PAGE_APPROVE_MODERATION}"
                                          rendered="#{claimPageBean.canApproveModeration}"
                                          action="#{claimPageBean.approveModerationClaim()}"

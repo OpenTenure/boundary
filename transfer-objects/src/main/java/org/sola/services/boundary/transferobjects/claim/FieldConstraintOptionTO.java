@@ -7,7 +7,8 @@ public class FieldConstraintOptionTO extends AbstractReadWriteTO {
     private String name;
     private String displayName;
     private String fieldConstraintId;
-
+    private int itemOrder;
+    
     public String getId() {
         return id;
     }
@@ -38,6 +39,14 @@ public class FieldConstraintOptionTO extends AbstractReadWriteTO {
 
     public void setFieldConstraintId(String fieldConstraintId) {
         this.fieldConstraintId = fieldConstraintId;
+    }
+
+    public int getItemOrder() {
+        return itemOrder;
+    }
+
+    public void setItemOrder(int itemOrder) {
+        this.itemOrder = itemOrder;
     }
     
     public FieldConstraintOptionTO(){

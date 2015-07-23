@@ -6,6 +6,8 @@ import javax.ejb.EJBAccessException;
 import javax.enterprise.context.Dependent;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.transaction.Status;
+import javax.transaction.UserTransaction;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -23,6 +25,7 @@ import static org.sola.services.common.faults.FaultUtility.getCause;
 import org.sola.services.common.faults.OTMissingAttachmentsException;
 import org.sola.common.SOLAMD5Exception;
 import org.sola.common.SOLANoDataException;
+import org.sola.services.common.LocalInfo;
 import org.sola.services.common.faults.SOLAObjectExistsException;
 import org.sola.services.common.faults.SOLAValidationException;
 
@@ -37,6 +40,12 @@ public class AbstractWebRestService {
     @Resource
     private WebServiceContext context;
     
+    /**
+     * Holds a reference to the UserTransction. Injected using @Resource
+     */
+    @Resource
+    private UserTransaction tx;
+    
     private ObjectMapper mapper;
     
     protected final String LOCALE_CODE = "localeCode";
@@ -45,6 +54,66 @@ public class AbstractWebRestService {
         super();
     }
     
+    /**
+     * Starts a transaction.
+     *
+     * @throws Exception
+     */
+    protected void beginTransaction() throws Exception {
+        tx.begin();
+    }
+
+    /**
+     * Commits a transaction as long as the transaction is not in the
+     * NO_TRANSACTION state.
+     *
+     * @throws Exception
+     */
+    protected void commitTransaction() throws Exception {
+        if (tx.getStatus() != Status.STATUS_NO_TRANSACTION) {
+            tx.commit();
+        }
+    }
+
+    /**
+     * Rolls back the transaction as long as the transaction is not in the
+     * NO_TRANSACTION state. This method should be called in the finally clause
+     * wherever a transaction is started.
+     *
+     * @throws Exception
+     */
+    protected void rollbackTransaction() throws Exception {
+        if (tx.getStatus() != Status.STATUS_NO_TRANSACTION) {
+            tx.rollback();
+        }
+    }
+    
+    /**
+     * Provides common fault handling and transaction functionality for secured
+     * web methods that perform data updates but do not perform validation.
+     *
+     * @param runnable Anonymous inner class that implements the
+     * {@linkplain java.lang.Runnable Runnable} interface
+     * @throws Exception
+     */
+    protected void runUpdate(Runnable runnable) throws Exception {
+        try {
+            beginTransaction();
+            runnable.run();
+            commitTransaction();
+        } finally {
+            rollbackTransaction();
+            cleanUp();
+        }
+    }
+    
+    /**
+     * Performs clean up actions after the web method logic has been executed.
+     */
+    protected void cleanUp() {
+        LocalInfo.remove();
+    }
+        
     /**
      * Returns Jackson JSON mapper
      *

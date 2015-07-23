@@ -55,7 +55,7 @@ org\sola\opentenure\services\boundary\beans\validation\ValidatorFactory.class
 org\sola\opentenure\services\boundary\beans\AbstractWebRestService.class
 org\sola\opentenure\services\boundary\beans\dashboard\DashboardBean.class
 org\sola\opentenure\services\boundary\beans\validation\user\EmailValidator.class
-org\sola\opentenure\services\boundary\beans\admin\CacheResetPageBean.class
+org\sola\opentenure\services\boundary\beans\claim\ClaimPageBean$10.class
 org\sola\opentenure\services\boundary\beans\validation\user\UserRegistrationGroup.class
 org\sola\opentenure\services\boundary\beans\AbstractModelBean.class
 org\sola\opentenure\services\boundary\beans\claim\ClaimPageBean$7.class
@@ -64,6 +64,7 @@ org\sola\opentenure\services\boundary\beans\validation\user\PasswordRestoreGroup
 org\sola\opentenure\services\boundary\ws\ApplicationConfig.class
 org\sola\opentenure\services\boundary\beans\claim\ClaimStatusBean.class
 org\sola\opentenure\services\boundary\beans\exceptions\ExceptionFactory.class
+org\sola\opentenure\services\boundary\ws\ClaimResource$1.class
 org\sola\opentenure\services\boundary\beans\claim\ClaimAttachmentBean$1.class
 org\sola\opentenure\services\boundary\beans\claim\ClaimSearchComponentBean.class
 org\sola\opentenure\services\boundary\beans\claim\ClaimUploadPageBean$1.class

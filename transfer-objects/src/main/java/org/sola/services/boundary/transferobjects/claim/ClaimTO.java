@@ -33,6 +33,7 @@ public class ClaimTO extends AbstractReadWriteTO {
     private int version;
     private long claimArea;
     private FormPayloadTO dynamicForm;
+    String serverUrl;
     
     public ClaimTO(){
         super();
@@ -260,5 +261,13 @@ public class ClaimTO extends AbstractReadWriteTO {
 
     public void setDynamicForm(FormPayloadTO dynamicForm) {
         this.dynamicForm = dynamicForm;
+    }
+
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
+    public void setServerUrl(String serverUrl) {
+        this.serverUrl = serverUrl;
     }
 }

@@ -16,6 +16,7 @@ import org.sola.opentenure.services.ejbs.claim.entities.LandUse;
 import org.sola.services.ejb.refdata.entities.LandUseType;
 import org.sola.services.boundary.transferobjects.system.MapExtentTO;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
+import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
 import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 import org.sola.services.ejb.refdata.businesslogic.RefDataEJBLocal;
@@ -43,43 +44,17 @@ public class ReferenceData {
     
     @EJB
     RefDataEJBLocal refDataEjb;
+    
+    @EJB
+    CacheEJBLocal cacheEjb;
 
-    private HashMap cache;
-    private final String CLAIM_STATUS = "CLAIM_STATUS";
-    private final String SOURCE_TYPES = "SOURCE_TYPES";
-    private final String SOURCE_TYPES_ACTIVE = "SOURCE_TYPES_ACTIVE";
-    private final String ID_TYPES = "ID_TYPES";
-    private final String ID_TYPES_ACTIVE = "ID_TYPES_ACTIVE";
-    private final String GENDER_TYPES = "GENDER_TYPES";
-    private final String GENDER_TYPES_ACTIVE = "GENDER_TYPES_ACTIVE";
-    private final String RIGHT_TYPES = "RIGHT_TYPES";
-    private final String RIGHT_TYPES_ACTIVE = "RIGHT_TYPES_ACTIVE";
-    private final String LAND_USE = "LAND_USE";
-    private final String REJECTION_REASON = "REJECTION_REASON";
-    private final String REJECTION_REASON_ACTIVE = "REJECTION_REASON_ACTIVE";
-    private final String LAND_USE_ACTIVE = "LAND_USE_ACTIVE";
-    private final String LANGUAGES = "LANGUAGES";
     private final String MAP_EXTENT = "MAP_EXTENT";
     private final String COMMUNITY_AREA = "COMMUNITY_AREA";
-    private final String DYNA_FORM_FIELD_TYPES = "DYNA_FORM_FIELD_TYPES";
-    private final String DYNA_FORM_FIELD_CONSTRAINT_TYPES = "DYNA_FORM_FIELD_CONSTRAINT_TYPES";
-    private final String DYNA_FORM_FIELD_TYPES_ACTIVE = "DYNA_FORM_FIELD_TYPES_ACTIVE";
-    private final String DYNA_FORM_FIELD_CONSTRAINT_TYPES_ACTIVE = "DYNA_FORM_FIELD_CONSTRAINT_TYPES_ACTIVE";
     
-    @PostConstruct
-    private void init() {
-        cache = new HashMap();
-    }
-
     public ReferenceData() {
         super();
     }
-    
-    /** Cleans cache objects */
-    public void resetCache(){
-        cache.clear();
-    }
-    
+        
     /**
      * Returns list of {@link Language}
      *
@@ -87,18 +62,7 @@ public class ReferenceData {
      * @return
      */
     public List<Language> getLanguages(String langCode) {
-        List<Language> result;
-        if (cache.containsKey(makeKey(LANGUAGES, langCode))) {
-            result = (List<Language>) cache.get(makeKey(LANGUAGES, langCode));
-        } else {
-            result = refDataEjb.getLanguages(langCode);
-        }
-        if (!cache.containsKey(makeKey(LANGUAGES, langCode))) {
-            if (result != null) {
-                cache.put(makeKey(LANGUAGES, langCode), result);
-            }
-        }       
-        return result;
+        return refDataEjb.getLanguages(langCode);
     }
     
     /**
@@ -109,13 +73,7 @@ public class ReferenceData {
      * @return
      */
     public List<FieldType> getFieldTypes(String langCode, boolean onlyActive) {
-        List<FieldType> result;
-        if (cache.containsKey(makeKey(DYNA_FORM_FIELD_TYPES, langCode))) {
-            result = (List<FieldType>) cache.get(makeKey(DYNA_FORM_FIELD_TYPES, langCode));
-        } else {
-            result = refDataEjb.getCodeEntityList(FieldType.class, langCode);
-        }
-        return getTypes(result, DYNA_FORM_FIELD_TYPES, DYNA_FORM_FIELD_TYPES_ACTIVE, langCode, onlyActive);
+        return getTypes(refDataEjb.getCodeEntityList(FieldType.class, langCode),onlyActive);
     }
 
     /**
@@ -143,13 +101,7 @@ public class ReferenceData {
      * @return
      */
     public List<FieldConstraintType> getFieldConstraintTypes(String langCode, boolean onlyActive) {
-        List<FieldConstraintType> result;
-        if (cache.containsKey(makeKey(DYNA_FORM_FIELD_CONSTRAINT_TYPES, langCode))) {
-            result = (List<FieldConstraintType>) cache.get(makeKey(DYNA_FORM_FIELD_CONSTRAINT_TYPES, langCode));
-        } else {
-            result = refDataEjb.getCodeEntityList(FieldConstraintType.class, langCode);
-        }
-        return getTypes(result, DYNA_FORM_FIELD_CONSTRAINT_TYPES, DYNA_FORM_FIELD_CONSTRAINT_TYPES_ACTIVE, langCode, onlyActive);
+        return getTypes(refDataEjb.getCodeEntityList(FieldConstraintType.class, langCode), onlyActive);
     }
 
     /**
@@ -177,13 +129,7 @@ public class ReferenceData {
      * @return
      */
     public List<LandUseType> getLandUses(String langCode, boolean onlyActive) {
-        List<LandUseType> result;
-        if (cache.containsKey(makeKey(LAND_USE, langCode))) {
-            result = (List<LandUseType>) cache.get(makeKey(LAND_USE, langCode));
-        } else {
-            result = refDataEjb.getCodeEntityList(LandUseType.class, langCode);
-        }
-        return getTypes(result, LAND_USE, LAND_USE_ACTIVE, langCode, onlyActive);
+        return getTypes(refDataEjb.getCodeEntityList(LandUseType.class, langCode), onlyActive);
     }
 
     /**
@@ -211,13 +157,7 @@ public class ReferenceData {
      * @return
      */
     public List<RejectionReason> getRejectionReasons(String langCode, boolean onlyActive) {
-        List<RejectionReason> result;
-        if (cache.containsKey(makeKey(REJECTION_REASON, langCode))) {
-            result = (List<RejectionReason>) cache.get(makeKey(REJECTION_REASON, langCode));
-        } else {
-            result = refDataEjb.getCodeEntityList(RejectionReason.class, langCode);
-        }
-        return getTypes(result, REJECTION_REASON, REJECTION_REASON_ACTIVE, langCode, onlyActive);
+        return getTypes(refDataEjb.getCodeEntityList(RejectionReason.class, langCode), onlyActive);
     }
 
     /**
@@ -245,13 +185,7 @@ public class ReferenceData {
      * @return
      */
     public List<RrrType> getRightTypes(String langCode, boolean onlyActive) {
-        List<RrrType> result;
-        if (cache.containsKey(makeKey(RIGHT_TYPES, langCode))) {
-            result = (List<RrrType>) cache.get(makeKey(RIGHT_TYPES, langCode));
-        } else {
-            result = refDataEjb.getCodeEntityList(RrrType.class, langCode);
-        }
-        return getTypes(result, RIGHT_TYPES, RIGHT_TYPES_ACTIVE, langCode, onlyActive);
+        return getTypes(refDataEjb.getCodeEntityList(RrrType.class, langCode), onlyActive);
     }
 
     /**
@@ -278,15 +212,7 @@ public class ReferenceData {
      * @return
      */
     public List<ClaimStatus> getClaimStatuses(String langCode) {
-        if (cache.containsKey(makeKey(CLAIM_STATUS, langCode))) {
-            return (List<ClaimStatus>) cache.get(makeKey(CLAIM_STATUS, langCode));
-        }
-
-        List<ClaimStatus> result = refDataEjb.getCodeEntityList(ClaimStatus.class, langCode);
-        if (result != null) {
-            cache.put(makeKey(CLAIM_STATUS, langCode), result);
-        }
-        return result;
+        return refDataEjb.getCodeEntityList(ClaimStatus.class, langCode);
     }
 
     /**
@@ -297,13 +223,7 @@ public class ReferenceData {
      * @return
      */
     public List<SourceType> getDocumentTypes(String langCode, boolean onlyActive) {
-        List<SourceType> result;
-        if (cache.containsKey(makeKey(SOURCE_TYPES, langCode))) {
-            result = (List<SourceType>) cache.get(makeKey(SOURCE_TYPES, langCode));
-        } else {
-            result = refDataEjb.getCodeEntityList(SourceType.class, langCode);
-        }
-        return getTypes(result, SOURCE_TYPES, SOURCE_TYPES_ACTIVE, langCode, onlyActive);
+        return getTypes(refDataEjb.getCodeEntityList(SourceType.class, langCode), onlyActive);
     }
 
     /**
@@ -314,13 +234,7 @@ public class ReferenceData {
      * @return
      */
     public List<IdType> getIdTypes(String langCode, boolean onlyActive) {
-        List<IdType> result;
-        if (cache.containsKey(makeKey(ID_TYPES, langCode))) {
-            result = (List<IdType>) cache.get(makeKey(ID_TYPES, langCode));
-        } else {
-            result = refDataEjb.getCodeEntityList(IdType.class, langCode);
-        }
-        return getTypes(result, ID_TYPES, ID_TYPES_ACTIVE, langCode, onlyActive);
+        return getTypes(refDataEjb.getCodeEntityList(IdType.class, langCode), onlyActive);
     }
 
     /**
@@ -348,13 +262,7 @@ public class ReferenceData {
      * @return
      */
     public List<GenderType> getGenderTypes(String langCode, boolean onlyActive) {
-        List<GenderType> result;
-        if (cache.containsKey(makeKey(GENDER_TYPES, langCode))) {
-            result = (List<GenderType>) cache.get(makeKey(GENDER_TYPES, langCode));
-        } else {
-            result = refDataEjb.getCodeEntityList(GenderType.class, langCode);
-        }
-        return getTypes(result, GENDER_TYPES, GENDER_TYPES_ACTIVE, langCode, onlyActive);
+        return getTypes(refDataEjb.getCodeEntityList(GenderType.class, langCode), onlyActive);
     }
 
     /**
@@ -380,8 +288,8 @@ public class ReferenceData {
      * @return
      */
     public MapExtentTO getMapExtent() {
-        if (cache.containsKey(MAP_EXTENT)) {
-            return (MapExtentTO) cache.get(MAP_EXTENT);
+        if (cacheEjb.containsKey(MAP_EXTENT)) {
+            return (MapExtentTO) cacheEjb.get(MAP_EXTENT);
         }
 
         HashMap<String, String> mapSettings = searchEjb.getMapSettingList();
@@ -396,7 +304,7 @@ public class ReferenceData {
         }
 
         if (result != null) {
-            cache.put(MAP_EXTENT, result);
+            cacheEjb.put(MAP_EXTENT, result);
         }
         return result;
     }
@@ -437,14 +345,14 @@ public class ReferenceData {
      * @return 
      */
     public String getCommunityArea() {
-        if (cache.containsKey(COMMUNITY_AREA)) {
-            return cache.get(COMMUNITY_AREA).toString();
+        if (cacheEjb.containsKey(COMMUNITY_AREA)) {
+            return cacheEjb.get(COMMUNITY_AREA).toString();
         }
 
         String result = systemEjb.getSetting(ConfigConstants.OT_COMMUNITY_AREA, "");
 
         if (result != null) {
-            cache.put(COMMUNITY_AREA, result);
+            cacheEjb.put(COMMUNITY_AREA, result);
         }
         return result;
     }
@@ -474,32 +382,18 @@ public class ReferenceData {
     }
 
     /**
-     * Generic method to store and retrieve from the cache list of reference
-     * data values
+     * Generic method to filter items in the provided list by status
      */
-    private <T extends AbstractCodeEntity> List<T> getTypes(List<T> result,
-            String key, String keyActive, String langCode, boolean onlyActive) {
-
-        if (!cache.containsKey(makeKey(key, langCode))) {
-            if (result != null) {
-                cache.put(makeKey(key, langCode), result);
-            }
-        }
-
+    private <T extends AbstractCodeEntity> List<T> getTypes(List<T> result, boolean onlyActive) {
         if (result != null) {
             if (onlyActive) {
-                if (cache.containsKey(makeKey(keyActive, langCode))) {
-                    result = (List<T>) cache.get(makeKey(keyActive, langCode));
-                } else {
-                    List<T> active = new ArrayList<>();
-                    for (T item : result) {
-                        if (item.getStatus().equalsIgnoreCase("c")) {
-                            active.add(item);
-                        }
+                List<T> active = new ArrayList<>();
+                for (T item : result) {
+                    if (item.getStatus().equalsIgnoreCase("c")) {
+                        active.add(item);
                     }
-                    result = active;
-                    cache.put(makeKey(keyActive, langCode), result);
                 }
+                result = active;
             }
         }
         return result;

@@ -27,7 +27,10 @@ import org.sola.opentenure.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 import org.sola.opentenure.services.ejbs.claim.entities.Attachment;
 import org.sola.opentenure.services.ejbs.claim.entities.AttachmentBinary;
 import org.sola.opentenure.services.ejbs.claim.entities.Claim;
+import org.sola.services.boundary.transferobjects.claim.ClaimTO;
 import org.sola.services.common.LocalInfo;
+import org.sola.services.common.contracts.GenericTranslator;
+import org.sola.services.common.logging.LogUtility;
 
 @Named
 @RequestScoped
@@ -133,8 +136,8 @@ public class ClaimUploadPageBean extends AbstractBackingBean {
                 }
 
                 // Process json
-                Claim claim = getMapper().readValue(json, Claim.class);
-
+                Claim claim = GenericTranslator.fromTO(getMapper().readValue(json, ClaimTO.class), Claim.class, null);
+                
                 // validate attachments
                 if (claim.getAttachments() != null || claim.getAttachments().size() > 0) {
                     if (!attachments.exists()) {
@@ -186,10 +189,13 @@ public class ClaimUploadPageBean extends AbstractBackingBean {
                 String claimLink = String.format("<a href=\"ViewClaim.xhtml?id=%s\">#%s</a>", claim.getId(), claim.getNr());
                 msg.setSuccessMessage(String.format(msgProvider.getMessage(MessagesKeys.CLAIM_UPLOAD_PAGE_SUCCESS_UPLOAD), claimLink));
 
-            } catch (IOException e) {
-                // Log event
-            } catch (ZipException e) {
+            } catch (ZipException e){
+                LogUtility.log("Failed to upload claim", e);
                 getContext().addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.CLAIM_UPLOAD_ZIP_EXTRACTION_FAILED)));
+            }
+            catch (Exception e) {
+                LogUtility.log("Failed to upload claim", e);
+                getContext().addMessage(null, new FacesMessage(processException(e, langBean.getLocale()).getMessage()));
             } finally {
                 // Try to delete created folder
                 if (tmpFolder.exists()) {

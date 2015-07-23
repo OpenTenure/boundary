@@ -36,10 +36,18 @@
                                          autocomplete="off" />
 
                             <h:inputText value="#{fieldPayload.bigDecimalPayload}"  
-                                         rendered="#{fieldTemplate.fieldType == 'DECIMAL' 
-                                                     or fieldPayload.fieldType == 'INTEGER'}"
+                                         rendered="#{fieldTemplate.fieldType == 'INTEGER'}"
                                          class="form-control"  title="#{fieldTemplate.hint}"
-                                         autocomplete="off" />
+                                         autocomplete="off" >
+                                <f:convertNumber integerOnly="true" />
+                            </h:inputText>
+                            
+                            <h:inputText value="#{fieldPayload.bigDecimalPayload}"  
+                                         rendered="#{fieldTemplate.fieldType == 'DECIMAL'}"
+                                         class="form-control"  title="#{fieldTemplate.hint}"
+                                         autocomplete="off">
+                                <f:convertNumber maxFractionDigits="4" />
+                            </h:inputText>
 
                             <h:panelGroup class="input-group" layout="block" 
                                           rendered="#{fieldTemplate.fieldType == 'DATE' or
@@ -72,9 +80,15 @@
                                         or fieldPayload.fieldType == 'TIME'}">
                             #{dynaFormBean.getFieldValue(fieldTemplate, fieldPayload.stringPayload)}
                         </ui:fragment>
-                        <ui:fragment rendered="#{fieldPayload.fieldType == 'DECIMAL' 
-                                                 or fieldPayload.fieldType == 'INTEGER'}">
-                                     #{fieldPayload.bigDecimalPayload}
+                        <ui:fragment rendered="#{fieldPayload.fieldType == 'INTEGER'}">
+                            <h:outputText value="#{fieldPayload.bigDecimalPayload}" >
+                                <f:convertNumber integerOnly="true" />
+                            </h:outputText>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{fieldPayload.fieldType == 'DECIMAL'}">
+                            <h:outputText value="#{fieldPayload.bigDecimalPayload}" >
+                                <f:convertNumber maxFractionDigits="4" />
+                            </h:outputText>
                         </ui:fragment>
                         <ui:fragment rendered="#{fieldPayload.fieldType == 'BOOL'}">
                             <ui:fragment rendered="#{fieldPayload.booleanPayload}">

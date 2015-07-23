@@ -52,19 +52,6 @@
                                 <a href="#{request.contextPath}/map/map.xhtml">#{msg.MAIN_MENU_MAP}</a>
                             </li>
                         </c:if>
-                        <c:if test="#{activeUserBean.hasAdminRights}">
-                            <li class='#{mainMenuBean.getItemClassByPath("/ot-admin/")}'>
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" style='#{mainMenuBean.getLinkClassByPath("/ot-admin/")}'>
-                                    #{msg.MAIN_MENU_ADMIN} <b class="caret"></b>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#{request.contextPath}/ot-admin/CacheReset.xhtml">
-                                            <i class="glyphicon glyphicon-refresh"></i> #{msg.CACHE_RESET_PAGE_TITLE}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </c:if>
                     </ul>
                 </div>
             </nav>

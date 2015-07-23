@@ -13,7 +13,8 @@ public class FieldPayloadTO extends AbstractReadWriteTO {
     private BigDecimal bigDecimalPayload;
     private boolean booleanPayload;
     private String fieldValueType;
-
+    private int itemOrder;
+    
     public String getId() {
         return id;
     }
@@ -84,6 +85,14 @@ public class FieldPayloadTO extends AbstractReadWriteTO {
 
     public void setFieldValueType(String fieldValueType) {
         this.fieldValueType = fieldValueType;
+    }
+
+    public int getItemOrder() {
+        return itemOrder;
+    }
+
+    public void setItemOrder(int itemOrder) {
+        this.itemOrder = itemOrder;
     }
     
     public FieldPayloadTO(){

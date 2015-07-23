@@ -4,10 +4,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -98,6 +96,7 @@ public class ClaimPageBean extends AbstractBackingBean {
     private final String ACTION_REJECTED = "rejected";
     private final String ACTION_WITHDRAWN = "withdrawn";
     private final String ACTION_REVIEW_APPROVED = "reviewed";
+    private final String ACTION_REVIEW_REVERTED = "reverted";
     private final String ACTION_MODERATION_APPROVED = "moderated";
     private final String ACTION_SUBMITTED = "submitted";
     private final String ACTION_SAVED = "saved";
@@ -148,6 +147,9 @@ public class ClaimPageBean extends AbstractBackingBean {
             }
             if (action.equalsIgnoreCase(ACTION_SUBMITTED)) {
                 msg.setSuccessMessage(msgProvider.getMessage(MessagesKeys.CLAIM_PAGE_SUBMITTED));
+            }
+            if(action.equalsIgnoreCase(ACTION_REVIEW_REVERTED)){
+                msg.setSuccessMessage(msgProvider.getMessage(MessagesKeys.CLAIM_PAGE_REVERTED));
             }
         }
         loadClaim();
@@ -500,6 +502,10 @@ public class ClaimPageBean extends AbstractBackingBean {
 
     public boolean getCanApproveReview() {
         return getClaimPermissions().isCanApproveReview();
+    }
+    
+    public boolean getCanRevertReview() {
+        return getClaimPermissions().isCanRevert();
     }
 
     public boolean getCanApproveModeration() {
@@ -1219,6 +1225,23 @@ public class ClaimPageBean extends AbstractBackingBean {
                     }
                 });
                 redirectWithAction(ACTION_REVIEW_APPROVED);
+            }
+        } catch (Exception e) {
+            getContext().addMessage(null, new FacesMessage(processException(e, langBean.getLocale()).getMessage()));
+        }
+    }
+    
+    public void revertClaimReview() {
+        try {
+            if (!StringUtility.isEmpty(id) && getCanRevertReview()) {
+                runUpdate(new Runnable() {
+                    @Override
+                    public void run() {
+                        LocalInfo.setBaseUrl(getApplicationUrl());
+                        claimEjb.revertClaimReview(id);
+                    }
+                });
+                redirectWithAction(ACTION_REVIEW_REVERTED);
             }
         } catch (Exception e) {
             getContext().addMessage(null, new FacesMessage(processException(e, langBean.getLocale()).getMessage()));

@@ -14,6 +14,7 @@ public class SectionTemplateTO extends AbstractReadWriteTO {
     private String elementName;
     private String elementDisplayName;
     private List<FieldTemplateTO> fieldTemplateList;
+    private int itemOrder;
     
     public String getId() {
         return id;
@@ -93,6 +94,14 @@ public class SectionTemplateTO extends AbstractReadWriteTO {
 
     public void setFieldTemplateList(List<FieldTemplateTO> fieldTemplateList) {
         this.fieldTemplateList = fieldTemplateList;
+    }
+
+    public int getItemOrder() {
+        return itemOrder;
+    }
+
+    public void setItemOrder(int itemOrder) {
+        this.itemOrder = itemOrder;
     }
 
     public SectionTemplateTO(){

@@ -10,6 +10,7 @@ import javax.inject.Named;
 import org.sola.common.ConfigConstants;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
+import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
 import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
 import org.sola.services.ejb.search.repository.entities.ConfigMapLayer;
 import org.sola.services.ejb.search.repository.entities.ConfigMapLayerMetadata;
@@ -31,68 +32,65 @@ public class MapSettingsBean extends AbstractBackingBean {
     @EJB
     SystemEJBLocal systemEjb;
     
-    private String extTopX = "0";
-    private String extTopY = "0";
-    private String extBottomX = "0";
-    private String extBottomY = "0";
-    private String epsg = "0";
-    private List<ConfigMapLayer> layers;
-    private String communityArea = "";
-
+    @EJB
+    CacheEJBLocal cacheEjb;
+    
+    private final String MAP_NORTH = "MAP_NORTH";
+    private final String MAP_SOUTH = "MAP_SOUTH";
+    private final String MAP_WEST = "MAP_WEST";
+    private final String MAP_EAST = "MAP_EAST";
+    private final String MAP_EPSG = "MAP_EPSG";
+    private final String MAP_COMMUNITY_AREA = "MAP_COMMUNITY_AREA";
+    
     public String getCommunityArea() {
-        return communityArea;
-    }
-
-    public void setCommunityArea(String communityArea) {
-        this.communityArea = communityArea;
+        if(!cacheEjb.containsKey(MAP_COMMUNITY_AREA)){
+            init();
+        }
+        return cacheEjb.get(MAP_COMMUNITY_AREA);
     }
 
     public String getExtTopX() {
-        return extTopX;
-    }
-
-    public void setExtTopX(String extTopX) {
-        this.extTopX = extTopX;
+        if(!cacheEjb.containsKey(MAP_WEST)){
+            init();
+        }
+        return cacheEjb.get(MAP_WEST);
     }
 
     public String getExtTopY() {
-        return extTopY;
-    }
-
-    public void setExtTopY(String extTopY) {
-        this.extTopY = extTopY;
+        if(!cacheEjb.containsKey(MAP_NORTH)){
+            init();
+        }
+        return cacheEjb.get(MAP_NORTH);
     }
 
     public String getExtBottomX() {
-        return extBottomX;
-    }
-
-    public void setExtBottomX(String extBottomX) {
-        this.extBottomX = extBottomX;
+        if(!cacheEjb.containsKey(MAP_EAST)){
+            init();
+        }
+        return cacheEjb.get(MAP_EAST);
     }
 
     public String getExtBottomY() {
-        return extBottomY;
-    }
-
-    public void setExtBottomY(String extBottomY) {
-        this.extBottomY = extBottomY;
+        if(!cacheEjb.containsKey(MAP_SOUTH)){
+            init();
+        }
+        return cacheEjb.get(MAP_SOUTH);
     }
 
     public String getEpsg() {
-        return epsg;
-    }
-
-    public void setEpsg(String epsg) {
-        this.epsg = epsg;
+        if(!cacheEjb.containsKey(MAP_EPSG)){
+            init();
+        }
+        return cacheEjb.get(MAP_EPSG);
     }
 
     public List<ConfigMapLayer> getLayers() {
-        return layers;
+        return searchEjb.getConfigMapLayerList(langBean.getLocale());
     }
     
     public ConfigMapLayer[] getLayersArray() {
-        if(layers== null){
+        List<ConfigMapLayer> layers = getLayers();
+        if(layers == null){
             return null;
         }
         return layers.toArray(new ConfigMapLayer[layers.size()]);
@@ -145,20 +143,34 @@ public class MapSettingsBean extends AbstractBackingBean {
     
     @PostConstruct
     public void init(){
+        cacheEjb.clear(MAP_COMMUNITY_AREA);
+        cacheEjb.clear(MAP_EAST);
+        cacheEjb.clear(MAP_EPSG);
+        cacheEjb.clear(MAP_NORTH);
+        cacheEjb.clear(MAP_SOUTH);
+        cacheEjb.clear(MAP_WEST);
+        
         HashMap<String, String> mapSettings = searchEjb.getMapSettingList();
+        
         List<Crs> crs = searchEjb.getCrsList();
-        layers = searchEjb.getConfigMapLayerList(langBean.getLocale());
-        communityArea = systemEjb.getSetting(ConfigConstants.OT_COMMUNITY_AREA, "");
+        cacheEjb.put(MAP_COMMUNITY_AREA, systemEjb.getSetting(ConfigConstants.OT_COMMUNITY_AREA, ""));
         
         if(mapSettings!=null){
-            extTopX = mapSettings.get("map-west");
-            extTopY = mapSettings.get("map-north");
-            extBottomX = mapSettings.get("map-east");
-            extBottomY = mapSettings.get("map-south");
+            cacheEjb.put(MAP_WEST, mapSettings.get("map-west"));
+            cacheEjb.put(MAP_NORTH, mapSettings.get("map-north"));
+            cacheEjb.put(MAP_EAST, mapSettings.get("map-east"));
+            cacheEjb.put(MAP_SOUTH, mapSettings.get("map-south"));
+        } else {
+            cacheEjb.put(MAP_WEST, "");
+            cacheEjb.put(MAP_NORTH, "");
+            cacheEjb.put(MAP_EAST, "");
+            cacheEjb.put(MAP_SOUTH, "");
         }
         
         if(crs!=null){
-            epsg = "EPSG:" + crs.get(0).getSrid();
+            cacheEjb.put(MAP_EPSG, "EPSG:" + crs.get(0).getSrid());
+        } else {
+            cacheEjb.put(MAP_EPSG, "");
         }
     }
     

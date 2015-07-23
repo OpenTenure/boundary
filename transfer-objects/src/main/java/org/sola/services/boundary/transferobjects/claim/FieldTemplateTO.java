@@ -11,6 +11,7 @@ public class FieldTemplateTO extends AbstractReadWriteTO {
     private String sectionTemplateId;
     private String hint;
     private List<FieldConstraintTO> fieldConstraintList;
+    private int itemOrder;
     
     public String getId() {
         return id;
@@ -66,6 +67,14 @@ public class FieldTemplateTO extends AbstractReadWriteTO {
 
     public void setFieldConstraintList(List<FieldConstraintTO> fieldConstraintList) {
         this.fieldConstraintList = fieldConstraintList;
+    }
+
+    public int getItemOrder() {
+        return itemOrder;
+    }
+
+    public void setItemOrder(int itemOrder) {
+        this.itemOrder = itemOrder;
     }
     
     public FieldTemplateTO(){

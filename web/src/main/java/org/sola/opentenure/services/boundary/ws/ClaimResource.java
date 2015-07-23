@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -62,7 +63,7 @@ public class ClaimResource extends AbstractWebRestService {
 
     @EJB
     SearchEJBLocal searchEjb;
-    
+
     private String hiddenString = "";
 
     /**
@@ -75,7 +76,7 @@ public class ClaimResource extends AbstractWebRestService {
     private void init() {
         LocalInfo.setBaseUrl(getApplicationUrl());
     }
-  
+
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getclaim|getClaim}/{claimId}")
@@ -95,19 +96,19 @@ public class ClaimResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
-    
+
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getdefaultformtemplate|getDefaultFormTemplate}")
-    /** 
+    /**
      * Returns default dynamic form template
      */
     public String getDefaultFormTemplate(
             @PathParam(value = LOCALE_CODE) String localeCode) {
         try {
             FormTemplateTO formTempl = GenericTranslator.toTO(claimEjb.getDefaultFormTemplate(localeCode), FormTemplateTO.class);
-            
-            if (formTempl != null){
+
+            if (formTempl != null) {
                 return getMapper().writeValueAsString(formTempl);
             }
             return "{}";
@@ -119,15 +120,15 @@ public class ClaimResource extends AbstractWebRestService {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getformtemplate|getFormTemplate}")
-    /** 
-     * Returns dynamic form template by name 
+    /**
+     * Returns dynamic form template by name
      */
     public String getFormTemplate(@PathParam(value = LOCALE_CODE) String localeCode,
             @QueryParam(value = "name") String name) {
         try {
             FormTemplateTO formTempl = GenericTranslator.toTO(claimEjb.getFormTemplate(name, localeCode), FormTemplateTO.class);
-            
-            if (formTempl == null){
+
+            if (formTempl == null) {
                 throw ExceptionFactory.buildNotFound(localeCode);
             }
             return getMapper().writeValueAsString(formTempl);
@@ -135,7 +136,7 @@ public class ClaimResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
-    
+
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getclaimsbybox|getClaimsByBox}")
@@ -190,14 +191,14 @@ public class ClaimResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
-    
+
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getclaimbypoint|getClaimByPoint}")
     public String getClaimByPoint(
             @PathParam(value = LOCALE_CODE) String localeCode,
             @QueryParam(value = "x") String x,
-            @QueryParam(value = "y") String y, 
+            @QueryParam(value = "y") String y,
             @Context HttpServletResponse response) {
         try {
             if (StringUtility.isEmpty(x) || StringUtility.isEmpty(y)) {
@@ -292,7 +293,7 @@ public class ClaimResource extends AbstractWebRestService {
     @Path(value = "{a:saveclaim|saveClaim}")
     @Consumes(MediaType.APPLICATION_JSON)
     public String saveClaim(
-            @PathParam(value = LOCALE_CODE) String localeCode,
+            @PathParam(value = LOCALE_CODE) final String localeCode,
             String claimDescriptor) {
         try {
 
@@ -305,12 +306,19 @@ public class ClaimResource extends AbstractWebRestService {
                 throw new OTRestException(400, e.getLocalizedMessage());
             }
 
-            Claim claim = GenericTranslator
-                    .fromTO(claimTO, Claim.class, claimEjb.getClaim(claimTO.getId()));
-            claim = claimEjb.saveClaim(claim, localeCode);
-            claimEjb.submitClaim(claim.getId(), localeCode);
+            Claim existingClaim = claimEjb.getClaim(claimTO.getId());
+            Claim claim = GenericTranslator.fromTO(claimTO, Claim.class, existingClaim);
+            final Claim[] claims = new Claim[]{claim};
+            
+            runUpdate(new Runnable() {
+                @Override
+                public void run() {
+                    claims[0] = claimEjb.saveClaim(claims[0], localeCode);
+                    claimEjb.submitClaim(claims[0].getId(), localeCode);
+                }
+            });
 
-            return ResponseFactory.buildClaimSubmission(claim);
+            return ResponseFactory.buildClaimSubmission(claimEjb.getClaim(claim.getId()));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }

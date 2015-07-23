@@ -12,6 +12,7 @@ public class SectionPayloadTO extends AbstractReadWriteTO {
     private String elementDisplayName;
     private int maxOccurrences;
     private int minOccurrences;
+    private int itemOrder;
     private List<SectionElementPayloadTO> sectionElementPayloadList;
     
     public String getId() {
@@ -84,6 +85,14 @@ public class SectionPayloadTO extends AbstractReadWriteTO {
 
     public void setSectionElementPayloadList(List<SectionElementPayloadTO> sectionElementPayloadList) {
         this.sectionElementPayloadList = sectionElementPayloadList;
+    }
+
+    public int getItemOrder() {
+        return itemOrder;
+    }
+
+    public void setItemOrder(int itemOrder) {
+        this.itemOrder = itemOrder;
     }
     
     public SectionPayloadTO(){
