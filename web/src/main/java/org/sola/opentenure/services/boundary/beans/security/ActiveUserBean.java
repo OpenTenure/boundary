@@ -68,6 +68,10 @@ public class ActiveUserBean extends AbstractModelBean {
         return adminEjb.isInRole(RolesConstants.CS_RECORD_CLAIM);
     }
     
+    public boolean getCanViewReports(){
+        return adminEjb.isInRole(RolesConstants.CS_VIEW_REPORTS);
+    }
+    
     public boolean getHasAdminRights(){
         return adminEjb.isUserAdmin();
     }

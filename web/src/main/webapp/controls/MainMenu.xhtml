@@ -52,6 +52,22 @@
                                 <a href="#{request.contextPath}/map/map.xhtml">#{msg.MAIN_MENU_MAP}</a>
                             </li>
                         </c:if>
+                        <c:if test="#{activeUserBean.canViewReports}">
+                            <li class='#{mainMenuBean.getItemClassByPath("/report/")}'>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    #{msg.MAIN_MENU_REPORTS} <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <ui:repeat value="#{mainMenuBean.reports}" var="r">
+                                        <li>
+                                            <a href="#{request.contextPath}/report/ViewReport.xhtml?report=#{r.uri}">
+                                                <i class="glyphicon glyphicon-list-alt"></i> #{r.label}
+                                            </a>
+                                        </li>
+                                    </ui:repeat>
+                                </ul>
+                            </li>
+                        </c:if>
                     </ul>
                 </div>
             </nav>

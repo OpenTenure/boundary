@@ -1,8 +1,14 @@
 package org.sola.opentenure.services.boundary.beans.mainmenu;
 
+import java.util.List;
+import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
+import org.sola.opentenure.services.boundary.beans.report.ReportServerBean;
+import org.sola.opentenure.services.boundary.beans.report.ResourceDescription;
+import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
 
 /**
  * Main menu bean methods
@@ -10,8 +16,29 @@ import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 @Named
 @RequestScoped
 public class MainMenuBean extends AbstractBackingBean {
+    private final String REPORT_URLS = "REPORT_URLS";
+    
+    @Inject
+    ReportServerBean server;
+    
+    @EJB
+    CacheEJBLocal cacheEjb;
+    
     public MainMenuBean(){
         super();
+    }
+    
+    public ResourceDescription[] getReports(){
+        if(cacheEjb.containsKey(REPORT_URLS)){
+            return (ResourceDescription[]) cacheEjb.get(REPORT_URLS);
+        } else {
+            List<ResourceDescription> reports = server.getFolderReports();
+            if(reports!=null){
+                cacheEjb.put(REPORT_URLS, reports.toArray(new ResourceDescription[reports.size()]));
+                return reports.toArray(new ResourceDescription[reports.size()]);
+            }
+            return null;
+        }
     }
     
     /** Returns true if application URL contains path. */

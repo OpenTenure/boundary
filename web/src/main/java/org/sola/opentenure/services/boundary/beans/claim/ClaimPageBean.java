@@ -16,6 +16,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.sola.common.ClaimStatusConstants;
+import org.sola.common.ConfigConstants;
 import org.sola.common.DateUtility;
 import org.sola.common.FileUtility;
 import org.sola.common.RolesConstants;
@@ -31,6 +32,7 @@ import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.helpers.MessagesKeys;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
 import org.sola.opentenure.services.boundary.beans.referencedata.ReferenceData;
+import org.sola.opentenure.services.boundary.beans.security.ActiveUserBean;
 import org.sola.opentenure.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 import org.sola.opentenure.services.ejbs.claim.entities.Attachment;
 import org.sola.opentenure.services.ejbs.claim.entities.Claim;
@@ -48,6 +50,7 @@ import org.sola.services.ejb.refdata.entities.GenderType;
 import org.sola.services.ejb.refdata.entities.IdType;
 import org.sola.services.ejb.refdata.entities.RejectionReason;
 import org.sola.services.ejb.refdata.entities.RrrType;
+import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 
 /**
  * Provides method and listeners for claim page
@@ -62,6 +65,9 @@ public class ClaimPageBean extends AbstractBackingBean {
     @EJB
     AdminEJBLocal adminEjb;
 
+    @EJB
+    SystemEJBLocal systemEjb;
+    
     @Inject
     ReferenceData refData;
 
@@ -79,7 +85,7 @@ public class ClaimPageBean extends AbstractBackingBean {
 
     @Inject
     LanguageBean langBean;
-
+    
     private Claim claim;
     private String id;
     private Claim challengedClaim = null;
@@ -117,7 +123,7 @@ public class ClaimPageBean extends AbstractBackingBean {
     }
 
     @PostConstruct
-    private void init() {
+    private void init() {   
         id = getRequestParam("id");
         challengedClaimId = getRequestParam("challengedId");
 
@@ -177,6 +183,11 @@ public class ClaimPageBean extends AbstractBackingBean {
         this.id = id;
     }
 
+    public boolean getIsGeometryRequired() {
+        String requireSpatial = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, "1");
+        return !getIsSubmitted() && requireSpatial.equals("1");
+    }
+    
     public boolean getIsSubmitted() {
         return claim == null || claim.getStatusCode() == null
                 || claim.getStatusCode().equalsIgnoreCase(ClaimStatusConstants.CREATED);
@@ -326,6 +337,15 @@ public class ClaimPageBean extends AbstractBackingBean {
         return claimTypeName;
     }
 
+    public boolean getIsOnPublicDisplay(){
+        if(claim.getStatusCode() != null && claim.getStatusCode().equalsIgnoreCase(ClaimStatusConstants.UNMODERATED) &&
+                claim.getChallengeExpiryDate() != null && claim.getChallengeExpiryDate().after(Calendar.getInstance().getTime())){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     public String getRejectionReason() {
         if (claim != null && !StringUtility.isEmpty(claim.getRejectionReasonCode())) {
             return refData.getBeanDisplayValue(refData.getRejectionReasons(langBean.getLocale(), false), claim.getRejectionReasonCode());
@@ -796,7 +816,10 @@ public class ClaimPageBean extends AbstractBackingBean {
         }
         
         // Mapped geometry
-        if (fullValidation && StringUtility.isEmpty(claim.getMappedGeometry())) {
+        String requireSpatial = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, "1");
+        
+        if (fullValidation && requireSpatial.equals("1") && 
+                StringUtility.isEmpty(claim.getMappedGeometry())) {
             isValid = false;
             getContext().addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.CLAIM_MAPPED_GEOMETRY_REQUIRED)));
         }

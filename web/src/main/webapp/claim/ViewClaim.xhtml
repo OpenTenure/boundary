@@ -23,6 +23,9 @@
             <ui:define name="content">
                 <div class="PageName">
                     <i class="glyphicon glyphicon-list-alt"></i> #{claimPageBean.header}
+                    <ui:fragment rendered="#{claimPageBean.isOnPublicDisplay}">
+                        <span class="PublicDisplayLabel"><i class="glyphicon glyphicon-bullhorn"></i> #{msg.CLAIM_PAGE_ON_PUBLIC_DISPLAY}</span>
+                    </ui:fragment>
                     <br />
                     <h:panelGroup class="btn-group">
                         <h:commandButton class="btn btn-default" value="#{msg.GENERAL_LABEL_ASSIGN}"

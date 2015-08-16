@@ -70,6 +70,7 @@
             <url-pattern>/ot-admin/*</url-pattern>
             <url-pattern>/admin/*</url-pattern>
             <url-pattern>/map/*</url-pattern>
+            <url-pattern>/report/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>

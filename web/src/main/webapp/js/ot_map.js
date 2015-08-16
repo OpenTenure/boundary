@@ -1202,8 +1202,36 @@ OT.Map.Styles = {
 
 function calculateArea(feature){
     var area = feature.geometry.getArea(); 
-    if(area % 5 >= 4){
-        return (area - (area % 5)) + 5;
+    if(area <= 100){
+        if(area % 1 <= 0.8){
+            area = area - (area % 1);
+        } else {
+            area = (area - (area % 1)) + 1;
+        }
+    } else {
+        if(area > 100 && area <= 1000){
+            if(area % 10 <= 8){
+                area = area - (area % 10);
+            } else {
+                area = (area - (area % 10)) + 10;
+            }
+        } else {
+            if(area > 1000 && area <= 10000){
+                if(area % 100 <= 80){
+                    area = area - (area % 100);
+                } else {
+                    area = (area - (area % 100)) + 100;
+                }
+            } else {
+                if(area > 10000){
+                    if(area % 1000 <= 800){
+                        area = area - (area % 1000);
+                    } else {
+                        area = (area - (area % 1000)) + 1000;
+                    }
+                }
+            }
+        }
     }
-    return area - (area % 5);
+    return area;
 }

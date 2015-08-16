@@ -59,6 +59,15 @@ body{
     -webkit-border-radius: 10px;
 }
 
+.PublicDisplayLabel{
+    background-color:#ddcc00;
+    color:#fff;
+    font-size:14px;
+    padding:5px;-moz-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
 .DateField{
 
 }

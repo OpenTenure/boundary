@@ -19,7 +19,10 @@
                     <f:viewAction action="#{claimPageBean.checkCanEdit()}" onPostback="true" />
                 </f:metadata>
                 <div class="PageName">
-                    <i class="glyphicon glyphicon-pencil"></i> #{claimPageBean.header}
+                    <i class="glyphicon glyphicon-pencil"></i> #{claimPageBean.header} 
+                    <ui:fragment rendered="#{claimPageBean.isOnPublicDisplay}">
+                        <span class="PublicDisplayLabel"><i class="glyphicon glyphicon-bullhorn"></i> #{msg.CLAIM_PAGE_ON_PUBLIC_DISPLAY}</span>
+                    </ui:fragment>
                     <br />
                     <div class="btn-group">
                         <h:outputLink value="#{request.contextPath}/claim/ViewClaim.xhtml?id=#{claimPageBean.id}" 
@@ -370,7 +373,7 @@
                     });
 
                     function checkForm() {
-                        return saveFeatures(#{!claimPageBean.isSubmitted});
+                        return saveFeatures(#{claimPageBean.isGeometryRequired});
                     }
                 </script>
             </ui:define>

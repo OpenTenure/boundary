@@ -405,4 +405,48 @@ public class ErrorKeys {
      * Add at least 1 field into section %s
      */
     public static final String FORMS_PAGE_ADD_1_FIELD = "FORMS_PAGE_ADD_1_FIELD";
+    
+    // Reprots
+    /**
+     * Failed to authenticate. HTTP error code: %s
+     */
+    public static final String REPORTS_FAILED_AUTHENTICATE = "REPORTS_FAILED_AUTHENTICATE";
+    /**
+     * Failed to get list of reports. HTTP error code: %s
+     */
+    public static final String REPORTS_FAILED_TO_GET_REPORTS = "REPORTS_FAILED_TO_GET_REPORTS";
+    /**
+     * Failed to get resource. HTTP error code: %s
+     */
+    public static final String REPORTS_FAILED_TO_GET_RESOURCE = "REPORTS_FAILED_TO_GET_RESOURCE";
+    /**
+     * Failed to get list of report parameters. HTTP error code: %s
+     */
+    public static final String REPORTS_FAILED_TO_GET_PARAMS = "REPORTS_FAILED_TO_GET_PARAMS";
+    /**
+     * Failed to get report. HTTP error code: %s
+     */
+    public static final String REPORTS_FAILED_TO_GET_REPORT = "REPORTS_FAILED_TO_GET_REPORT";
+    /**
+     * - Fill in "%s"
+     */
+    public static final String REPORTS_FILL_IN_PARAM = "REPORTS_FILL_IN_PARAM";
+    /**
+     * Parameter "%s" is not a valid date
+     */
+    public static final String REPORTS_PARAM_IS_NOT_DATE = "REPORTS_PARAM_IS_NOT_DATE";
+    /**
+     * Parameter "%s" is not a valid number
+     */
+    public static final String REPORTS_PARAM_IS_NOT_NUMBER = "REPORTS_PARAM_IS_NOT_NUMBER";
+    
+    /**
+     * Requested report was not found.
+     */
+    public static final String REPORT_NOT_FOUND = "REPORT_NOT_FOUND";
+    
+    /**
+     * You don't have rights to access this page
+     */
+    public static final String GENERAL_INSUFFICIENT_RIGHTS = "GENERAL_INSUFFICIENT_RIGHTS";
 }
