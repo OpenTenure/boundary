@@ -228,10 +228,10 @@ public class ReportServerBean extends AbstractBackingBean {
      */
     public ResourceDescription getResource(String uri) {
         try {
-            if(StringUtility.isEmpty(uri)){
+            if (StringUtility.isEmpty(uri)) {
                 return null;
             }
-            
+
             if (uri != null && uri.length() > 0 && !uri.startsWith("/")) {
                 uri = "/" + uri;
             }
@@ -279,12 +279,12 @@ public class ReportServerBean extends AbstractBackingBean {
      */
     public ResourceDescription getReport(String uri) {
         ResourceDescription report = getResource(uri);
-        if(report != null && report.getType().equalsIgnoreCase(ResourceTypeConst.REPORT_UNIT)){
+        if (report != null && report.getType().equalsIgnoreCase(ResourceTypeConst.REPORT_UNIT)) {
             return report;
         }
         return null;
     }
-    
+
     /**
      * Returns list of report parameters related to provided report
      *
@@ -300,6 +300,11 @@ public class ReportServerBean extends AbstractBackingBean {
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/reports" + reportPath + "/inputControls");
             Response response = target.request("application/xml").get();
 
+            // if no parameters
+            if (response.getStatus() == 204){
+                return null;
+            }
+            
             if (response.getStatus() != 200) {
                 getContext().addMessage(null, new FacesMessage(
                         String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_FAILED_TO_GET_PARAMS),
@@ -373,7 +378,7 @@ public class ReportServerBean extends AbstractBackingBean {
                 reportUrl = "/" + reportUrl;
             }
 
-            reportUrl = baseServerUrl + "/rest_v2/reports" + reportUrl + "." + format + "?lang=" 
+            reportUrl = baseServerUrl + "/rest_v2/reports" + reportUrl + "." + format + "?lang="
                     + langBean.getLocale() + "&ReportLocale=" + langBean.getLocale().replace("-", "_");
             String error = "";
 
@@ -386,14 +391,20 @@ public class ReportServerBean extends AbstractBackingBean {
                             if (param.getSelectedOptions() == null || param.getSelectedOptions().length <= 0) {
                                 error += String.format(
                                         msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
-                                        param.getLabel()) + ";<br />";
+                                        param.getLabel()) + ";";
+                                getContext().addMessage(null, new FacesMessage(
+                                        String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
+                                                param.getLabel()) + ";"));
                             }
                         } else {
                             if (param.getValueString() == null || param.getValueString().equals("")
                                     || param.getValueString().equalsIgnoreCase("~NOTHING~")) {
                                 error += String.format(
                                         msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
-                                        param.getLabel()) + ";<br />";
+                                        param.getLabel()) + ";";
+                                getContext().addMessage(null, new FacesMessage(
+                                        String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
+                                                param.getLabel()) + ";"));
                             }
                         }
                     }
@@ -428,7 +439,10 @@ public class ReportServerBean extends AbstractBackingBean {
                             } catch (Exception e) {
                                 error += String.format(
                                         msgProvider.getErrorMessage(ErrorKeys.REPORTS_PARAM_IS_NOT_DATE),
-                                        param.getLabel()) + ";<br />";
+                                        param.getLabel()) + ";";
+                                getContext().addMessage(null, new FacesMessage(
+                                        String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_PARAM_IS_NOT_DATE),
+                                                param.getLabel()) + ";"));
                             }
                         }
                     }
@@ -442,7 +456,10 @@ public class ReportServerBean extends AbstractBackingBean {
                             } catch (Exception e) {
                                 error += String.format(
                                         msgProvider.getErrorMessage(ErrorKeys.REPORTS_PARAM_IS_NOT_NUMBER),
-                                        param.getLabel()) + ";<br />";
+                                        param.getLabel()) + ";";
+                                getContext().addMessage(null, new FacesMessage(
+                                        String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_PARAM_IS_NOT_NUMBER),
+                                                param.getLabel()) + ";"));
                             }
                         }
                     }
@@ -456,7 +473,6 @@ public class ReportServerBean extends AbstractBackingBean {
                 }
             }
             if (error.length() > 0) {
-                getContext().addMessage(null, new FacesMessage(error));
                 return null;
             }
             return reportUrl;
