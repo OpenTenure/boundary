@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import org.apache.sanselan.util.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.sola.common.ClaimStatusConstants;
+import org.sola.common.ConfigConstants;
 import org.sola.common.RolesConstants;
 import org.sola.common.StringUtility;
 import org.sola.common.logging.LogUtility;
@@ -50,6 +51,7 @@ import org.sola.services.common.contracts.GenericTranslator;
 import org.sola.services.common.faults.OTRestException;
 import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
 import org.sola.services.ejb.search.repository.entities.ClaimSpatialSearchParams;
+import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 
 /**
  * Claim REST Web Service
@@ -64,6 +66,9 @@ public class ClaimResource extends AbstractWebRestService {
     @EJB
     SearchEJBLocal searchEjb;
 
+    @EJB
+    SystemEJBLocal systemEjb;
+    
     private String hiddenString = "";
 
     /**
@@ -473,6 +478,18 @@ public class ClaimResource extends AbstractWebRestService {
         }
     }
 
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getparcelgeomrequired|getParcelGeomRequired}")
+    public String getParcelGeomRequired(@PathParam(value = LOCALE_CODE) String localeCode){
+        try {
+            String result = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, "1");
+            return "{result:\"" + result + "\"}";
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+    
     private void removeClaimPrivateInfo(ClaimTO claim) {
         if (claim == null) {
             return;

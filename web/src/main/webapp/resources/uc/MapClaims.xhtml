@@ -46,7 +46,8 @@
                     <ui:fragment rendered = "#{l.typeCode eq 'wms' and l.useForOpenTenure}">
                         // Add WMS layers
                         var wmsLayer = new OpenLayers.Layer.WMS("#{l.title}", "#{l.url}",
-                                    {layers: '#{l.wmsLayers}' #{mapSettingsBean.getLayerParamsString(l, true)}});
+                                    {layers: '#{l.wmsLayers}' #{mapSettingsBean.getLayerParamsString(l, true)}},
+                                    {#{mapSettingsBean.getLayerOptionsString(l, false)}});
                         wmsLayer.legendOptions = "#{mapSettingsBean.getLegendOptions(l)}";
                         layers.push(wmsLayer);
                     </ui:fragment>

@@ -18,67 +18,69 @@ import org.sola.services.ejb.search.repository.entities.Crs;
 import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 
 /**
- * Contains methods to extract map settings to display claims and all relevant layers
+ * Contains methods to extract map settings to display claims and all relevant
+ * layers
  */
 @Named
 @SessionScoped
 public class MapSettingsBean extends AbstractBackingBean {
+
     @EJB
     SearchEJBLocal searchEjb;
-    
+
     @Inject
     LanguageBean langBean;
-    
+
     @EJB
     SystemEJBLocal systemEjb;
-    
+
     @EJB
     CacheEJBLocal cacheEjb;
-    
+
     private final String MAP_NORTH = "MAP_NORTH";
     private final String MAP_SOUTH = "MAP_SOUTH";
     private final String MAP_WEST = "MAP_WEST";
     private final String MAP_EAST = "MAP_EAST";
     private final String MAP_EPSG = "MAP_EPSG";
     private final String MAP_COMMUNITY_AREA = "MAP_COMMUNITY_AREA";
-    
+
     public String getCommunityArea() {
-        if(!cacheEjb.containsKey(MAP_COMMUNITY_AREA)){
+        if (!cacheEjb.containsKey(MAP_COMMUNITY_AREA)) {
             init();
         }
         return cacheEjb.get(MAP_COMMUNITY_AREA);
     }
 
     public String getExtTopX() {
-        if(!cacheEjb.containsKey(MAP_WEST)){
+        if (!cacheEjb.containsKey(MAP_WEST)) {
             init();
         }
         return cacheEjb.get(MAP_WEST);
     }
 
     public String getExtTopY() {
-        if(!cacheEjb.containsKey(MAP_NORTH)){
+        if (!cacheEjb.containsKey(MAP_NORTH)) {
             init();
         }
         return cacheEjb.get(MAP_NORTH);
     }
 
     public String getExtBottomX() {
-        if(!cacheEjb.containsKey(MAP_EAST)){
+        if (!cacheEjb.containsKey(MAP_EAST)) {
             init();
         }
         return cacheEjb.get(MAP_EAST);
     }
 
     public String getExtBottomY() {
-        if(!cacheEjb.containsKey(MAP_SOUTH)){
+        if (!cacheEjb.containsKey(MAP_SOUTH)) {
             init();
         }
         return cacheEjb.get(MAP_SOUTH);
     }
 
     public String getEpsg() {
-        if(!cacheEjb.containsKey(MAP_EPSG)){
+        if (!cacheEjb.containsKey(MAP_EPSG)) {
             init();
         }
         return cacheEjb.get(MAP_EPSG);
@@ -87,75 +89,102 @@ public class MapSettingsBean extends AbstractBackingBean {
     public List<ConfigMapLayer> getLayers() {
         return searchEjb.getConfigMapLayerList(langBean.getLocale());
     }
-    
+
     public ConfigMapLayer[] getLayersArray() {
         List<ConfigMapLayer> layers = getLayers();
-        if(layers == null){
+        if (layers == null) {
             return null;
         }
         return layers.toArray(new ConfigMapLayer[layers.size()]);
     }
-    
+
     public ConfigMapLayerMetadata[] getLayerParams(ConfigMapLayer layer) {
-        if(layer== null || layer.getMetadataList() == null){
+        if (layer == null || layer.getMetadataList() == null) {
             return null;
         }
         return layer.getMetadataList().toArray(new ConfigMapLayerMetadata[layer.getMetadataList().size()]);
     }
-    
-    public String getLayerParamsString(ConfigMapLayer layer, boolean addCommaInFront){
-        if(layer== null || layer.getMetadataList() == null){
+
+    /** Returns WMS layer parameters sent to the server. */
+    public String getLayerParamsString(ConfigMapLayer layer, boolean addCommaInFront) {
+        if (layer == null || layer.getMetadataList() == null) {
             return "";
         }
-        
+
         String result = "";
-        
-        for(ConfigMapLayerMetadata param : layer.getMetadataList()){
-            if(!result.equals("")){
-                result += ", ";
-            }
-            // Skip legend settings for WMS layer
-            if(layer.getTypeCode().equalsIgnoreCase("wms") && !param.getName().equalsIgnoreCase("LEGEND_OPTIONS")){
+
+        for (ConfigMapLayerMetadata param : layer.getMetadataList()) {
+            if (!param.isForClient() && layer.getTypeCode().equalsIgnoreCase("wms") 
+                    && !param.getName().equalsIgnoreCase("LEGEND_OPTIONS")) {
+                if (!result.equals("")) {
+                    result += ", ";
+                }
                 result += param.getName() + ": '" + param.getValue() + "'";
             }
         }
-        
-        if(!result.equals("") && addCommaInFront){
+
+        if (!result.equals("") && addCommaInFront) {
+            result = ", " + result;
+        }
+        return result;
+    }
+
+    /** Returns WMS layer options used by map component. */
+    public String getLayerOptionsString(ConfigMapLayer layer, boolean addCommaInFront) {
+        if (layer == null || layer.getMetadataList() == null) {
+            return "";
+        }
+
+        String result = "";
+
+        for (ConfigMapLayerMetadata param : layer.getMetadataList()) {
+            if (param.isForClient() && layer.getTypeCode().equalsIgnoreCase("wms") 
+                    && !param.getName().equalsIgnoreCase("LEGEND_OPTIONS")) {
+                if (!result.equals("")) {
+                    result += ", ";
+                }
+                result += param.getName() + ": '" + param.getValue() + "'";
+            }
+        }
+
+        if (!result.equals("") && addCommaInFront) {
             result = ", " + result;
         }
         return result;
     }
     
-    /** Return WMS legend options*/
-    public String getLegendOptions(ConfigMapLayer layer){
-        if(layer== null || layer.getMetadataList() == null){
+    /**
+     * Return WMS legend options
+     */
+    public String getLegendOptions(ConfigMapLayer layer) {
+        if (layer == null || layer.getMetadataList() == null) {
             return "";
         }
-               
-        for(ConfigMapLayerMetadata param : layer.getMetadataList()){
-            if(param.getName().equalsIgnoreCase("LEGEND_OPTIONS")){
+
+        for (ConfigMapLayerMetadata param : layer.getMetadataList()) {
+            if (param.getName().equalsIgnoreCase("LEGEND_OPTIONS")) {
                 return param.getValue();
             }
         }
-        
+
         return "''";
     }
-    
+
     @PostConstruct
-    public void init(){
+    public void init() {
         cacheEjb.clear(MAP_COMMUNITY_AREA);
         cacheEjb.clear(MAP_EAST);
         cacheEjb.clear(MAP_EPSG);
         cacheEjb.clear(MAP_NORTH);
         cacheEjb.clear(MAP_SOUTH);
         cacheEjb.clear(MAP_WEST);
-        
+
         HashMap<String, String> mapSettings = searchEjb.getMapSettingList();
-        
+
         List<Crs> crs = searchEjb.getCrsList();
         cacheEjb.put(MAP_COMMUNITY_AREA, systemEjb.getSetting(ConfigConstants.OT_COMMUNITY_AREA, ""));
-        
-        if(mapSettings!=null){
+
+        if (mapSettings != null) {
             cacheEjb.put(MAP_WEST, mapSettings.get("map-west"));
             cacheEjb.put(MAP_NORTH, mapSettings.get("map-north"));
             cacheEjb.put(MAP_EAST, mapSettings.get("map-east"));
@@ -166,15 +195,15 @@ public class MapSettingsBean extends AbstractBackingBean {
             cacheEjb.put(MAP_EAST, "");
             cacheEjb.put(MAP_SOUTH, "");
         }
-        
-        if(crs!=null){
+
+        if (crs != null) {
             cacheEjb.put(MAP_EPSG, "EPSG:" + crs.get(0).getSrid());
         } else {
             cacheEjb.put(MAP_EPSG, "");
         }
     }
-    
-    public MapSettingsBean(){
+
+    public MapSettingsBean() {
         super();
     }
 }

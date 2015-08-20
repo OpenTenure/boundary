@@ -67,6 +67,9 @@ function saveFeatures(requireClaimGeometry) {
         $("#" + mapControlId.replace(":", "\\:") + "\\:hCurrentClaimArea").val(calculateArea(feature));
         feature.geometry.transform(destCrs, sourceCrs);
         $("#" + mapControlId.replace(":", "\\:") + "\\:hCurrentClaim").val(wkt.write(feature));
+    } else {
+        $("#" + mapControlId.replace(":", "\\:") + "\\:hCurrentClaimArea").val(0);
+        $("#" + mapControlId.replace(":", "\\:") + "\\:hCurrentClaim").val("");
     }
     
     // Prepare claim additional locations
