@@ -47,7 +47,7 @@ public class ClaimUploadPageBean extends AbstractBackingBean {
 
     @Inject
     LanguageBean langBean;
-    
+
     private Part fileClaim;
     private String filePassword;
 
@@ -137,7 +137,7 @@ public class ClaimUploadPageBean extends AbstractBackingBean {
 
                 // Process json
                 Claim claim = GenericTranslator.fromTO(getMapper().readValue(json, ClaimTO.class), Claim.class, null);
-                
+
                 // validate attachments
                 if (claim.getAttachments() != null || claim.getAttachments().size() > 0) {
                     if (!attachments.exists()) {
@@ -167,14 +167,18 @@ public class ClaimUploadPageBean extends AbstractBackingBean {
                         // process attachments first
                         if (claimToSave.getAttachments() != null || claimToSave.getAttachments().size() > 0) {
                             for (Attachment attach : claimToSave.getAttachments()) {
-                                File attachFile = new File(attachments.getAbsolutePath() + "/" + attach.getFileName());
-                                AttachmentBinary attachBinary = MappingManager.getMapper().map(attach, AttachmentBinary.class);
-                                try {
-                                    attachBinary.setBody(Files.readAllBytes(attachFile.toPath()));
-                                } catch (IOException ex) {
-                                    throw new SOLAException(ServiceMessage.OT_WS_CLAIM_FAILED_TO_READ_ATTACH_FILE);
+                                // Check attachment exists
+                                AttachmentBinary existingAttach = claimEjb.getAttachment(attach.getId());
+                                if (existingAttach == null) {
+                                    File attachFile = new File(attachments.getAbsolutePath() + "/" + attach.getFileName());
+                                    AttachmentBinary attachBinary = MappingManager.getMapper().map(attach, AttachmentBinary.class);
+                                    try {
+                                        attachBinary.setBody(Files.readAllBytes(attachFile.toPath()));
+                                    } catch (IOException ex) {
+                                        throw new SOLAException(ServiceMessage.OT_WS_CLAIM_FAILED_TO_READ_ATTACH_FILE);
+                                    }
+                                    claimEjb.saveAttachment(attachBinary);
                                 }
-                                claimEjb.saveAttachment(attachBinary);
                             }
                         }
 
@@ -184,16 +188,15 @@ public class ClaimUploadPageBean extends AbstractBackingBean {
                 });
 
                 claim = params[0];
-                
+
                 // Make a link with claim number
                 String claimLink = String.format("<a href=\"ViewClaim.xhtml?id=%s\">#%s</a>", claim.getId(), claim.getNr());
                 msg.setSuccessMessage(String.format(msgProvider.getMessage(MessagesKeys.CLAIM_UPLOAD_PAGE_SUCCESS_UPLOAD), claimLink));
 
-            } catch (ZipException e){
+            } catch (ZipException e) {
                 LogUtility.log("Failed to upload claim", e);
                 getContext().addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.CLAIM_UPLOAD_ZIP_EXTRACTION_FAILED)));
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 LogUtility.log("Failed to upload claim", e);
                 getContext().addMessage(null, new FacesMessage(processException(e, langBean.getLocale()).getMessage()));
             } finally {

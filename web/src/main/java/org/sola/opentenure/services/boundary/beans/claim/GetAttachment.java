@@ -76,6 +76,9 @@ public class GetAttachment extends HttpServlet {
         // Get requested file by path info.
         String attachmentId = request.getParameter("id");
         
+        // Set version
+        response.setHeader("ProtoVersion", "1.0");
+        
         // Check if file is actually supplied to the request URL.
         if (attachmentId == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
