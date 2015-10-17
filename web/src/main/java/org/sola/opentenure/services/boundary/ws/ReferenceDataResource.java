@@ -11,17 +11,17 @@ import javax.ws.rs.Produces;
 import org.sola.opentenure.services.boundary.beans.AbstractWebRestService;
 import org.sola.opentenure.services.boundary.beans.referencedata.ReferenceData;
 import org.sola.opentenure.services.boundary.beans.responses.ResponseFactory;
-import org.sola.opentenure.services.ejbs.claim.entities.ClaimStatus;
-import org.sola.opentenure.services.ejbs.claim.businesslogic.ClaimEJBLocal;
-import org.sola.services.boundary.transferobjects.configuration.CrsTO;
-import org.sola.services.boundary.transferobjects.referencedata.ClaimStatusTO;
-import org.sola.services.boundary.transferobjects.referencedata.IdTypeTO;
-import org.sola.services.boundary.transferobjects.referencedata.LandUseTO;
-import org.sola.services.boundary.transferobjects.referencedata.RrrTypeTO;
-import org.sola.services.boundary.transferobjects.referencedata.SourceTypeTO;
-import org.sola.services.boundary.transferobjects.system.LanguageTO;
+import org.sola.cs.services.ejbs.claim.entities.ClaimStatus;
+import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
+import org.sola.cs.services.boundary.transferobjects.configuration.CrsTO;
+import org.sola.cs.services.boundary.transferobjects.referencedata.ClaimStatusTO;
+import org.sola.cs.services.boundary.transferobjects.referencedata.IdTypeTO;
+import org.sola.cs.services.boundary.transferobjects.referencedata.LandUseTO;
+import org.sola.cs.services.boundary.transferobjects.referencedata.RrrTypeTO;
+import org.sola.cs.services.boundary.transferobjects.referencedata.SourceTypeTO;
+import org.sola.cs.services.boundary.transferobjects.system.LanguageTO;
 import org.sola.services.common.contracts.GenericTranslator;
-import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
+import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 
 /**
  * Reference data REST Web Service
@@ -32,7 +32,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
     ClaimEJBLocal claimEJB;
     
     @EJB
-    SearchEJBLocal searchEJB;
+    SearchCSEJBLocal searchEJB;
    
     @Inject
     ReferenceData refData;

@@ -17,8 +17,8 @@ import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.validation.user.UserRegistrationGroup;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.logging.LogUtility;
-import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
-import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
+import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
+import org.sola.cs.services.ejbs.admin.businesslogic.repository.entities.User;
 
 /**
  * Provides method and listeners for user registration page
@@ -28,7 +28,7 @@ import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
 public class RegistrationPageBean extends AbstractBackingBean {
 
     @EJB
-    protected AdminEJBLocal admin;
+    protected AdminCSEJBLocal admin;
 
     @Inject
     protected UserBean userBean;

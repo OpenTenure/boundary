@@ -29,29 +29,29 @@ import org.sola.common.ConfigConstants;
 import org.sola.common.RolesConstants;
 import org.sola.common.StringUtility;
 import org.sola.common.logging.LogUtility;
-import org.sola.common.messaging.MessageUtility;
-import org.sola.common.messaging.ServiceMessage;
+import org.sola.cs.common.messaging.MessageUtility;
+import org.sola.cs.common.messaging.ServiceMessage;
 import org.sola.opentenure.services.boundary.beans.AbstractWebRestService;
 import org.sola.opentenure.services.boundary.beans.exceptions.ExceptionFactory;
 import org.sola.opentenure.services.boundary.beans.responses.ResponseFactory;
-import org.sola.opentenure.services.ejbs.claim.businesslogic.ClaimEJBLocal;
-import org.sola.opentenure.services.ejbs.claim.entities.AttachmentBinary;
-import org.sola.opentenure.services.ejbs.claim.entities.AttachmentChunk;
-import org.sola.opentenure.services.ejbs.claim.entities.Claim;
-import org.sola.services.boundary.transferobjects.claim.AttachmentChunkTO;
-import org.sola.services.boundary.transferobjects.claim.AttachmentTO;
-import org.sola.services.boundary.transferobjects.claim.ClaimPartyTO;
-import org.sola.services.boundary.transferobjects.claim.ClaimShareTO;
-import org.sola.services.boundary.transferobjects.claim.ClaimTO;
-import org.sola.services.boundary.transferobjects.claim.FormTemplateTO;
-import org.sola.services.boundary.transferobjects.search.ClaimSearchResultTO;
-import org.sola.services.boundary.transferobjects.search.ClaimSpatialSearchResultTO;
+import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
+import org.sola.cs.services.ejbs.claim.entities.AttachmentBinary;
+import org.sola.cs.services.ejbs.claim.entities.AttachmentChunk;
+import org.sola.cs.services.ejbs.claim.entities.Claim;
+import org.sola.cs.services.boundary.transferobjects.claim.AttachmentChunkTO;
+import org.sola.cs.services.boundary.transferobjects.claim.AttachmentTO;
+import org.sola.cs.services.boundary.transferobjects.claim.ClaimPartyTO;
+import org.sola.cs.services.boundary.transferobjects.claim.ClaimShareTO;
+import org.sola.cs.services.boundary.transferobjects.claim.ClaimTO;
+import org.sola.cs.services.boundary.transferobjects.claim.FormTemplateTO;
+import org.sola.cs.services.boundary.transferobjects.search.ClaimSearchResultTO;
+import org.sola.cs.services.boundary.transferobjects.search.ClaimSpatialSearchResultTO;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.contracts.GenericTranslator;
 import org.sola.services.common.faults.OTRestException;
-import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
-import org.sola.services.ejb.search.repository.entities.ClaimSpatialSearchParams;
-import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
+import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
+import org.sola.cs.services.ejb.search.repository.entities.ClaimSpatialSearchParams;
+import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 
 /**
  * Claim REST Web Service
@@ -64,10 +64,10 @@ public class ClaimResource extends AbstractWebRestService {
     ClaimEJBLocal claimEjb;
 
     @EJB
-    SearchEJBLocal searchEjb;
+    SearchCSEJBLocal searchEjb;
 
     @EJB
-    SystemEJBLocal systemEjb;
+    SystemCSEJBLocal systemEjb;
     
     private String hiddenString = "";
 

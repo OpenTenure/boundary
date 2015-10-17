@@ -8,7 +8,7 @@ import javax.inject.Named;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.report.ReportServerBean;
 import org.sola.opentenure.services.boundary.beans.report.ResourceDescription;
-import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
+import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
 
 /**
  * Main menu bean methods
@@ -22,7 +22,7 @@ public class MainMenuBean extends AbstractBackingBean {
     ReportServerBean server;
     
     @EJB
-    CacheEJBLocal cacheEjb;
+    CacheCSEJBLocal cacheEjb;
     
     public MainMenuBean(){
         super();

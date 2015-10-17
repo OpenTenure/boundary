@@ -3,8 +3,8 @@ package org.sola.opentenure.services.boundary.beans.exceptions;
 import org.sola.services.common.faults.OTRestException;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.sola.common.messaging.MessageUtility;
-import org.sola.common.messaging.ServiceMessage;
+import org.sola.cs.common.messaging.MessageUtility;
+import org.sola.cs.common.messaging.ServiceMessage;
 
 /**
  * List of static methods to generate Open Tenure exceptions in JSON format.

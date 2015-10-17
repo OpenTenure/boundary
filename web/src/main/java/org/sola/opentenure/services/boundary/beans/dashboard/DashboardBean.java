@@ -8,8 +8,8 @@ import javax.inject.Named;
 import org.sola.common.RolesConstants;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
-import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
-import org.sola.services.ejb.search.repository.entities.ClaimSearchResult;
+import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
+import org.sola.cs.services.ejb.search.repository.entities.ClaimSearchResult;
 
 /**
  * Provides method and listeners for dashboard
@@ -18,7 +18,7 @@ import org.sola.services.ejb.search.repository.entities.ClaimSearchResult;
 @RequestScoped
 public class DashboardBean extends AbstractBackingBean {
     @EJB
-    SearchEJBLocal searchEjb;
+    SearchCSEJBLocal searchEjb;
     
     @Inject
     LanguageBean langBean;

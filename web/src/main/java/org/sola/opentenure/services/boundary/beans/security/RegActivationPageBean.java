@@ -12,7 +12,7 @@ import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.helpers.CaptchaImage;
 import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
-import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
+import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
 
 /**
  * Serves Regactivation page
@@ -25,7 +25,7 @@ public class RegActivationPageBean extends AbstractBackingBean {
     MessageProvider msgProvider;
 
     @EJB
-    AdminEJBLocal admin;
+    AdminCSEJBLocal admin;
 
     private String captchaValue;
     private String activationCode;

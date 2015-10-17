@@ -8,8 +8,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import org.sola.opentenure.services.boundary.beans.AbstractWebRestService;
 import org.sola.opentenure.services.boundary.beans.exceptions.ExceptionFactory;
-import org.sola.opentenure.services.ejbs.claim.businesslogic.ClaimEJBLocal;
-import org.sola.services.boundary.transferobjects.claim.FormTemplateTO;
+import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
+import org.sola.cs.services.boundary.transferobjects.claim.FormTemplateTO;
 import org.sola.services.common.contracts.GenericTranslator;
 
 @Path("/claim")

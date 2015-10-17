@@ -19,7 +19,7 @@ import org.sola.opentenure.services.boundary.beans.AbstractWebRestService;
 import org.sola.opentenure.services.boundary.beans.exceptions.ExceptionFactory;
 import org.sola.opentenure.services.boundary.beans.responses.ResponseFactory;
 import org.sola.opentenure.services.boundary.beans.security.ActiveUserBean;
-import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
+import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
 
 /**
  * Users authentication service
@@ -30,7 +30,7 @@ import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
 public class LoginResource extends AbstractWebRestService {
 
     @EJB
-    AdminEJBLocal admin;
+    AdminCSEJBLocal admin;
 
     /**
      * Authenticates users through HTTP GET method

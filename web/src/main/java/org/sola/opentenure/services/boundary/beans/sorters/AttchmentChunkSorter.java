@@ -1,7 +1,7 @@
 package org.sola.opentenure.services.boundary.beans.sorters;
 
 import java.util.Comparator;
-import org.sola.opentenure.services.ejbs.claim.entities.AttachmentChunk;
+import org.sola.cs.services.ejbs.claim.entities.AttachmentChunk;
 
 /**
  * Helps to sort in ascending order {@link AttachmentChunk} objects

@@ -22,15 +22,15 @@ import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.helpers.LanguageBeanSorter;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.map.MapSettingsBean;
-import org.sola.services.ejb.refdata.businesslogic.RefDataEJBLocal;
-import org.sola.services.ejb.refdata.entities.Language;
+import org.sola.cs.services.ejb.refdata.businesslogic.RefDataCSEJBLocal;
+import org.sola.cs.services.ejb.refdata.entities.Language;
 
 @Named
 @SessionScoped
 public class LanguageBean extends AbstractBackingBean {
 
     @EJB
-    RefDataEJBLocal refDataEjb;
+    RefDataCSEJBLocal refDataEjb;
 
     @Inject
     MessageProvider msgProvider;

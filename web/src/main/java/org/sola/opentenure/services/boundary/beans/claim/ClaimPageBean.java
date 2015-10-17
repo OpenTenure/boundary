@@ -33,24 +33,24 @@ import org.sola.opentenure.services.boundary.beans.helpers.MessagesKeys;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
 import org.sola.opentenure.services.boundary.beans.referencedata.ReferenceData;
 import org.sola.opentenure.services.boundary.beans.security.ActiveUserBean;
-import org.sola.opentenure.services.ejbs.claim.businesslogic.ClaimEJBLocal;
-import org.sola.opentenure.services.ejbs.claim.entities.Attachment;
-import org.sola.opentenure.services.ejbs.claim.entities.Claim;
-import org.sola.opentenure.services.ejbs.claim.entities.ClaimComment;
-import org.sola.opentenure.services.ejbs.claim.entities.ClaimLocation;
-import org.sola.opentenure.services.ejbs.claim.entities.ClaimShare;
-import org.sola.opentenure.services.ejbs.claim.entities.ClaimParty;
-import org.sola.opentenure.services.ejbs.claim.entities.ClaimPermissions;
-import org.sola.services.ejb.refdata.entities.LandUseType;
+import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
+import org.sola.cs.services.ejbs.claim.entities.Attachment;
+import org.sola.cs.services.ejbs.claim.entities.Claim;
+import org.sola.cs.services.ejbs.claim.entities.ClaimComment;
+import org.sola.cs.services.ejbs.claim.entities.ClaimLocation;
+import org.sola.cs.services.ejbs.claim.entities.ClaimShare;
+import org.sola.cs.services.ejbs.claim.entities.ClaimParty;
+import org.sola.cs.services.ejbs.claim.entities.ClaimPermissions;
+import org.sola.cs.services.ejb.refdata.entities.LandUseType;
 import org.sola.services.common.EntityAction;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.logging.LogUtility;
-import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
-import org.sola.services.ejb.refdata.entities.GenderType;
-import org.sola.services.ejb.refdata.entities.IdType;
-import org.sola.services.ejb.refdata.entities.RejectionReason;
-import org.sola.services.ejb.refdata.entities.RrrType;
-import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
+import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
+import org.sola.cs.services.ejb.refdata.entities.GenderType;
+import org.sola.cs.services.ejb.refdata.entities.IdType;
+import org.sola.cs.services.ejb.refdata.entities.RejectionReason;
+import org.sola.cs.services.ejb.refdata.entities.RrrType;
+import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 
 /**
  * Provides method and listeners for claim page
@@ -63,10 +63,10 @@ public class ClaimPageBean extends AbstractBackingBean {
     ClaimEJBLocal claimEjb;
 
     @EJB
-    AdminEJBLocal adminEjb;
+    AdminCSEJBLocal adminEjb;
 
     @EJB
-    SystemEJBLocal systemEjb;
+    SystemCSEJBLocal systemEjb;
     
     @Inject
     ReferenceData refData;

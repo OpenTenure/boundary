@@ -17,13 +17,13 @@ import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
 import org.sola.opentenure.services.boundary.beans.referencedata.ReferenceData;
-import org.sola.opentenure.services.ejbs.claim.businesslogic.ClaimEJBLocal;
-import org.sola.opentenure.services.ejbs.claim.entities.Attachment;
-import org.sola.opentenure.services.ejbs.claim.entities.AttachmentBinary;
+import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
+import org.sola.cs.services.ejbs.claim.entities.Attachment;
+import org.sola.cs.services.ejbs.claim.entities.AttachmentBinary;
 import org.sola.services.common.EntityAction;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.logging.LogUtility;
-import org.sola.services.ejb.refdata.entities.SourceType;
+import org.sola.cs.services.ejb.refdata.entities.SourceType;
 
 /**
  * Provides method to manage claim attachments

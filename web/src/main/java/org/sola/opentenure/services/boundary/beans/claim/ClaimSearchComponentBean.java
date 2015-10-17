@@ -10,10 +10,10 @@ import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.helpers.DateBean;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
 import org.sola.opentenure.services.boundary.beans.referencedata.ReferenceData;
-import org.sola.opentenure.services.ejbs.claim.entities.ClaimStatus;
-import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
-import org.sola.services.ejb.search.repository.entities.ClaimSearchParams;
-import org.sola.services.ejb.search.repository.entities.ClaimSearchResult;
+import org.sola.cs.services.ejbs.claim.entities.ClaimStatus;
+import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
+import org.sola.cs.services.ejb.search.repository.entities.ClaimSearchParams;
+import org.sola.cs.services.ejb.search.repository.entities.ClaimSearchResult;
 
 /**
  * Provides method and listeners for claim search component
@@ -23,7 +23,7 @@ import org.sola.services.ejb.search.repository.entities.ClaimSearchResult;
 public class ClaimSearchComponentBean extends AbstractBackingBean {
 
     @EJB
-    SearchEJBLocal searchEjb;
+    SearchCSEJBLocal searchEjb;
 
     @Inject
     DateBean dateBean;

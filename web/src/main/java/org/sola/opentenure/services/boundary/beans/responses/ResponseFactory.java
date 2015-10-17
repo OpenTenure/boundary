@@ -2,7 +2,7 @@ package org.sola.opentenure.services.boundary.beans.responses;
 
 import org.sola.common.DateUtility;
 import org.sola.common.StringUtility;
-import org.sola.opentenure.services.ejbs.claim.entities.Claim;
+import org.sola.cs.services.ejbs.claim.entities.Claim;
 
 /**
  * List of static methods to generate Open Tenure success response in JSON

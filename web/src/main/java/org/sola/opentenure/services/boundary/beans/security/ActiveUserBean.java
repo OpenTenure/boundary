@@ -10,7 +10,7 @@ import org.sola.opentenure.services.boundary.beans.AbstractModelBean;
 import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
 import org.sola.opentenure.services.boundary.beans.validation.Localized;
 import org.sola.opentenure.services.boundary.beans.validation.user.LoginGroup;
-import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
+import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
 
 /**
  * Stores user information
@@ -20,7 +20,7 @@ import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
 public class ActiveUserBean extends AbstractModelBean {
 
     @EJB
-    AdminEJBLocal adminEjb;
+    AdminCSEJBLocal adminEjb;
     
     private String username;
     private String password;

@@ -13,7 +13,7 @@ import javax.inject.Named;
 import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.validation.user.LoginGroup;
-import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
+import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
 
 @Named
 @RequestScoped
@@ -26,7 +26,7 @@ public class LoginBean implements Serializable {
     ActiveUserBean activeUserBean;
     
     @EJB
-    AdminEJBLocal admin;
+    AdminCSEJBLocal admin;
        
     public ActiveUserBean getActiveUserBean(){
         return activeUserBean;

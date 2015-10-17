@@ -17,7 +17,7 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.sola.common.DynamicFormException;
 import org.sola.common.SOLAException;
 import org.sola.common.logging.LogUtility;
-import org.sola.common.messaging.ServiceMessage;
+import org.sola.cs.common.messaging.ServiceMessage;
 import org.sola.opentenure.services.boundary.beans.exceptions.ExceptionFactory;
 import org.sola.services.common.faults.OTRestException;
 import org.sola.services.common.faults.FaultUtility;

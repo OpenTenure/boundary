@@ -17,8 +17,8 @@ import org.sola.opentenure.services.boundary.beans.validation.user.PasswordResto
 import org.sola.opentenure.services.boundary.beans.validation.user.UserRegistrationGroup;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.logging.LogUtility;
-import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
-import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
+import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
+import org.sola.cs.services.ejbs.admin.businesslogic.repository.entities.User;
 
 /**
  * Serves password restore page
@@ -34,7 +34,7 @@ public class PasswordRestorePageBean extends AbstractBackingBean {
     protected UserBean userBean;
 
     @EJB
-    AdminEJBLocal adminEjb;
+    AdminCSEJBLocal adminEjb;
 
     private String restoreCode;
     private final String pwdRestoreForm = "/user/pwdrestore";

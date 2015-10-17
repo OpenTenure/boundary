@@ -10,12 +10,12 @@ import javax.inject.Named;
 import org.sola.common.ConfigConstants;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
-import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
-import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
-import org.sola.services.ejb.search.repository.entities.ConfigMapLayer;
-import org.sola.services.ejb.search.repository.entities.ConfigMapLayerMetadata;
-import org.sola.services.ejb.search.repository.entities.Crs;
-import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
+import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
+import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
+import org.sola.cs.services.ejb.search.repository.entities.ConfigMapLayer;
+import org.sola.cs.services.ejb.search.repository.entities.ConfigMapLayerMetadata;
+import org.sola.cs.services.ejb.search.repository.entities.Crs;
+import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 
 /**
  * Contains methods to extract map settings to display claims and all relevant
@@ -26,16 +26,16 @@ import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
 public class MapSettingsBean extends AbstractBackingBean {
 
     @EJB
-    SearchEJBLocal searchEjb;
+    SearchCSEJBLocal searchEjb;
 
     @Inject
     LanguageBean langBean;
 
     @EJB
-    SystemEJBLocal systemEjb;
+    SystemCSEJBLocal systemEjb;
 
     @EJB
-    CacheEJBLocal cacheEjb;
+    CacheCSEJBLocal cacheEjb;
 
     private final String MAP_NORTH = "MAP_NORTH";
     private final String MAP_SOUTH = "MAP_SOUTH";

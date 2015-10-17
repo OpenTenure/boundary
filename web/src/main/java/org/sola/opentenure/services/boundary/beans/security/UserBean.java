@@ -15,11 +15,11 @@ import org.sola.opentenure.services.boundary.beans.validation.user.PasswordResto
 import org.sola.opentenure.services.boundary.beans.validation.user.PasswordsCheck;
 import org.sola.opentenure.services.boundary.beans.validation.user.UserProfileGroup;
 import org.sola.opentenure.services.boundary.beans.validation.user.UserRegistrationGroup;
-import org.sola.services.ejbs.admin.businesslogic.repository.entities.User;
+import org.sola.cs.services.ejbs.admin.businesslogic.repository.entities.User;
 
 /**
  * Wrapper user bean, exposing properties of
- * {@link org.sola.services.ejbs.admin.businesslogic.repository.entities.User} 
+ * {@link org.sola.cs.services.ejbs.admin.businesslogic.repository.entities.User} 
  * and some other supplementary properties 
  */
 @Named

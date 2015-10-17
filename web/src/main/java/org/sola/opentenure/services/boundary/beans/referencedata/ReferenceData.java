@@ -10,23 +10,23 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import org.sola.common.ConfigConstants;
 import org.sola.common.StringUtility;
-import org.sola.opentenure.services.ejbs.claim.entities.ClaimStatus;
-import org.sola.opentenure.services.ejbs.claim.entities.FieldConstraintType;
-import org.sola.opentenure.services.ejbs.claim.entities.LandUse;
-import org.sola.services.ejb.refdata.entities.LandUseType;
-import org.sola.services.boundary.transferobjects.system.MapExtentTO;
+import org.sola.cs.services.ejbs.claim.entities.ClaimStatus;
+import org.sola.cs.services.ejbs.claim.entities.FieldConstraintType;
+import org.sola.cs.services.ejbs.claim.entities.LandUse;
+import org.sola.cs.services.ejb.refdata.entities.LandUseType;
+import org.sola.cs.services.boundary.transferobjects.system.MapExtentTO;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
-import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
-import org.sola.services.ejb.search.businesslogic.SearchEJBLocal;
-import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
-import org.sola.services.ejb.refdata.businesslogic.RefDataEJBLocal;
-import org.sola.services.ejb.refdata.entities.FieldType;
-import org.sola.services.ejb.refdata.entities.GenderType;
-import org.sola.services.ejb.refdata.entities.IdType;
-import org.sola.services.ejb.refdata.entities.Language;
-import org.sola.services.ejb.refdata.entities.RejectionReason;
-import org.sola.services.ejb.refdata.entities.RrrType;
-import org.sola.services.ejb.refdata.entities.SourceType;
+import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
+import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
+import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
+import org.sola.cs.services.ejb.refdata.businesslogic.RefDataCSEJBLocal;
+import org.sola.cs.services.ejb.refdata.entities.FieldType;
+import org.sola.cs.services.ejb.refdata.entities.GenderType;
+import org.sola.cs.services.ejb.refdata.entities.IdType;
+import org.sola.cs.services.ejb.refdata.entities.Language;
+import org.sola.cs.services.ejb.refdata.entities.RejectionReason;
+import org.sola.cs.services.ejb.refdata.entities.RrrType;
+import org.sola.cs.services.ejb.refdata.entities.SourceType;
 
 /**
  * Holds methods to retrieve reference data. ALl data are cached when first time
@@ -37,16 +37,16 @@ import org.sola.services.ejb.refdata.entities.SourceType;
 public class ReferenceData {
     
     @EJB
-    SearchEJBLocal searchEjb;
+    SearchCSEJBLocal searchEjb;
 
     @EJB
-    SystemEJBLocal systemEjb;
+    SystemCSEJBLocal systemEjb;
     
     @EJB
-    RefDataEJBLocal refDataEjb;
+    RefDataCSEJBLocal refDataEjb;
     
     @EJB
-    CacheEJBLocal cacheEjb;
+    CacheCSEJBLocal cacheEjb;
 
     private final String MAP_EXTENT = "MAP_EXTENT";
     private final String COMMUNITY_AREA = "COMMUNITY_AREA";

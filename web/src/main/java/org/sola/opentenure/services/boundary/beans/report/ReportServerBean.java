@@ -35,8 +35,8 @@ import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
 import org.sola.services.common.logging.LogUtility;
-import org.sola.services.ejb.cache.businesslogic.CacheEJBLocal;
-import org.sola.services.ejb.system.businesslogic.SystemEJBLocal;
+import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
+import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -54,9 +54,9 @@ public class ReportServerBean extends AbstractBackingBean {
     private ArrayList<Object> cookies;
 
     @EJB
-    CacheEJBLocal cacheEjb;
+    CacheCSEJBLocal cacheEjb;
     @EJB
-    SystemEJBLocal systemEjb;
+    SystemCSEJBLocal systemEjb;
     @Inject
     MessageProvider msgProvider;
     @Inject

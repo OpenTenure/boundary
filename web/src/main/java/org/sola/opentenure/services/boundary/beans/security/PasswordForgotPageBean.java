@@ -16,7 +16,7 @@ import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.validation.user.UserRegistrationGroup;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.logging.LogUtility;
-import org.sola.services.ejbs.admin.businesslogic.AdminEJBLocal;
+import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
 
 /**
  * Serves password restore page
@@ -32,7 +32,7 @@ public class PasswordForgotPageBean extends AbstractBackingBean {
     protected UserBean userBean;
 
     @EJB
-    AdminEJBLocal adminEjb;
+    AdminCSEJBLocal adminEjb;
 
     private String captcha;
     private String emailValidation;
