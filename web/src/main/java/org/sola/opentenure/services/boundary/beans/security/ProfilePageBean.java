@@ -12,7 +12,7 @@ import org.sola.opentenure.services.boundary.beans.helpers.MessageBean;
 import org.sola.opentenure.services.boundary.beans.helpers.MessagesKeys;
 import org.sola.opentenure.services.boundary.beans.validation.user.PasswordChangeGroup;
 import org.sola.opentenure.services.boundary.beans.validation.user.UserProfileGroup;
-import org.sola.services.common.contracts.GenericTranslator;
+import org.sola.services.common.contracts.CsGenericTranslator;
 
 /**
  * Serves Profile page needs
@@ -34,7 +34,7 @@ public class ProfilePageBean extends RegistrationPageBean {
     @PostConstruct
     private void init(){
         //userBean = new UserBean(admin.getCurrentUser());
-        GenericTranslator.getMapper().map(admin.getCurrentUser(), userBean);
+        CsGenericTranslator.getMapper().map(admin.getCurrentUser(), userBean);
     }
     
     public ProfilePageBean() {

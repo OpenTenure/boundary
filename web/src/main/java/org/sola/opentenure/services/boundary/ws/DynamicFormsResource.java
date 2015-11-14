@@ -10,7 +10,7 @@ import org.sola.opentenure.services.boundary.beans.AbstractWebRestService;
 import org.sola.opentenure.services.boundary.beans.exceptions.ExceptionFactory;
 import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 import org.sola.cs.services.boundary.transferobjects.claim.FormTemplateTO;
-import org.sola.services.common.contracts.GenericTranslator;
+import org.sola.services.common.contracts.CsGenericTranslator;
 
 @Path("/claim")
 @RequestScoped
@@ -31,7 +31,7 @@ public class DynamicFormsResource extends AbstractWebRestService {
      */
     public String getDefaultFormTemplate() {
         try {
-            FormTemplateTO formTempl = GenericTranslator.toTO(claimEjb.getDefaultFormTemplate(null), FormTemplateTO.class);
+            FormTemplateTO formTempl = CsGenericTranslator.toTO(claimEjb.getDefaultFormTemplate(null), FormTemplateTO.class);
             
             if (formTempl != null){
                 return getMapper().writeValueAsString(formTempl);
@@ -50,7 +50,7 @@ public class DynamicFormsResource extends AbstractWebRestService {
      */
     public String getFormTemplate(@QueryParam(value = "name") String name) {
         try {
-            FormTemplateTO formTempl = GenericTranslator.toTO(claimEjb.getFormTemplate(name, null), FormTemplateTO.class);
+            FormTemplateTO formTempl = CsGenericTranslator.toTO(claimEjb.getFormTemplate(name, null), FormTemplateTO.class);
             
             if (formTempl == null){
                 throw ExceptionFactory.buildNotFound(null);

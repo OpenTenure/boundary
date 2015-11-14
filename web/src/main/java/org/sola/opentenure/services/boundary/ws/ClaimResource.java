@@ -47,7 +47,7 @@ import org.sola.cs.services.boundary.transferobjects.claim.FormTemplateTO;
 import org.sola.cs.services.boundary.transferobjects.search.ClaimSearchResultTO;
 import org.sola.cs.services.boundary.transferobjects.search.ClaimSpatialSearchResultTO;
 import org.sola.services.common.LocalInfo;
-import org.sola.services.common.contracts.GenericTranslator;
+import org.sola.services.common.contracts.CsGenericTranslator;
 import org.sola.services.common.faults.OTRestException;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.search.repository.entities.ClaimSpatialSearchParams;
@@ -89,7 +89,7 @@ public class ClaimResource extends AbstractWebRestService {
             @PathParam(value = LOCALE_CODE) String localeCode,
             @PathParam(value = "claimId") String claimId) {
         try {
-            ClaimTO claimTO = GenericTranslator.toTO(claimEjb.getClaim(claimId), ClaimTO.class);
+            ClaimTO claimTO = CsGenericTranslator.toTO(claimEjb.getClaim(claimId), ClaimTO.class);
             if (claimTO == null
                     || (StringUtility.empty(claimTO.getStatusCode()).equalsIgnoreCase(ClaimStatusConstants.CREATED)
                     && !StringUtility.empty(claimTO.getRecorderName()).equalsIgnoreCase(claimEjb.getUserName()))) {
@@ -111,7 +111,7 @@ public class ClaimResource extends AbstractWebRestService {
     public String getDefaultFormTemplate(
             @PathParam(value = LOCALE_CODE) String localeCode) {
         try {
-            FormTemplateTO formTempl = GenericTranslator.toTO(claimEjb.getDefaultFormTemplate(localeCode), FormTemplateTO.class);
+            FormTemplateTO formTempl = CsGenericTranslator.toTO(claimEjb.getDefaultFormTemplate(localeCode), FormTemplateTO.class);
 
             if (formTempl != null) {
                 return getMapper().writeValueAsString(formTempl);
@@ -131,7 +131,7 @@ public class ClaimResource extends AbstractWebRestService {
     public String getFormTemplate(@PathParam(value = LOCALE_CODE) String localeCode,
             @QueryParam(value = "name") String name) {
         try {
-            FormTemplateTO formTempl = GenericTranslator.toTO(claimEjb.getFormTemplate(name, localeCode), FormTemplateTO.class);
+            FormTemplateTO formTempl = CsGenericTranslator.toTO(claimEjb.getFormTemplate(name, localeCode), FormTemplateTO.class);
 
             if (formTempl == null) {
                 throw ExceptionFactory.buildNotFound(localeCode);
@@ -171,7 +171,7 @@ public class ClaimResource extends AbstractWebRestService {
             params.setMaxY(maxY);
             params.setLimit(limitInt);
 
-            List<ClaimSpatialSearchResultTO> claimTOList = GenericTranslator
+            List<ClaimSpatialSearchResultTO> claimTOList = CsGenericTranslator
                     .toTOList(searchEjb.getClaimsByBox(params), ClaimSpatialSearchResultTO.class);
             if (claimTOList == null) {
                 return getMapper().writeValueAsString(new ArrayList<>());
@@ -210,7 +210,7 @@ public class ClaimResource extends AbstractWebRestService {
                 throw ExceptionFactory.buildGeneralException(ServiceMessage.OT_WS_EMPTY_REQUIRED_FIELDS, localeCode);
             }
 
-            ClaimSearchResultTO claimTO = GenericTranslator
+            ClaimSearchResultTO claimTO = CsGenericTranslator
                     .toTO(searchEjb.getClaimByCoordinates(x, y, localeCode), ClaimSearchResultTO.class);
             String result = "";
             response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
@@ -231,7 +231,7 @@ public class ClaimResource extends AbstractWebRestService {
     public String getAllClaims(
             @PathParam(value = LOCALE_CODE) String localeCode) {
         try {
-            List<ClaimSpatialSearchResultTO> claimsTOList = GenericTranslator
+            List<ClaimSpatialSearchResultTO> claimsTOList = CsGenericTranslator
                     .toTOList(searchEjb.getAllClaims(), ClaimSpatialSearchResultTO.class);
             if (claimsTOList == null) {
                 return getMapper().writeValueAsString(new ArrayList<>());
@@ -259,7 +259,7 @@ public class ClaimResource extends AbstractWebRestService {
                 throw ExceptionFactory.buildBadJson(localeCode);
             }
 
-            AttachmentChunk chunk = GenericTranslator.fromTO(chunkTO, AttachmentChunk.class, null);
+            AttachmentChunk chunk = CsGenericTranslator.fromTO(chunkTO, AttachmentChunk.class, null);
             chunk.setBody(IOUtils.getInputStreamBytes(chunkBinary));
 
             claimEjb.saveAttachmentChunk(chunk);
@@ -285,7 +285,7 @@ public class ClaimResource extends AbstractWebRestService {
                 throw ExceptionFactory.buildBadJson(localeCode);
             }
 
-            claimEjb.saveAttachmentFromChunks(GenericTranslator
+            claimEjb.saveAttachmentFromChunks(CsGenericTranslator
                     .fromTO(attachmentTO, AttachmentBinary.class, null));
             return ResponseFactory.buildOk();
         } catch (Exception e) {
@@ -312,7 +312,7 @@ public class ClaimResource extends AbstractWebRestService {
             }
 
             Claim existingClaim = claimEjb.getClaim(claimTO.getId());
-            Claim claim = GenericTranslator.fromTO(claimTO, Claim.class, existingClaim);
+            Claim claim = CsGenericTranslator.fromTO(claimTO, Claim.class, existingClaim);
             final Claim[] claims = new Claim[]{claim};
             
             runUpdate(new Runnable() {
@@ -336,7 +336,7 @@ public class ClaimResource extends AbstractWebRestService {
             @PathParam(value = LOCALE_CODE) String localeCode,
             @PathParam(value = "attachmentId") String attachmentId) {
         try {
-            AttachmentChunkTO chunkTO = GenericTranslator
+            AttachmentChunkTO chunkTO = CsGenericTranslator
                     .toTO(claimEjb.getAttachmentLastChunk(attachmentId), AttachmentChunkTO.class);
             if (chunkTO == null) {
                 throw ExceptionFactory.buildNotFound(localeCode);
@@ -354,7 +354,7 @@ public class ClaimResource extends AbstractWebRestService {
             @PathParam(value = LOCALE_CODE) String localeCode,
             @PathParam(value = "attachmentId") String attachmentId) {
         try {
-            List<AttachmentChunkTO> attachmentChunkTOList = GenericTranslator
+            List<AttachmentChunkTO> attachmentChunkTOList = CsGenericTranslator
                     .toTOList(claimEjb.getAttachmentChunks(attachmentId), AttachmentChunkTO.class);
             if (attachmentChunkTOList == null) {
                 throw ExceptionFactory.buildNotFound(localeCode);

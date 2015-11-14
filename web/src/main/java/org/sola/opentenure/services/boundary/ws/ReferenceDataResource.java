@@ -20,7 +20,7 @@ import org.sola.cs.services.boundary.transferobjects.referencedata.LandUseTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.RrrTypeTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.SourceTypeTO;
 import org.sola.cs.services.boundary.transferobjects.system.LanguageTO;
-import org.sola.services.common.contracts.GenericTranslator;
+import org.sola.services.common.contracts.CsGenericTranslator;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 
 /**
@@ -53,8 +53,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
     @Path(value = "{a:getlanguages|getLanguages}")
     public String getLanguages(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
-            return getMapper().writeValueAsString(
-                    GenericTranslator.toTOList(refData.getLanguages(localeCode), LanguageTO.class));
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getLanguages(localeCode), LanguageTO.class));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -70,8 +69,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
     @Path(value = "{a:getlanduses|getLandUses}")
     public String getLandUses(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
-            return getMapper().writeValueAsString(
-                    GenericTranslator.toTOList(refData.getLandUses(localeCode, true), LandUseTO.class));
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getLandUses(localeCode, true), LandUseTO.class));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -87,8 +85,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
     @Path(value = "{a:getclaimtypes|getClaimTypes}")
     public String getClaimTypes(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
-            return getMapper().writeValueAsString(
-                    GenericTranslator.toTOList(refData.getRightTypes(localeCode, true), RrrTypeTO.class));
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getRightTypes(localeCode, true), RrrTypeTO.class));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -136,8 +133,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
     @Path(value = "{a:getclaimstatuses|getClaimStatuses}")
     public String getClaimStatuses(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
-            return getMapper().writeValueAsString(
-                    GenericTranslator.toTOList(refData.getClaimStatuses(localeCode), ClaimStatusTO.class));
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getClaimStatuses(localeCode), ClaimStatusTO.class));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -153,8 +149,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
     @Path(value = "{a:getdocumenttypes|getDocumentTypes}")
     public String getDocumentTypes(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
-            return getMapper().writeValueAsString(
-                    GenericTranslator.toTOList(refData.getDocumentTypes(localeCode, true), SourceTypeTO.class));
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getDocumentTypes(localeCode, true), SourceTypeTO.class));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -170,8 +165,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
     @Path(value = "{a:getidtypes|getIdTypes}")
     public String getIdTypes(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
-            return getMapper().writeValueAsString(
-                    GenericTranslator.toTOList(refData.getIdTypes(localeCode, true), IdTypeTO.class));
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getIdTypes(localeCode, true), IdTypeTO.class));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -187,8 +181,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
     @Path(value = "{a:getcrs|getCrs}")
     public String getCrs(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
-            return getMapper().writeValueAsString(
-                    GenericTranslator.toTOList(searchEJB.getCrsList(), CrsTO.class));
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(searchEJB.getCrsList(), CrsTO.class));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }

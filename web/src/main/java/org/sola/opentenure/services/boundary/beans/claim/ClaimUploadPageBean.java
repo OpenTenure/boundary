@@ -29,7 +29,7 @@ import org.sola.cs.services.ejbs.claim.entities.AttachmentBinary;
 import org.sola.cs.services.ejbs.claim.entities.Claim;
 import org.sola.cs.services.boundary.transferobjects.claim.ClaimTO;
 import org.sola.services.common.LocalInfo;
-import org.sola.services.common.contracts.GenericTranslator;
+import org.sola.services.common.contracts.CsGenericTranslator;
 import org.sola.services.common.logging.LogUtility;
 
 @Named
@@ -136,7 +136,7 @@ public class ClaimUploadPageBean extends AbstractBackingBean {
                 }
 
                 // Process json
-                Claim claim = GenericTranslator.fromTO(getMapper().readValue(json, ClaimTO.class), Claim.class, null);
+                Claim claim = CsGenericTranslator.fromTO(getMapper().readValue(json, ClaimTO.class), Claim.class, null);
 
                 // validate attachments
                 if (claim.getAttachments() != null || claim.getAttachments().size() > 0) {
