@@ -141,6 +141,25 @@ public class ClaimResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
+    
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getformtemplates|getFormTemplates}")
+    /**
+     * Returns dynamic form templates
+     */
+    public String getFormTemplates(@PathParam(value = LOCALE_CODE) String localeCode) {
+        try {
+            List<FormTemplateTO> formTemplates = CsGenericTranslator.toTOList(claimEjb.getFormTemplates(localeCode), FormTemplateTO.class);
+
+            if (formTemplates == null) {
+                throw ExceptionFactory.buildNotFound(localeCode);
+            }
+            return getMapper().writeValueAsString(formTemplates);
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
 
     @GET
     @Produces("application/json; charset=UTF-8")
