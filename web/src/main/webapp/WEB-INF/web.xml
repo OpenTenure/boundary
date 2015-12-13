@@ -64,6 +64,7 @@
             <url-pattern>/user/profile.xhtml</url-pattern>
             <url-pattern>/claim/Claim.xhtml</url-pattern>
             <url-pattern>/claim/ClaimPrint.xhtml</url-pattern>
+            <url-pattern>/claim/ClaimCertificatePrint.xhtml</url-pattern>
             <url-pattern>/claim/ClaimUpload.xhtml</url-pattern>
             <url-pattern>/claim/ViewClaim.xhtml</url-pattern>
             <url-pattern>/claim/search.xhtml</url-pattern>

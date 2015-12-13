@@ -52,7 +52,7 @@
                                 <a href="#{request.contextPath}/map/map.xhtml">#{msg.MAIN_MENU_MAP}</a>
                             </li>
                         </c:if>
-                        <c:if test="#{activeUserBean.canViewReports}">
+                        <c:if test="#{activeUserBean.canViewReports and mainMenuBean.showReports}">
                             <li class='#{mainMenuBean.getItemClassByPath("/report/")}'>
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                     #{msg.MAIN_MENU_REPORTS} <b class="caret"></b>

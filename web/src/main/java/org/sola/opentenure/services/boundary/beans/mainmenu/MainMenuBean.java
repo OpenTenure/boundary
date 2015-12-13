@@ -5,10 +5,12 @@ import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.sola.common.ConfigConstants;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.report.ReportServerBean;
 import org.sola.opentenure.services.boundary.beans.report.ResourceDescription;
 import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
+import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 
 /**
  * Main menu bean methods
@@ -17,6 +19,7 @@ import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
 @RequestScoped
 public class MainMenuBean extends AbstractBackingBean {
     private final String REPORT_URLS = "REPORT_URLS";
+    private final String SHOW_REPORTS = "SHOW_REPORTS";
     
     @Inject
     ReportServerBean server;
@@ -24,8 +27,21 @@ public class MainMenuBean extends AbstractBackingBean {
     @EJB
     CacheCSEJBLocal cacheEjb;
     
+    @EJB
+    SystemCSEJBLocal systemEjb;
+    
     public MainMenuBean(){
         super();
+    }
+    
+    public boolean getShowReports(){
+        if(cacheEjb.containsKey(SHOW_REPORTS)){
+            return (boolean) cacheEjb.get(SHOW_REPORTS);
+        } else {
+            String reportsEnabled = systemEjb.getSetting(ConfigConstants.REPORTS_ENABLED, "1");
+            cacheEjb.put(SHOW_REPORTS, reportsEnabled.equals("1"));
+            return reportsEnabled.equals("1");
+        }
     }
     
     public ResourceDescription[] getReports(){

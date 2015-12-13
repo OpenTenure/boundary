@@ -18,6 +18,10 @@
                         var wnd = window.open("#{request.contextPath}/claim/ClaimPrint.xhtml?id=#{claimPageBean.id}", "_blank", "width=900,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes");
                                 return false;
                             }
+                    function printClaimCert() {
+                        var wnd = window.open("#{request.contextPath}/claim/ClaimCertificatePrint.xhtml?id=#{claimPageBean.id}", "_blank", "width=900,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes");
+                                return false;
+                            }
                 </script>
             </ui:define>
             <ui:define name="content">
@@ -78,6 +82,10 @@
                         <h:outputLink value="" class="btn btn-default" onclick="return printClaim()">
                             #{msg.GENERAL_LABEL_PRINT}
                         </h:outputLink>
+                        <h:outputLink value="" class="btn btn-default" onclick="return printClaimCert()">
+                            #{msg.GENERAL_LABEL_PRINT_CERT}
+                        </h:outputLink>
+                        
                         <h:inputHidden value="#{claimPageBean.id}" />
                     </h:panelGroup>
                 </div>

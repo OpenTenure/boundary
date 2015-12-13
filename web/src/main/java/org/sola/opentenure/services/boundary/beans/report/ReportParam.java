@@ -112,7 +112,7 @@ public class ReportParam {
         this.selectedOptions = selectedOptions;
     }
     
-    ReportParam(){
+    public ReportParam(){
         options = new ArrayList<>();
     }
 }

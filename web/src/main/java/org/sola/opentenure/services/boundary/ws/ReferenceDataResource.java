@@ -1,5 +1,6 @@
 package org.sola.opentenure.services.boundary.ws;
 
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.enterprise.context.RequestScoped;
@@ -8,6 +9,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import org.sola.cs.services.boundary.transferobjects.claim.FormTemplateTO;
 import org.sola.opentenure.services.boundary.beans.AbstractWebRestService;
 import org.sola.opentenure.services.boundary.beans.referencedata.ReferenceData;
 import org.sola.opentenure.services.boundary.beans.responses.ResponseFactory;
@@ -22,6 +25,7 @@ import org.sola.cs.services.boundary.transferobjects.referencedata.SourceTypeTO;
 import org.sola.cs.services.boundary.transferobjects.system.LanguageTO;
 import org.sola.services.common.contracts.CsGenericTranslator;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
+import org.sola.opentenure.services.boundary.beans.exceptions.ExceptionFactory;
 
 /**
  * Reference data REST Web Service
@@ -209,6 +213,65 @@ public class ReferenceDataResource extends AbstractWebRestService {
     public String getMapExtent(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
             return getMapper().writeValueAsString(refData.getMapExtent());
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+    
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getdefaultformtemplate|getDefaultFormTemplate}")
+    /**
+     * Returns default dynamic form template
+     */
+    public String getDefaultFormTemplate(@PathParam(value = LOCALE_CODE) String localeCode) {
+        try {
+            FormTemplateTO formTempl = CsGenericTranslator.toTO(
+                    claimEJB.getDefaultFormTemplate(localeCode), FormTemplateTO.class);
+
+            if (formTempl != null) {
+                return getMapper().writeValueAsString(formTempl);
+            }
+            return "{}";
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+    
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getformtemplate|getFormTemplate}")
+    /**
+     * Returns dynamic form template by name
+     */
+    public String getFormTemplate(@PathParam(value = LOCALE_CODE) String localeCode,
+            @QueryParam(value = "name") String name) {
+        try {
+            FormTemplateTO formTempl = CsGenericTranslator.toTO(claimEJB.getFormTemplate(name, localeCode), FormTemplateTO.class);
+
+            if (formTempl == null) {
+                throw ExceptionFactory.buildNotFound(localeCode);
+            }
+            return getMapper().writeValueAsString(formTempl);
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+    
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getformtemplates|getFormTemplates}")
+    /**
+     * Returns dynamic form templates
+     */
+    public String getFormTemplates(@PathParam(value = LOCALE_CODE) String localeCode) {
+        try {
+            List<FormTemplateTO> formTemplates = CsGenericTranslator.toTOList(claimEJB.getFormTemplates(localeCode), FormTemplateTO.class);
+
+            if (formTemplates == null) {
+                throw ExceptionFactory.buildNotFound(localeCode);
+            }
+            return getMapper().writeValueAsString(formTemplates);
         } catch (Exception e) {
             throw processException(e, localeCode);
         }

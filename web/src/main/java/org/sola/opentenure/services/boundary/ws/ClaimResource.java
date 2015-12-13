@@ -5,11 +5,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import javax.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -105,8 +103,9 @@ public class ClaimResource extends AbstractWebRestService {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getdefaultformtemplate|getDefaultFormTemplate}")
+    @Deprecated
     /**
-     * Returns default dynamic form template
+     * Returns default dynamic form template. 
      */
     public String getDefaultFormTemplate(
             @PathParam(value = LOCALE_CODE) String localeCode) {
@@ -125,6 +124,7 @@ public class ClaimResource extends AbstractWebRestService {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getformtemplate|getFormTemplate}")
+    @Deprecated
     /**
      * Returns dynamic form template by name
      */
@@ -145,6 +145,7 @@ public class ClaimResource extends AbstractWebRestService {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getformtemplates|getFormTemplates}")
+    @Deprecated
     /**
      * Returns dynamic form templates
      */
