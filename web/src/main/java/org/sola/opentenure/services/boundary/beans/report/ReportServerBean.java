@@ -377,9 +377,10 @@ public class ReportServerBean extends AbstractBackingBean {
             if (reportUrl != null && reportUrl.length() > 0 && !reportUrl.startsWith("/")) {
                 reportUrl = "/" + reportUrl;
             }
-
+//            reportUrl = baseServerUrl + "/rest_v2/reports" + reportUrl + "." + format + "?lang="
+//                    + langBean.getLocale() + "&ReportLocale=" + langBean.getLocale().replace("-", "_");
             reportUrl = baseServerUrl + "/rest_v2/reports" + reportUrl + "." + format + "?lang="
-                    + langBean.getLocale() + "&ReportLocale=" + langBean.getLocale().replace("-", "_");
+                    + langBean.getLocale() + "&REPORT_LOCALE=" + langBean.getLocale().replace("-", "_");
             String error = "";
 
             if (params != null && params.length > 0) {

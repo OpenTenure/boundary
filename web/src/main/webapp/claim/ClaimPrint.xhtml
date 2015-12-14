@@ -401,6 +401,73 @@
                     </div>
                 </div>
                 <p><br /></p>
+                <ui:repeat var = "sec" value = "#{dynaFormBean.sections}" id="sections" varStatus="secStatus">
+                    <ui:fragment>
+                        <div class="headerCaption">#{sec.displayName}</div>
+                            <ui:fragment rendered="#{sec.maxOccurrences gt 1}">
+                                <table class="contentTable" style="width: 100%;" >
+                                    <thead>
+                                        <tr>
+                                            <ui:repeat var = "col" value = "#{sec.fieldTemplateArray}">
+                                                <ui:fragment>
+                                                    <th>
+                                                        #{col.displayName}
+                                                    </th>
+                                                </ui:fragment>
+                                            </ui:repeat>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <ui:repeat var = "row" value = "#{dynaFormBean.getSectionElementPayloads(sec.name)}">
+                                            <ui:fragment>
+                                                <tr>
+                                                    <ui:repeat var="col" value="#{sec.fieldTemplateArray}" varStatus="colStatus">
+                                                        <ui:fragment>
+                                                            <td>
+                                                                <ui:include src="/controls/DynaFormControl.xhtml">
+                                                                    <ui:param name="allowEdit" value="false" rendererType="java.lang.Boolean" />
+                                                                    <ui:param name="showLabel" value="false" rendererType="java.lang.Boolean" />
+                                                                    <ui:param name="fieldTemplate" value="#{col}" rendererType="org.sola.test.dynaforms.FieldTemplate" />
+                                                                    <ui:param name="fieldPayload" value="#{dynaFormBean.getFieldPayload(sec.name, row.id, col.name)}" rendererType="org.sola.test.dynaforms.FieldPayload" />
+                                                                </ui:include>
+                                                            </td>
+                                                        </ui:fragment>
+                                                    </ui:repeat>
+                                                </tr>
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                    </tbody>
+                                </table>
+                            </ui:fragment>
+
+                            <ui:fragment rendered="#{sec.maxOccurrences le 1}">
+                                <table style="width: 100%;" class="contentTable">
+                                    <tbody>
+                                        <ui:repeat var = "f" value = "#{sec.fieldTemplateArray}" varStatus="fs">
+                                            <ui:fragment>
+                                                <ui:fragment rendered="#{fs.index mod 2 eq 0}">
+                                                    <h:outputText escape="false" value="&lt;tr&gt;" />
+                                                </ui:fragment>
+                                                <td>
+                                                    <b>#{f.displayName}</b><br />
+                                                    <ui:include src="/controls/DynaFormControl.xhtml">
+                                                        <ui:param name="allowEdit" value="false" rendererType="java.lang.Boolean" />
+                                                        <ui:param name="showLabel" value="false" rendererType="java.lang.Boolean" />
+                                                        <ui:param name="fieldTemplate" value="#{f}" rendererType="org.sola.test.dynaforms.FieldTemplate" />
+                                                        <ui:param name="fieldPayload" value="#{dynaFormBean.getFieldPayload(sec.name, null, f.name)}" rendererType="org.sola.test.dynaforms.FieldPayload" />
+                                                    </ui:include>
+                                                </td>
+                                                <ui:fragment rendered="#{fs.last or ((fs.index+1) mod 2 eq 0)}">
+                                                    <h:outputText escape="false" value="&lt;/tr&gt;" />
+                                                </ui:fragment>
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                    </tbody>
+                                </table>
+                            </ui:fragment>
+                    </ui:fragment>
+                </ui:repeat>      
+                <p><br /></p>
                 <table style="width: 100%; margin-top: 40px;font-size: 14px;">
                     <tbody>
                         <tr>
