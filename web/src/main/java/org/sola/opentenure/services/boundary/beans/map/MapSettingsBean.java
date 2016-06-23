@@ -43,7 +43,15 @@ public class MapSettingsBean extends AbstractBackingBean {
     private final String MAP_EAST = "MAP_EAST";
     private final String MAP_EPSG = "MAP_EPSG";
     private final String MAP_COMMUNITY_AREA = "MAP_COMMUNITY_AREA";
+    private final String CS_OFFLINE_MODE = "CS_OFFLINE_MODE";
 
+    public boolean getIsOffline() {
+        if (!cacheEjb.containsKey(CS_OFFLINE_MODE)) {
+            init();
+        }
+        return cacheEjb.get(CS_OFFLINE_MODE).toString().equals("1");
+    }
+    
     public String getCommunityArea() {
         if (!cacheEjb.containsKey(MAP_COMMUNITY_AREA)) {
             init();
@@ -178,12 +186,14 @@ public class MapSettingsBean extends AbstractBackingBean {
         cacheEjb.clear(MAP_NORTH);
         cacheEjb.clear(MAP_SOUTH);
         cacheEjb.clear(MAP_WEST);
+        cacheEjb.clear(CS_OFFLINE_MODE);
 
         HashMap<String, String> mapSettings = searchEjb.getMapSettingList();
 
         List<Crs> crs = searchEjb.getCrsList();
         cacheEjb.put(MAP_COMMUNITY_AREA, systemEjb.getSetting(ConfigConstants.OT_COMMUNITY_AREA, ""));
-
+        cacheEjb.put(CS_OFFLINE_MODE, systemEjb.getSetting(ConfigConstants.OT_OFFLINE_MODE, "0"));
+        
         if (mapSettings != null) {
             cacheEjb.put(MAP_WEST, mapSettings.get("map-west"));
             cacheEjb.put(MAP_NORTH, mapSettings.get("map-north"));

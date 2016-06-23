@@ -46,9 +46,12 @@
                             zoom: 5
                         });
 
-                        var gsat = new OpenLayers.Layer.Google("Google Earth", {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
                         var layers = [];                
-                        layers.push(gsat);
+                
+                        <c:if test="#{not mapSettingsBean.isOffline}">
+                            var gsat = new OpenLayers.Layer.Google("Google Earth", {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
+                            layers.push(gsat);
+                        </c:if>
 
                         <ui:repeat var = "l" value = "#{mapSettingsBean.layersArray}" varStatus = "r">
                             <ui:fragment rendered = "#{l.typeCode eq 'wms' and l.useForOpenTenure}">
