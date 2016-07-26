@@ -152,11 +152,12 @@ OT.Map = function(mapOptions) {
     map = new OpenLayers.Map('map', {
         div: "map",
         allOverlays: false,
-        maxResolution: 19.296875,
         projection: this.destCrs,
         displayProjection: this.sourceCrs,
+        maxExtentBounds: this.maxExtentBounds,
+        initialZoomBounds: this.initialZoomBounds,
         units: 'm',
-        zoom: 5
+        zoom: 22
     });
 
     
