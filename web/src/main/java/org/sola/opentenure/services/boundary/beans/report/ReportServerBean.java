@@ -447,7 +447,7 @@ public class ReportServerBean extends AbstractBackingBean {
                             }
                         }
                     }
-                    if (param.getType().equalsIgnoreCase(ParamTypeConst.SINGLE_VALUE_NUMBER)) {
+                    if (param.getType().equalsIgnoreCase(ParamTypeConst.SINGLE_VALUE_NUMBER) || param.getType().equalsIgnoreCase(ParamTypeConst.NUMBER)) {
                         if (param.getValueString() != null && !param.getValueString().equals("")) {
                             try {
                                 Double dbl;
@@ -466,7 +466,8 @@ public class ReportServerBean extends AbstractBackingBean {
                     }
                     if (param.getType().equalsIgnoreCase(ParamTypeConst.SINGLE_VALUE_TEXT)
                             || param.getType().equalsIgnoreCase(ParamTypeConst.SINGLE_VALUE)
-                            || param.getType().equalsIgnoreCase(ParamTypeConst.SINGLE_VALUE_TIME)) {
+                            || param.getType().equalsIgnoreCase(ParamTypeConst.SINGLE_VALUE_TIME)
+                            || param.getType().equalsIgnoreCase(ParamTypeConst.TEXT)) {
                         if (param.getValueString() != null && !param.getValueString().equals("")) {
                             reportUrl += "&" + param.getId() + "=" + param.getValueString();
                         }

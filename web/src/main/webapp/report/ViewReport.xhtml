@@ -44,11 +44,12 @@
                                 <br />
                                 <h:inputText value="#{p.valueString}"  
                                              rendered="#{p.type == 'singleValueText' or
+                                                         p.type == 'text' or
                                                          p.type == 'singleValueTime'}"
                                              class="form-control" title="#{p.description}"
                                              autocomplete="off" />
                                 <h:inputText value="#{p.valueString}"  
-                                             rendered="#{p.type == 'singleValueNumber'}"
+                                             rendered="#{p.type == 'singleValueNumber' or p.type == 'number'}"
                                              class="form-control"  title="#{p.description}"
                                              autocomplete="off" >
                                     <f:convertNumber maxFractionDigits="4" />

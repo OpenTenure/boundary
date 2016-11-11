@@ -15,4 +15,6 @@ public class ParamTypeConst {
     public static final String MULTI_SELECT = "multiSelect";
     public static final String MULTI_SELECT_CHECKBOX = "multiSelectCheckbox";
     public static final String BOOL = "bool";
+    public static final String TEXT = "text";
+    public static final String NUMBER = "number";
 }
