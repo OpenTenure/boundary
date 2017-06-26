@@ -155,9 +155,10 @@
                     isOffline: #{mapSettingsBean.isOffline},
                     applicationUrl: "#{mapSettingsBean.applicationUrl}",
                     languageCode: "#{languageBean.locale}",
-                    layers: layers,
-                    snappingLayers: snappingLayers
+                    layers: layers
                 });
+                
+                mapControl.setSnappingLayers(snappingLayers);
                 
                 if (instantMapRender) {
                     renderMap();

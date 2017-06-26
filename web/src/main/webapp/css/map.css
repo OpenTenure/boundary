@@ -157,6 +157,9 @@ div.olControlMousePosition{
 .snapIcon{
     background-image: url(images/magnet.png) !important;
 }
+.selectSnapIcon{
+    background-image: url(images/magnet-plus.png) !important;
+}
 .pointIcon{
     background-image: url(images/point.png) !important;
 }

@@ -18,6 +18,7 @@ public class ClaimSearchResultTO extends AbstractTO {
     private String statusName;
     private Long claimArea;
     private int version;
+    private String geom;
     
     public ClaimSearchResultTO(){
         super();
@@ -125,5 +126,13 @@ public class ClaimSearchResultTO extends AbstractTO {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public String getGeom() {
+        return geom;
+    }
+
+    public void setGeom(String geom) {
+        this.geom = geom;
     }
 }

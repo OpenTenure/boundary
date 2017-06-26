@@ -15,6 +15,7 @@ MSG.MAP_CONTROL_EDIT_SHAPE = "Edit shape";
 MSG.MAP_CONTROL_DELETE_SHAPE = "Delete shape";
 MSG.MAP_CONTROL_EDIT_PROPERTIES = "Edit properties";
 MSG.MAP_CONTROL_SNAP = "Snap";
+MSG.MAP_CONTROL_SNAP_SELECT = "Add claims for snapping";
 MSG.MAP_CONTROL_CONFIRM_FEATURE_DELETE = "Are you sure you want to delete selected feature?";
 MSG.MAP_CONTROL_LOADING = "Loading...";
 MSG.MAP_CONTROL_CLAIM_NOT_FOUND = "Claim not found";
@@ -29,7 +30,7 @@ MSG.MAP_CONTROL_MAXIMIZE_TITLE = "Maximize map";
 MSG.MAP_CONTROL_GOOGLE_MAP = "Google Map";
 MSG.MAP_CONTROL_GOOGLE_EARTH = "Google Earth";
 // Map control
-OT.Map = function(mapOptions) {
+OT.Map = function (mapOptions) {
     var that = this;
     mapOptions = mapOptions ? mapOptions : {};
 
@@ -41,7 +42,7 @@ OT.Map = function(mapOptions) {
 
     // Boolean flag, indicating whether CS is offline or not
     var isOffline = mapOptions.isOffline ? mapOptions.isOffline : false;
-    
+
     // Map toolbar reference
     var mapToolbar;
 
@@ -93,23 +94,36 @@ OT.Map = function(mapOptions) {
     // Initial snapping layers
     var snappingLayers = mapOptions.snappingLayers ? mapOptions.snappingLayers : [];
 
+    // Layer containing claims, selected for snapping. These claims are read-only and layer is not displayed in the legend
+    var layerSnappingFeatures = new OT.Map.Layer.VectorLayer(
+            OT.Map.LAYER_IDS.SNAPPING_FEATURES,
+            "Snapping",
+            {
+                isEditable: false,
+                displayInLayerSwitcher: false,
+                styleMap: OT.Map.Styles.styleSnappingClaim,
+                virtualNodeStyle: OT.Map.Styles.styleClaimNode
+            });
+
     // Public getters
-    this.getMap = function() {
+    this.getMap = function () {
         return map;
     };
-    this.getMapToolbar = function() {
+    this.getMapToolbar = function () {
         return mapToolbar;
     };
-    this.getMapLegend = function() {
+    this.getMapLegend = function () {
         return mapLegendTree;
     };
-    this.getIsMapEditable = function() {
+    this.getIsMapEditable = function () {
         return isMapEditable;
     };
 
     /** Sets snapping layers */
-    this.setSnappingLayers = function(layers) {
+    this.setSnappingLayers = function (layers) {
         if (layers) {
+            // All layer with selected features for snapping
+            layers.push(layerSnappingFeatures);
             // Search for toolbar button
             for (var i = 0; i < mapToolbar.items.items.length; i++) {
                 var tbButton = mapToolbar.items.items[i];
@@ -130,7 +144,7 @@ OT.Map = function(mapOptions) {
     };
 
     // Turns off or on map editing
-    this.toggleMapEditing = function(enable) {
+    this.toggleMapEditing = function (enable) {
         if (enableMapEditing !== enable) {
             // Search for toolbar button
             for (var i = 0; i < mapToolbar.items.items.length; i++) {
@@ -160,9 +174,9 @@ OT.Map = function(mapOptions) {
         zoom: 22
     });
 
-    
+
     try {
-        if(!isOffline){
+        if (!isOffline) {
             var gsat = new OpenLayers.Layer.Google(MSG.MAP_CONTROL_GOOGLE_EARTH, {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
             var gmap = new OpenLayers.Layer.Google(MSG.MAP_CONTROL_GOOGLE_MAP, {numZoomLevels: 20, visibility: false});
             map.addLayers([gsat, gmap]);
@@ -171,28 +185,30 @@ OT.Map = function(mapOptions) {
 
     }
 
+    map.events.register('addlayer', map, handleAddLayer);
+
     if (layers.length > 0) {
         map.addLayers(layers);
     }
 
     // Check for base layers
     var hasBaseLayer = false;
-    if(map.layers.length > 0){
+    if (map.layers.length > 0) {
         for (var i = 0; i < map.layers.length; i++) {
-            if(map.layers[i].isBaseLayer === true){
+            if (map.layers[i].isBaseLayer === true) {
                 hasBaseLayer = true;
                 break;
             }
         }
     }
-    
-    if(!hasBaseLayer){
+
+    if (!hasBaseLayer) {
         // Add dummy base layer
-        var emptyBase = new OpenLayers.Layer("Empty",{isBaseLayer: true, minResolution: 0.001, maxResolution: 200});
+        var emptyBase = new OpenLayers.Layer("Empty", {isBaseLayer: true, minResolution: 0.001, maxResolution: 200});
         map.addLayers([emptyBase]);
         map.setLayerIndex(emptyBase, 0);
     }
-        
+
     map.events.register('changelayer', map, handleLayerChange);
 
     var mapPanel = new GeoExt.MapPanel({
@@ -228,12 +244,12 @@ OT.Map = function(mapOptions) {
                 baseAttrs: {
                     uiProvider: "custom_ui"
                 },
-                createNode: function(attr) {
+                createNode: function (attr) {
                     if (attr.layer.CLASS_NAME === 'OpenLayers.Layer.WMS') {
                         attr.component = {
                             xtype: "gx_wmslegend",
                             baseParams: {
-                                    LEGEND_OPTIONS: attr.layer.legendOptions === 'undefined' ? '' : attr.layer.legendOptions
+                                LEGEND_OPTIONS: attr.layer.legendOptions === 'undefined' ? '' : attr.layer.legendOptions
                             },
                             layerRecord: mapPanel.layers.getByLayer(attr.layer),
                             showTitle: false,
@@ -251,10 +267,10 @@ OT.Map = function(mapOptions) {
                                 selectOnClick: true,
                                 node: attr,
                                 listeners: {
-                                    ruleselected: function(legend, event) {
+                                    ruleselected: function (legend, event) {
                                         nodeSelectionHandler(legend.node, event, true);
                                     },
-                                    ruleunselected: function(legend, event) {
+                                    ruleunselected: function (legend, event) {
                                         nodeSelectionHandler(legend.node, event, true);
                                     }
                                 }
@@ -286,7 +302,7 @@ OT.Map = function(mapOptions) {
         iconCls: 'zoomToExtentIcon',
         text: MSG.MAP_CONTROL_ZOOM_TO_EXTENT,
         tooltip: MSG.MAP_CONTROL_ZOOM_TO_EXTENT,
-        handler: function() {
+        handler: function () {
             map.zoomToExtent(that.maxExtentBounds);
         }
     });
@@ -326,17 +342,17 @@ OT.Map = function(mapOptions) {
 
     var claimInfoControl = new OpenLayers.Control();
     OpenLayers.Util.extend(claimInfoControl, {
-        draw: function() {
+        draw: function () {
             this.clickHandler = new OpenLayers.Handler.Click(claimInfoControl,
                     {click: handleClaimInfoClick},
-            {delay: 0, single: true, double: false, stopSingle: false, stopDouble: true});
+                    {delay: 0, single: true, double: false, stopSingle: false, stopDouble: true});
 
         },
-        activate: function() {
+        activate: function () {
             return this.clickHandler.activate() &&
                     OpenLayers.Control.prototype.activate.apply(this, arguments);
         },
-        deactivate: function() {
+        deactivate: function () {
             var deactivated = false;
             if (OpenLayers.Control.prototype.deactivate.apply(this, arguments)) {
                 this.clickHandler.deactivate();
@@ -440,7 +456,7 @@ OT.Map = function(mapOptions) {
             id: OT.Map.TOOLBAR_BUTTON_IDS.DELETE_FEATURE,
             control: new OpenLayers.Control.SelectFeature(defaultEditingLayer,
                     {clickout: true, multiple: false, hover: true, box: false,
-                        clickFeature: function(feature) {
+                        clickFeature: function (feature) {
                             this.unselect(feature);
                             if (confirm(MSG.MAP_CONTROL_CONFIRM_FEATURE_DELETE)) {
                                 this.layer.removeFeatures(feature);
@@ -463,7 +479,7 @@ OT.Map = function(mapOptions) {
             id: OT.Map.TOOLBAR_BUTTON_IDS.EDIT_FEATURE,
             control: new OpenLayers.Control.SelectFeature(defaultEditingLayer,
                     {clickout: true, multiple: false, hover: true, box: false,
-                        clickFeature: function(feature) {
+                        clickFeature: function (feature) {
                             this.unselect(feature);
                             if (typeof this.layer.editFeatureFunc !== 'undefined') {
                                 this.layer.editFeatureFunc(feature);
@@ -492,11 +508,48 @@ OT.Map = function(mapOptions) {
             }),
             iconCls: 'snapIcon',
             map: map,
+            toggleHandler: snapClicked,
             editingTool: true,
             enableToggle: true,
             disabled: true,
             text: MSG.MAP_CONTROL_SNAP,
             tooltip: MSG.MAP_CONTROL_SNAP
+        }));
+
+        var selectSnapFeatureControl = new OpenLayers.Control();
+        OpenLayers.Util.extend(selectSnapFeatureControl, {
+            draw: function () {
+                this.clickHandler = new OpenLayers.Handler.Click(selectSnapFeatureControl,
+                        {click: handleSelectSnapFeatureClick},
+                        {delay: 0, single: true, double: false, stopSingle: false, stopDouble: true});
+
+            },
+            activate: function () {
+                return this.clickHandler.activate() &&
+                        OpenLayers.Control.prototype.activate.apply(this, arguments);
+            },
+            deactivate: function () {
+                var deactivated = false;
+                if (OpenLayers.Control.prototype.deactivate.apply(this, arguments)) {
+                    this.clickHandler.deactivate();
+                    deactivated = true;
+                }
+                return deactivated;
+            },
+            CLASS_NAME: "OT.Map.Control.SelectSnapFeature"
+        });
+
+        mapToolbarItems.push(new GeoExt.Action({
+            id: OT.Map.TOOLBAR_BUTTON_IDS.SNAP_SELECT,
+            control: selectSnapFeatureControl,
+            iconCls: 'selectSnapIcon',
+            map: map,
+            editingTool: true,
+            toggleGroup: "draw",
+            group: "draw",
+            disabled: true,
+            text: MSG.MAP_CONTROL_SNAP_SELECT,
+            tooltip: MSG.MAP_CONTROL_SNAP_SELECT
         }));
     }
 
@@ -531,6 +584,36 @@ OT.Map = function(mapOptions) {
         items: [mapLegendTree, mapPanel]
     });
 
+    // Turn on/off feature selection button
+    function snapClicked(item, pressed) {
+        if (pressed) {
+            // Enable button
+            enableDisableToolbarButton(OT.Map.TOOLBAR_BUTTON_IDS.SNAP_SELECT, true);
+        } else {
+            // Remove features for snapping and disable selection button
+            if (layerSnappingFeatures) {
+                layerSnappingFeatures.removeAllFeatures();
+            }
+            enableDisableToolbarButton(OT.Map.TOOLBAR_BUTTON_IDS.SNAP_SELECT, false);
+        }
+    }
+
+    function enableDisableToolbarButton(buttonId, enable) {
+        for (var i = 0; i < mapToolbar.items.items.length; i++) {
+            var tbButton = mapToolbar.items.items[i];
+            if (tbButton.id === buttonId) {
+                var control = tbButton.baseAction.control;
+                if (enable) {
+                    tbButton.enable();
+                } else {
+                    control.deactivate();
+                    tbButton.disable();
+                }
+                break;
+            }
+        }
+    }
+
     // Maximize or minimize map control
     function maximizeMap(item, pressed) {
         var escContainerName = "#" + mapContainerName.replace(":", "\\:");
@@ -538,8 +621,7 @@ OT.Map = function(mapOptions) {
             $(escContainerName).addClass("fullScreen");
             mapPanelContainer.setHeight($(window).height());
             mapPanelContainer.setWidth($('body').innerWidth());
-        }
-        else {
+        } else {
             $(escContainerName).removeClass("fullScreen");
             mapPanelContainer.setHeight(mapHeight);
             mapPanelContainer.setWidth($(escContainerName).parent().width());
@@ -547,8 +629,8 @@ OT.Map = function(mapOptions) {
     }
 
     /** Renders map into provided html container */
-    this.renderMap = function() {
-        setTimeout(function() {
+    this.renderMap = function () {
+        setTimeout(function () {
             if (!isRendered) {
                 mapPanelContainer.render(mapContainerName);
                 map.zoomToExtent(initialZoomBounds);
@@ -561,13 +643,12 @@ OT.Map = function(mapOptions) {
     };
 
     // Subscribe to map resize event to adjust map width/height
-    $(window).resize(function() {
+    $(window).resize(function () {
         var escContainerName = "#" + mapContainerName.replace(":", "\\:");
         if ($(escContainerName).hasClass("fullScreen")) {
             mapPanelContainer.setHeight($(window).height());
             mapPanelContainer.setWidth($('body').innerWidth());
-        }
-        else {
+        } else {
             mapPanelContainer.setWidth($(escContainerName).parent().width());
         }
     });
@@ -602,6 +683,27 @@ OT.Map = function(mapOptions) {
             if (selectedNode !== null && selectedNode.layer.id === evt.layer.id) {
                 if (enableMapEditing) {
                     customizeMapToolbar();
+                }
+            }
+        }
+    }
+
+    function handleAddLayer(evt) {
+        // Move snapping layer on top
+        if (map && layerSnappingFeatures) {
+            if (evt.layer.name !== layerSnappingFeatures.name) {
+                // Check snapping layer in the list
+                var found = false;
+                for (var i = 0; i < map.layers.length; i++) {
+                    if (map.layers[i].name === layerSnappingFeatures.name) {
+                        // Move on top
+                        map.setLayerIndex(layerSnappingFeatures, map.getLayerIndex(evt.layer));
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    // Add snapping layer
+                    map.addLayer(layerSnappingFeatures);
                 }
             }
         }
@@ -648,6 +750,8 @@ OT.Map = function(mapOptions) {
                     else
                         tbButton.enable();
 
+                } else if (tbButton.id === OT.Map.TOOLBAR_BUTTON_IDS.SNAP_SELECT) {
+                    // Do nothing
                 } else if (tbButton.id === OT.Map.TOOLBAR_BUTTON_IDS.DELETE_FEATURE) {
                     var control = tbButton.baseAction.control;
                     var active = control.active;
@@ -801,10 +905,10 @@ OT.Map = function(mapOptions) {
             type: 'GET',
             crossDomain: true,
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 populateFeatureInfo(response);
             },
-            error: function(xhr, status) {
+            error: function (xhr, status) {
                 claimInfoPopup.setContentHTML(mapNoResutlsContent);
             }
         });
@@ -818,12 +922,12 @@ OT.Map = function(mapOptions) {
                 var lodgingDate = "";
                 if (response.lodgementDate) {
                     var lDate = new Date(parseDate(response.lodgementDate));
-                    lodgingDate = (lDate.getDate() < 10 ? "0" + lDate.getDate() : lDate.getDate()) 
-                            + "/" 
-                            + (lDate.getMonth() + 1 < 10 ? "0" + (lDate.getMonth() + 1) : lDate.getMonth() + 1) 
-                            + "/" + lDate.getFullYear() + " " 
-                            + (lDate.getHours() < 10 ? "0" + lDate.getHours() : lDate.getHours()) 
-                            + ":" 
+                    lodgingDate = (lDate.getDate() < 10 ? "0" + lDate.getDate() : lDate.getDate())
+                            + "/"
+                            + (lDate.getMonth() + 1 < 10 ? "0" + (lDate.getMonth() + 1) : lDate.getMonth() + 1)
+                            + "/" + lDate.getFullYear() + " "
+                            + (lDate.getHours() < 10 ? "0" + lDate.getHours() : lDate.getHours())
+                            + ":"
                             + (lDate.getMinutes() < 10 ? "0" + lDate.getMinutes() : lDate.getMinutes());
                     //lodgingDate = new Date(parseDate(response.lodgementDate)).toDateString();
                 }
@@ -835,11 +939,69 @@ OT.Map = function(mapOptions) {
                 $("#claimStatus").text(response.statusName);
                 $("#claimArea").html(response.claimArea + " m<sup>2</sup>");
             }
-        }
-        catch (ex) {
+        } catch (ex) {
             claimInfoPopup.hide();
             alert(ex);
         }
+    }
+
+    function handleSelectSnapFeatureClick(evt) {
+        if (typeof xhr !== 'undefined') {
+            xhr.abort();
+        }
+
+        var coords = map.getLonLatFromViewPortPx(evt.xy).transform(that.destCrs, that.sourceCrs);
+
+        xhr = $.ajax({
+            url: getClaimUrl + '?x=' + coords.lon + '&y=' + coords.lat,
+            type: 'GET',
+            crossDomain: true,
+            dataType: 'json',
+            success: function (response) {
+                try {
+                    if (response !== "") {
+                        if (layerSnappingFeatures) {
+                            // Check if claim alredy in the list
+                            var featureExists = false;
+                            for (var i = 0; i < layerSnappingFeatures.features.length; i++) {
+                                if (layerSnappingFeatures.features[i].attributes.id === response.id) {
+                                    featureExists = true;
+                                    // Remove feature (deselect)
+                                    layerSnappingFeatures.removeFeatures([layerSnappingFeatures.features[i]]);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!featureExists) {
+                            // Check it's not the current claim
+                            var claimLayer = map.getLayer(OT.Map.LAYER_IDS.CURRENT_CLAIM);
+                            if (claimLayer) {
+                                for (var i = 0; i < claimLayer.features.length; i++) {
+                                    if (claimLayer.features[i].attributes.nr === response.nr) {
+                                        featureExists = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Add feature to the snapping layer
+                            if (!featureExists) {
+                                var featureToAdd = new OpenLayers.Format.WKT().read(response.geom);
+                                featureToAdd.attributes = {id: response.id, nr: "#" + response.nr, label: "#" + response.nr, area: response.claimArea};
+                                featureToAdd.geometry.transform(that.sourceCrs, that.destCrs);
+                                layerSnappingFeatures.addFeatures([featureToAdd]);
+                            }
+                        }
+                    }
+                } catch (ex) {
+                    alert(ex);
+                }
+            },
+            error: function (xhr, status) {
+                
+            }
+        });
     }
 };
 
@@ -863,6 +1025,7 @@ OT.Map.TOOLBAR_BUTTON_IDS = {
     DELETE_FEATURE: "btnDeleteFeature",
     EDIT_FEATURE: "btnEditFeature",
     SNAP: "btnSnapping",
+    SNAP_SELECT: "btnSelectForSnapping",
     MAXIMIZE_MAP: "btnMaximizeMap"
 };
 
@@ -872,12 +1035,13 @@ OT.Map.LAYER_IDS = {
     GOOGLE_EARTH: "layerGoogleEarth",
     GOOGLE_MAP: "layerGoogleMap",
     CURRENT_CLAIM: "layerCurrentClaim",
-    CLAIM_ADDITIONAL_LOCATIONS: "layerClaimAdditionalLocations"
+    CLAIM_ADDITIONAL_LOCATIONS: "layerClaimAdditionalLocations",
+    SNAPPING_FEATURES: "layerSnappingFeatures"
 };
 
 // Extend OpenLayers objects
 OT.Map.Control.ScaleBar = OpenLayers.Class(OpenLayers.Control.ScaleBar, {
-    styleValue: function(selector, key) {
+    styleValue: function (selector, key) {
         var value = 0;
         if (this.limitedStyle) {
             value = this.appliedStyles[selector][key];
@@ -922,7 +1086,7 @@ OT.Map.Control.ScaleBar = OpenLayers.Class(OpenLayers.Control.ScaleBar, {
     }
 });
 
-OT.Map.Layer.VectorLayer = function(id, name, params) {
+OT.Map.Layer.VectorLayer = function (id, name, params) {
     OpenLayers.Layer.Vector.call(this, name, params);
     if (id) {
         this.id = id;
@@ -957,7 +1121,7 @@ OT.Map.Layer.VectorLayer.prototype.constructor = OT.Map.Layer.VectorLayer;
 // Extend drawing control
 OT.Map.Control.DrawFeature = OpenLayers.Class(OpenLayers.Control.DrawFeature, {
     handlers: null,
-    initialize: function(layer, handler, options) {
+    initialize: function (layer, handler, options) {
         OpenLayers.Control.DrawFeature.prototype.initialize.apply(this, [layer, handler, options]);
         // configure the keyboard handler
         var keyboardOptions = {
@@ -967,7 +1131,7 @@ OT.Map.Control.DrawFeature = OpenLayers.Class(OpenLayers.Control.DrawFeature, {
             keyboard: new OpenLayers.Handler.Keyboard(this, keyboardOptions)
         };
     },
-    handleKeypress: function(evt) {
+    handleKeypress: function (evt) {
         var code = evt.keyCode;
         // ESCAPE pressed. Remove feature from map
         if (code === 27) {
@@ -979,11 +1143,11 @@ OT.Map.Control.DrawFeature = OpenLayers.Class(OpenLayers.Control.DrawFeature, {
         }
         return true;
     },
-    activate: function() {
+    activate: function () {
         return this.handlers.keyboard.activate() &&
                 OpenLayers.Control.DrawFeature.prototype.activate.apply(this, arguments);
     },
-    deactivate: function() {
+    deactivate: function () {
         var deactivated = false;
         // the return from the controls is unimportant in this case
         if (OpenLayers.Control.DrawFeature.prototype.deactivate.apply(this, arguments)) {
@@ -1018,7 +1182,7 @@ OT.Map.Styles = {
             labelOutlineColor: "white",
             labelOutlineWidth: 3
         }, {
-            context: {getLabel: function(feature) {
+            context: {getLabel: function (feature) {
                     if (typeof feature.attributes.description !== 'undefined') {
                         return feature.attributes.description;
                     } else {
@@ -1129,7 +1293,7 @@ OT.Map.Styles = {
             labelOutlineColor: "white",
             labelOutlineWidth: 3
         }, {
-            context: {getLabel: function(feature) {
+            context: {getLabel: function (feature) {
                     if (typeof feature.attributes.label !== 'undefined') {
                         return feature.attributes.label + "\n\n(" + (feature.attributes.area) + " m2)";
                     } else {
@@ -1226,41 +1390,60 @@ OT.Map.Styles = {
                 })
             ]
         })
+    }),
+    styleSnappingClaim: new OpenLayers.StyleMap({
+        "default": new OpenLayers.Style({
+            strokeColor: "#0099FF"
+        }, {
+            rules: [
+                new OpenLayers.Rule({
+                    symbolizer: {
+                        "Polygon": {
+                            fillColor: "#0000ff",
+                            fillOpacity: 0,
+                            strokeColor: "#0099FF",
+                            strokeWidth: 2
+                        }
+                    }
+                })
+            ]
+        })
     })
 };
 
-function calculateArea(feature){
-    var area = feature.geometry.getArea(); 
-    if(area <= 100){
-        if(area % 1 <= 0.8){
-            area = area - (area % 1);
-        } else {
-            area = (area - (area % 1)) + 1;
-        }
-    } else {
-        if(area > 100 && area <= 1000){
-            if(area % 10 <= 8){
-                area = area - (area % 10);
-            } else {
-                area = (area - (area % 10)) + 10;
-            }
-        } else {
-            if(area > 1000 && area <= 10000){
-                if(area % 100 <= 80){
-                    area = area - (area % 100);
-                } else {
-                    area = (area - (area % 100)) + 100;
-                }
-            } else {
-                if(area > 10000){
-                    if(area % 1000 <= 800){
-                        area = area - (area % 1000);
-                    } else {
-                        area = (area - (area % 1000)) + 1000;
-                    }
-                }
-            }
-        }
-    }
+function calculateArea(feature) {
+    var area = feature.geometry.getArea();
+    area = Math.round(area);
+//    if (area <= 100) {
+//        if (area % 1 <= 0.8) {
+//            area = area - (area % 1);
+//        } else {
+//            area = (area - (area % 1)) + 1;
+//        }
+//    } else {
+//        if (area > 100 && area <= 1000) {
+//            if (area % 10 <= 8) {
+//                area = area - (area % 10);
+//            } else {
+//                area = (area - (area % 10)) + 10;
+//            }
+//        } else {
+//            if (area > 1000 && area <= 10000) {
+//                if (area % 100 <= 80) {
+//                    area = area - (area % 100);
+//                } else {
+//                    area = (area - (area % 100)) + 100;
+//                }
+//            } else {
+//                if (area > 10000) {
+//                    if (area % 1000 <= 800) {
+//                        area = area - (area % 1000);
+//                    } else {
+//                        area = (area - (area % 1000)) + 1000;
+//                    }
+//                }
+//            }
+//        }
+//    }
     return area;
 }
