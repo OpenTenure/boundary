@@ -17,6 +17,7 @@ import org.sola.cs.services.ejb.refdata.entities.LandUseType;
 import org.sola.cs.services.boundary.transferobjects.system.MapExtentTO;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
+import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 import org.sola.cs.services.ejb.refdata.businesslogic.RefDataCSEJBLocal;
@@ -27,6 +28,9 @@ import org.sola.cs.services.ejb.refdata.entities.Language;
 import org.sola.cs.services.ejb.refdata.entities.RejectionReason;
 import org.sola.cs.services.ejb.refdata.entities.RrrType;
 import org.sola.cs.services.ejb.refdata.entities.SourceType;
+import org.sola.cs.services.ejbs.claim.entities.TerminationReason;
+import org.sola.cs.services.ejbs.claim.entities.TerminationReason;
+import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 
 /**
  * Holds methods to retrieve reference data. ALl data are cached when first time
@@ -44,6 +48,9 @@ public class ReferenceData {
     
     @EJB
     RefDataCSEJBLocal refDataEjb;
+    
+    @EJB
+    ClaimEJBLocal claimEjb;
     
     @EJB
     CacheCSEJBLocal cacheEjb;
@@ -222,8 +229,18 @@ public class ReferenceData {
      * @param onlyActive Indicates whether to return only active records or all.
      * @return
      */
-    public List<SourceType> getDocumentTypes(String langCode, boolean onlyActive) {
+     public List<SourceType> getDocumentTypes(String langCode, boolean onlyActive) {
         return getTypes(refDataEjb.getCodeEntityList(SourceType.class, langCode), onlyActive);
+    }
+    
+    /**
+     * Returns list of {@link SourceType} for CCO issuance
+     *
+     * @param langCode Language code
+     * @return
+     */
+    public List<SourceType> getDocumentTypesForCertIssuance(String langCode) {
+        return claimEjb.getDocumentTypesForIssuance(langCode);
     }
 
     /**
@@ -323,7 +340,20 @@ public class ReferenceData {
         }
         return result.toArray(new SourceType[result.size()]);
     }
-
+   /**
+     * Returns list of {@link SourceType} for certificate issuance
+     *
+     * @param addDummy If true, empty item will be inserted on the top
+     * @return
+     */
+    public SourceType[] getDocumentTypesForCertIssuance(boolean addDummy, String langCode) {
+        ArrayList<SourceType> result = (ArrayList<SourceType>) getDocumentTypesForCertIssuance(langCode);
+        if (addDummy) {
+            result = (ArrayList<SourceType>) result.clone();
+            result.add(0, createDummy(new SourceType()));
+        }
+        return result.toArray(new SourceType[result.size()]);
+    }
     /**
      * Returns list of {@link ClaimStatus}
      *
@@ -418,13 +448,6 @@ public class ReferenceData {
             return "";
         }
         return result.getDisplayValue();
-    }
-
-    private String makeKey(String key, String lang) {
-        if(StringUtility.isEmpty(lang))
-            return key + "_all";
-        else
-            return key + "_" + lang;
     }
 
     private <T extends AbstractCodeEntity> T createDummy(T entity) {

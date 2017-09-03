@@ -33,7 +33,7 @@ import org.sola.services.common.logging.LogUtility;
  */
 @Named
 @ViewScoped
-public class ClaimCetificatePrintBean extends AbstractBackingBean {
+public class ClaimCertificatePrintBean extends AbstractBackingBean {
 
     @EJB
     SystemCSEJBLocal systemEjb;

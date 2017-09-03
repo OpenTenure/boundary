@@ -11,7 +11,7 @@ body{
 }
 
 #PageHeader, #PageHeaderCaption, #PageHeaderLogo, #PageHeaderLogin {
-    height: 60px;
+    height: 76px;
     background-color: #217c95;
     font-family: Arial, sans-serif;
     line-height: 60px;
@@ -42,8 +42,8 @@ body{
 }
 
 .MainLogo{
-    width: 62px;
-    height: 49px;
+    width: 67px;
+    height: 65px;
     vertical-align: top;
     margin-top: 3px;
 }
@@ -152,11 +152,36 @@ body{
     margin-bottom:7px;
 }
 
+.HistoryLabel{
+    font-weight: bold;
+    font-size:18px;
+    padding-left:7px;
+    border-bottom: #ccc 2px dotted;
+    background-color: #DDD;
+    margin-top: 20px;
+}
+
 .OwnerHeaderCaption{
     width:500px;
     float:left; 
     font-size:18px;
     padding-left:7px;
+}
+
+.OwnerHeaderCaption2{
+    font-size:18px;
+    padding-left:3px;
+    background-color: #ddd;
+}
+
+.HeaderCaption{
+    font-size:18px;
+    font-weight: bold;
+}
+
+.LightGreen{
+    font-size: 12px;
+    color:#dcfebd;
 }
 
 .OwnerHeaderControls{
@@ -194,6 +219,9 @@ a.WhiteLink {
 }
 a.BlueLink {
     color: #428BCA;
+}
+a.RedLink {
+    color: #ff5000;
 }
 
 /*---------------------------------

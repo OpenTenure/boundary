@@ -79,13 +79,35 @@
                                          rendered="#{claimPageBean.canDelete}"
                                          onclick="return confirm('#{msg.CLAIM_PAGE_DELETE_WARNING}') ? blockUI() : false"
                                          action="#{claimPageBean.deleteClaim()}" />
-                        <h:outputLink value="" class="btn btn-default" onclick="return printClaim()">
+                        <h:outputLink value="" class="btn btn-default" 
+                                      onclick="return printClaim()">
                             #{msg.GENERAL_LABEL_PRINT}
                         </h:outputLink>
-                        <h:outputLink value="" class="btn btn-default" onclick="return printClaimCert()">
+                        <h:outputLink value="" class="btn btn-default" 
+                                      rendered="#{claimPageBean.canPrintCertificate}"
+                                      onclick="return printClaimCert()">
                             #{msg.GENERAL_LABEL_PRINT_CERT}
                         </h:outputLink>
-                        
+                        <h:commandButton class="btn btn-default" value="#{msg.GENERAL_LABEL_ISSUE}"
+                                         rendered="#{claimPageBean.canIssueCertificate}"
+                                         action="#{claimPageBean.issueCertificate()}" />
+
+                        <h:outputLink value="#{request.contextPath}/claim/TransferClaim.xhtml?id=#{claimPageBean.id}" 
+                                      class="btn btn-default" 
+                                      onclick="blockUI()"
+                                      rendered="#{claimPageBean.canTransfer}">
+                            <f:param name="action" value="transfer" />
+                            #{msg.GENERAL_LABEL_TRANSFER}
+                        </h:outputLink>
+
+                        <h:outputLink value="#{request.contextPath}/claim/Mortgage.xhtml?id=#{claimPageBean.id}" 
+                                      class="btn btn-default" 
+                                      onclick="blockUI()"
+                                      rendered="#{claimPageBean.canTransfer}">
+                            <f:param name="action" value="restriction" />
+                            #{msg.GENERAL_LABEL_REG_MORTGAGE}
+                        </h:outputLink>
+
                         <h:inputHidden value="#{claimPageBean.id}" />
                     </h:panelGroup>
                 </div>
@@ -97,13 +119,16 @@
                             <li><a href="#mapTab" data-toggle="tab" onclick="renderMap()">#{msg.CLAIM_PAGE_MAP}</a></li>
                             <li><a href="#attachments" data-toggle="tab">#{msg.CLAIM_PAGE_DOCUMENTS}</a></li>
                             <li><a href="#owners" data-toggle="tab">#{msg.CLAIM_PAGE_OWNERS}</a></li>
+                            <ui:fragment rendered="#{claimPageBean.canPrintCertificate}">
+                                <li><a href="#restrictions" data-toggle="tab">#{msg.GENERAL_LABEL_RESTRICTIONS}</a></li>
+                            </ui:fragment>
                             <li><a href="#additional" data-toggle="tab">#{msg.CLAIM_PAGE_ADJACENCIES}</a></li>
                             <li><a href="#comments" data-toggle="tab">#{msg.CLAIM_PAGE_COMMENTS}</a></li>
                             <ui:include src="/controls/DynaFormHeaders.xhtml"></ui:include>
                         </ul>
                     </div>
                     <div class="clearfix"></div>
-                    
+
                     <!-- Tab panes -->
                     <div class="tab-content">
                         <div class="tab-pane active" id="general">
@@ -168,12 +193,19 @@
                                         <br />
                                         <h:outputLabel value="#{claimPageBean.claim.claimArea}" /> m<sup>2</sup>
                                     </div>
-                                    <div class="col-md-8">
+                                    <div class="col-md-4">
                                         <label>
                                             #{msg.CLAIM_PAGE_CLAIM_NAME}
                                         </label>
                                         <br />
                                         #{claimPageBean.claim.description}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.CLAIM_PAGE_ISSUANCE_DATE}
+                                        </label>
+                                        <br />
+                                        #{dateBean.formatDate(claimPageBean.claim.issuanceDate)}
                                     </div>
                                 </div>
 
@@ -238,7 +270,7 @@
                                             #{msg.CLAIM_PAGE_STATUS}
                                         </label>
                                         <br />
-                                        #{claimPageBean.statusName}
+                                        <h:outputText value="#{claimPageBean.statusName}" escape="false" />
                                     </div>
                                 </div>
 
@@ -255,6 +287,35 @@
                                     <br />
                                 </h:panelGroup>
 
+                                <h:panelGroup id="divHistoryLabel" layout="block" rendered="#{claimPageBean.hasHistory}">
+                                    <div class="HistoryLabel" style="margin-bottom: 10px;">#{msg.GENERAL_LABEL_HISTORY}</div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>
+                                                #{msg.CLAIM_PAGE_PARENT_CLAIMS}
+                                            </label>
+                                            <br />
+                                            <ui:repeat var="c" value="#{claimPageBean.parentClaims}" varStatus="s">
+                                                <ui:fragment rendered="#{s.index gt 0}">
+                                                    , 
+                                                </ui:fragment>
+                                                <a href="#{request.contextPath}/claim/ViewClaim.xhtml?id=#{c.id}">#{c.nr}</a>
+                                            </ui:repeat>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label>
+                                                #{msg.CLAIM_PAGE_CHILDREN_CLAIMS}
+                                            </label>
+                                            <br />
+                                            <ui:repeat var="c" value="#{claimPageBean.childrenClaims}" varStatus="s">
+                                                <ui:fragment rendered="#{s.index gt 0}">,</ui:fragment>
+                                                <a href="#{request.contextPath}/claim/ViewClaim.xhtml?id=#{c.id}">#{c.nr}</a>
+                                            </ui:repeat>
+                                        </div>
+                                    </div>
+                                    <br />
+                                </h:panelGroup>
                             </div>
                         </div>
 
@@ -270,9 +331,22 @@
                             <div style="padding: 15px 0px;width:800px;">
                                 <ui:include src="/controls/Owners.xhtml">
                                     <ui:param name="allowEdit" value="false" rendererType="java.lang.Boolean"></ui:param>
+                                    <ui:param name="showHistory" value="true" rendererType="java.lang.Boolean"></ui:param>
                                 </ui:include>
                             </div>
                         </div>
+
+                        <ui:fragment rendered="#{claimPageBean.canPrintCertificate}">
+                            <div class="tab-pane" id="restrictions">
+                                <div style="padding: 15px 0px;width:800px;">
+                                    <div class="HeaderCaption">
+                                        #{msg.GENERAL_LABEL_MORTGAGES}
+                                    </div>
+                                    <ui:include src="/controls/MortgagesTable.xhtml">
+                                    </ui:include>
+                                </div>
+                            </div>
+                        </ui:fragment>
 
                         <div class="tab-pane" id="attachments">
                             <div style="padding: 15px 0px;width:850px;">

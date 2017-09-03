@@ -34,7 +34,8 @@ public class ClaimTO extends AbstractReadWriteTO {
     private long claimArea;
     private FormPayloadTO dynamicForm;
     String serverUrl;
-    
+    private Date issuanceDate;
+   
     public ClaimTO(){
         super();
     }
@@ -270,4 +271,12 @@ public class ClaimTO extends AbstractReadWriteTO {
     public void setServerUrl(String serverUrl) {
         this.serverUrl = serverUrl;
     }
+    
+    public Date getIssuanceDate() {
+        return issuanceDate;
+    }
+
+    public void setIssuanceDate(Date issuanceDate) {
+        this.issuanceDate = issuanceDate;
+    }    
 }

@@ -137,6 +137,10 @@ public class MessagesKeys {
     public static final String CLAIM_PAGE_SUBMITTED = "CLAIM_PAGE_SUBMITTED";
     /** Claim review has been reverted */
     public static final String CLAIM_PAGE_REVERTED = "CLAIM_PAGE_REVERTED";
+    /** Claim has been issued */
+    public static final String CLAIM_PAGE_ISSUED = "CLAIM_PAGE_ISSUED";
+    /** Ownership rights have been transferred */
+    public static final String CLAIM_PAGE_RIGHTS_TRANSFERRED = "CLAIM_PAGE_RIGHTS_TRANSFERRED";
     
     // Claim upload
     
@@ -147,4 +151,15 @@ public class MessagesKeys {
     
     /** Form has been saved successfully. */
     public static final String FORMS_PAGE_FORM_SAVED = "FORMS_PAGE_FORM_SAVED";
+    
+    /** Mortgage has been successfully registered. */
+    public static final String MORTGAGE_REGISTERED = "MORTGAGE_REGISTERED";
+    
+    // Claims merge/split
+    
+    /** Claim has been successfully split. Click on the claims below to review the result. */
+    public static final String CLAIM_SPLIT_SUCCESS = "CLAIM_SPLIT_SUCCESS";
+    
+    /** Claims have been successfully merged. Click on the claims below to review the result. */
+    public static final String CLAIMS_MERGE_SUCCESS = "CLAIMS_MERGE_SUCCESS";
 }

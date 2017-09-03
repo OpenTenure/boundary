@@ -13,13 +13,15 @@ public class ErrorKeys {
     public static final String GENERAL_ERROR_LIST_HEADER = "GENERAL_ERROR_LIST_HEADER";
 
     /**
-     * Unexpected errors have occured while executing requested action :
+     * Unexpected errors have occurred while executing requested action :
      */
     public static final String GENERAL_UNEXPECTED_ERROR = "GENERAL_UNEXPECTED_ERROR";
 
-    /** Failed to redirect */
+    /**
+     * Failed to redirect
+     */
     public static final String GENERAL_REDIRECT_FAILED = "GENERAL_REDIRECT_FAILED";
-    
+
 // Login erros
     /**
      * Provide user name
@@ -196,6 +198,16 @@ public class ErrorKeys {
      */
     public static final String CLAIM_EDIT_NOT_ALLOWED = "CLAIM_EDIT_NOT_ALLOWED";
     /**
+     * Claim can't be transferred. Make sure you have sufficient rights and
+     * claim status is appropriate
+     */
+    public static final String CLAIM_TRANSFER_NOT_ALLOWED = "CLAIM_TRANSFER_NOT_ALLOWED";
+    /**
+     * Management of mortgages is not allowed. Make sure you have sufficient
+     * rights and claim status is appropriate
+     */
+    public static final String CLAIM_MANAGE_MORTGAGES_ALLOWED = "CLAIM_MANAGE_MORTGAGES_ALLOWED";
+    /**
      * Claim type is required
      */
     public static final String CLAIM_TYPE_REQUIRED = "CLAIM_TYPE_REQUIRED";
@@ -231,6 +243,10 @@ public class ErrorKeys {
      * Claimant name is required
      */
     public static final String CLAIM_CLAIMANT_NAME_REQUIRED = "CLAIM_CLAIMANT_NAME_REQUIRED";
+    /**
+     * Name is required
+     */
+    public static final String CLAIM_NAME_REQUIRED = "CLAIM_NAME_REQUIRED";
     /**
      * Owner type is required
      */
@@ -405,7 +421,7 @@ public class ErrorKeys {
      * Add at least 1 field into section %s
      */
     public static final String FORMS_PAGE_ADD_1_FIELD = "FORMS_PAGE_ADD_1_FIELD";
-    
+
     // Reprots
     /**
      * Failed to authenticate. HTTP error code: %s
@@ -439,14 +455,63 @@ public class ErrorKeys {
      * Parameter "%s" is not a valid number
      */
     public static final String REPORTS_PARAM_IS_NOT_NUMBER = "REPORTS_PARAM_IS_NOT_NUMBER";
-    
+
     /**
      * Requested report was not found.
      */
     public static final String REPORT_NOT_FOUND = "REPORT_NOT_FOUND";
-    
+
     /**
      * You don't have rights to access this page
      */
     public static final String GENERAL_INSUFFICIENT_RIGHTS = "GENERAL_INSUFFICIENT_RIGHTS";
+
+    /**
+     * Enter start of payment date
+     */
+    public static final String MORTGAGE_START_DATE = "MORTGAGE_START_DATE";
+
+    /**
+     * Enter end date
+     */
+    public static final String MORTGAGE_END_DATE = "MORTGAGE_END_DATE";
+    /**
+     * Enter amount
+     */
+    public static final String MORTGAGE_AMOUNT = "MORTGAGE_AMOUNT";
+    /**
+     * Interest rate
+     */
+    public static final String MORTGAGE_INTEREST_RATE = "MORTGAGE_INTEREST_RATE";
+    /**
+     * Start of payment date must be less than end date
+     */
+    public static final String MORTGAGE_START_DATE_LESS_END_DATE = "MORTGAGE_START_DATE_LESS_END_DATE";
+    /**
+     * Add at least one lender
+     */
+    public static final String MORTGAGE_LENDERS = "MORTGAGE_LENDERS";
+    
+    /**
+     * Claim was already added to the list
+     */
+    public static final String CLAIM_ALREADY_IN_LIST = "CLAIM_ALREADY_IN_LIST";
+    /**
+     * Selected claim must be with Moderated status
+     */
+    public static final String CLAIM_MUST_BE_MODERATED = "CLAIM_MUST_BE_MODERATED";
+    /**
+     * Selected claim has registered restrictions. They must be terminated first.
+     */
+    public static final String CLAIM_HAS_RESTRICTIONS = "CLAIM_HAS_RESTRICTIONS";
+    /**
+     * Transaction has been already completed.
+     */
+    public static final String TRANSACTION_HAS_BEEN_COMPLETED = "TRANSACTION_HAS_BEEN_COMPLETED";
+    
+    /** For claims merge transaction, there must be at least 2 claims to merge and 1 new claim as a result of merge. */
+    public static final String CLAIMS_MERGE_COUNT = "CLAIMS_MERGE_COUNT";
+    
+    /** For claims split, there must be 1 claim to split and at least 2 new claims as a result of split. */
+    public static final String CLAIM_SPLIT_COUNT = "CLAIM_SPLIT_COUNT";
 }
