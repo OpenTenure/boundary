@@ -201,3 +201,37 @@ div.olControlMousePosition{
 #mapCtrlWrapper * div{
     box-sizing: content-box !important;
 }
+
+.map-search{
+    position: absolute; 
+    top: 15px; 
+    left: 45px;
+    z-index:3001;
+    width:220px;
+    opacity: 0.6;
+}
+.map-search-item{
+    font-size: 12px;
+    opacity: 0.8;
+    padding: 5px;
+    border-bottom-right-radius: 0px !important;
+    border-bottom-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    border-top-left-radius: 0px !important;
+}
+.map-search-link{
+    border-width: 0px !important;
+    background: none !important;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.map-search-link:hover {
+    text-decoration: underline !important;
+}
+
+a.ui-state-focus{
+    margin: 0px !important;
+    text-decoration: underline !important;
+    color: #0000aa !important;
+}

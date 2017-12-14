@@ -29,6 +29,8 @@ MSG.MAP_CONTROL_MAXIMIZE = "Maximize";
 MSG.MAP_CONTROL_MAXIMIZE_TITLE = "Maximize map";
 MSG.MAP_CONTROL_GOOGLE_MAP = "Google Map";
 MSG.MAP_CONTROL_GOOGLE_EARTH = "Google Earth";
+MSG.MAP_CONTROL_SEARCH = "Search";
+
 // Map control
 OT.Map = function (mapOptions) {
     var that = this;
@@ -39,6 +41,9 @@ OT.Map = function (mapOptions) {
 
     // Boolean flag, indicating whether map can be edited. If false, editing tools will be hidden
     var isMapEditable = mapOptions.isMapEditable ? mapOptions.isMapEditable : false;
+
+    // Boolean flag, indicating whether to show search field or not
+    var showSearch = mapOptions.showSearch ? mapOptions.showSearch : false;
 
     // Boolean flag, indicating whether CS is offline or not
     var isOffline = mapOptions.isOffline ? mapOptions.isOffline : false;
@@ -89,7 +94,7 @@ OT.Map = function (mapOptions) {
     this.languageCode = mapOptions.languageCode ? mapOptions.languageCode : "en-us";
 
     // Web application URL, used to form JSON requests
-    this.applicationUrl = mapOptions.applicationUrl ? mapOptions.applicationUrl : "";
+    var applicationUrl = mapOptions.applicationUrl ? mapOptions.applicationUrl : "";
 
     // Initial snapping layers
     var snappingLayers = mapOptions.snappingLayers ? mapOptions.snappingLayers : [];
@@ -174,6 +179,91 @@ OT.Map = function (mapOptions) {
         zoom: 22
     });
 
+    // Add search control
+    if (showSearch) {
+        var searchControl = new OpenLayers.Control();
+        OpenLayers.Util.extend(searchControl, {
+            draw: function () {
+                this.div = document.createElement('div');
+                var inputField = document.createElement('input');
+
+                $(inputField).attr("class", "map-search form-control");
+                $(inputField).attr("placeholder", MSG.MAP_CONTROL_SEARCH);
+
+                $(inputField).on("click", function (e) {
+                    $(this).focus();
+                    e.stopPropagation();
+                });
+
+                $(inputField).on("mousedown", function (e) {
+                    e.stopPropagation();
+                });
+
+                var width = null;
+
+                $(inputField).on("focus", function (e) {
+                    if (width === null) {
+                        width = $(this).css("width");
+                    }
+                    $(this).css({"width": "300px"});
+                    $(this).css({"opacity": "0.8"});
+                });
+
+                $(inputField).on("blur", function (e) {
+                    $(this).css({"opacity": "0.6"});
+                    $(this).css({"width": width});
+                });
+
+                // make field autocomplete
+                $(inputField).autocomplete({
+                    source: function (request, response) {
+                        var results = [];
+                        $.ajax({
+                            url: applicationUrl + "/ws/en-en/claim/searchmap",
+                            data: {query: request.term}
+                        }).done(function (data) {
+                            results = data;
+                        }).always(function () {
+                            if (results && results.length > 0) {
+                                for (var i = 0; i < results.length; i++) {
+                                    results[i].label = "<b>#" + results[i].nr + "</b> (" + results[i].ownerNames + ")";
+                                    results[i].value = "#" + results[i].nr + " (" + results[i].ownerNames + ")";
+                                }
+                            }
+                            response(results);
+                        });
+                    },
+                    minLength: 2,
+                    select: function (event, ui) {
+                        var f = new OpenLayers.Format.WKT().read(ui.item.geom);
+                        f.geometry.transform(that.sourceCrs, that.destCrs);
+                        map.zoomToExtent(f.geometry.getBounds());
+                        if (document.activeElement != document.body) document.activeElement.blur();
+                        return true;
+                    }
+                }).data("ui-autocomplete")._renderItem = function (ul, item) {
+                    $(ul).css({"opacity": "0.8"});
+
+                    return $("<li class='map-search-item'></li>")
+                            .data("item.autocomplete", item)
+                            .append("<a class='map-search-link'>" + item.label + "</a>")
+                            .appendTo(ul);
+                };
+
+                $(inputField).data("ui-autocomplete")._resizeMenu = function () {
+                    this.menu.element.outerWidth(300);
+                }
+
+                $(this.div).css({"z-index": "3000"});
+                $(this.div).append(inputField);
+
+                return this.div;
+            },
+            CLASS_NAME: "OT.Map.Control.SearchControl"
+        });
+
+        map.addControl(searchControl);
+    }
 
     try {
         if (!isOffline) {
@@ -852,8 +942,8 @@ OT.Map = function (mapOptions) {
     }
 
     // Claim information tool
-    var getClaimUrl = this.applicationUrl + "/ws/" + this.languageCode + "/claim/getclaimbypoint";
-    var viewClaimUrl = this.applicationUrl + "/claim/ViewClaim.xhtml";
+    var getClaimUrl = applicationUrl + "/ws/" + this.languageCode + "/claim/getclaimbypoint";
+    var viewClaimUrl = applicationUrl + "/claim/ViewClaim.xhtml";
     var mapWaitContent = "<div id='mapWaitContent' class='mapWaitDiv'>" + MSG.MAP_CONTROL_LOADING + "</div>";
     var mapNoResutlsContent = "<div id='mapNoResutlsContent' class='mapNoResultsDiv'>" + MSG.MAP_CONTROL_CLAIM_NOT_FOUND + "</div>";
     var mapClaimInfoContent = "<div id='mapClaimInfoContent' class='mapClaimInfoDiv'>" +
@@ -999,7 +1089,7 @@ OT.Map = function (mapOptions) {
                 }
             },
             error: function (xhr, status) {
-                
+
             }
         });
     }

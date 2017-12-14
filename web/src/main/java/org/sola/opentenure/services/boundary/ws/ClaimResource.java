@@ -44,6 +44,7 @@ import org.sola.cs.services.boundary.transferobjects.claim.ClaimTO;
 import org.sola.cs.services.boundary.transferobjects.claim.FormTemplateTO;
 import org.sola.cs.services.boundary.transferobjects.search.ClaimSearchResultTO;
 import org.sola.cs.services.boundary.transferobjects.search.ClaimSpatialSearchResultTO;
+import org.sola.cs.services.boundary.transferobjects.search.MapSearchResultTO;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.contracts.CsGenericTranslator;
 import org.sola.services.common.faults.OTRestException;
@@ -238,6 +239,32 @@ public class ClaimResource extends AbstractWebRestService {
 
             if (claimTO != null) {
                 result = getMapper().writeValueAsString(claimTO);
+            }
+            return result;
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+    
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:searchmap|searchMap}")
+    public String searchMap(
+            @PathParam(value = LOCALE_CODE) String localeCode,
+            @QueryParam(value = "query") String query,
+            @Context HttpServletResponse response) {
+        try {
+            if (StringUtility.isEmpty(query)) {
+                return null;
+            }
+
+            List<MapSearchResultTO> searchresults = CsGenericTranslator.toTOList(searchEjb.searchMap(query), MapSearchResultTO.class);
+            String result = "";
+            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
+            response.addHeader("Access-Control-Allow-Origin", "*");
+
+            if (searchresults != null) {
+                result = getMapper().writeValueAsString(searchresults);
             }
             return result;
         } catch (Exception e) {
