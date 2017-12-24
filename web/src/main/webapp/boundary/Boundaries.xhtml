@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:uc="http://xmlns.jcp.org/jsf/composite/uc"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+        <ui:composition template="../templates/BasicTemplate.xhtml">
+            <ui:define name="title">
+                #{msg.BOUNDARIES_PAGE_TITLE}
+            </ui:define>
+            <ui:define name="content">
+                <script>
+                    function showHideLevels(link, id, path) {
+                        if ($(link).attr("data-expanded") === "true") {
+                            $("tr[data-path|='" + path + "'][data-path!='" + path + "']").hide();
+                            $("tr[data-path|='" + path + "'] a[data-expanded='true']").html("&#x229e;");
+                            $("tr[data-path|='" + path + "'] a[data-expanded='true']").attr("data-expanded", "false");
+                        } else {
+                            $("tr[data-parent-level='" + id + "']").show();
+                            $(link).html("&#x229f;");
+                            $(link).attr("data-expanded", "true");
+                        }
+                    }
+                </script>
+
+                <div class="PageName">
+                    <i class="glyphicon glyphicon-th-list"></i> #{msg.BOUNDARIES_PAGE_TITLE}
+                </div>
+                <div class="content" style="min-width: 900px;">
+                    <div class="tab-content">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="table-header" scope="col">#{msg.BOUNDARIES_PAGE_NAME}</th>
+                                    <th class="table-header" scope="col">#{msg.BOUNDARIES_PAGE_TYPE}</th>
+                                    <th class="table-header" scope="col">#{msg.BOUNDARIES_PAGE_AUTHORITY}</th>
+                                    <th class="table-header" scope="col">#{msg.GENERAL_LABEL_STATUS}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ui:repeat var = "b" value = "#{boundaryPageBean.boundaries}" varStatus="bs">
+                                    <tr style="#{empty b.parentId ? '' : 'display: none;'}" data-path="#{boundaryPageBean.cleanPath(b.path)}" data-parent-level="#{empty b.parentId ? '' : b.parentId}">
+                                        <td style="padding-left: #{((b.level - 1) * 10) + 10}px;">
+                                            <a href="#" onclick="showHideLevels(this, '#{b.id}', '#{boundaryPageBean.cleanPath(b.path)}');return false;" data-expanded="false" style="text-decoration: none;">
+                                                &#8862;
+                                            </a>
+                                            <a href="#{request.contextPath}/boundary/ViewBoundary.xhtml?id=#{b.id}">#{b.name}</a>
+                                        </td>
+                                        <td>
+                                            #{b.typeName}
+                                        </td>
+                                        <td>
+                                            #{b.authorityName}
+                                        </td>
+                                        <td>
+                                            #{b.statusName}
+                                        </td>
+                                    </tr>
+                                </ui:repeat>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

@@ -135,7 +135,11 @@
                         </c:if>
 
                         map.addLayers(layers);
-                        map.zoomToExtent(initialZoomBounds);
+                        //map.zoomToExtent(initialZoomBounds);
+
+                        setTimeout(function() {
+                            map.zoomToExtent(initialZoomBounds);
+                        }, 500);
 
                         setTimeout(function() {
                             print();

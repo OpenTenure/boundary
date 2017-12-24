@@ -35,7 +35,8 @@ public class ClaimTO extends AbstractReadWriteTO {
     private FormPayloadTO dynamicForm;
     String serverUrl;
     private Date issuanceDate;
-   
+    private String boundaryId;
+    
     public ClaimTO(){
         super();
     }
@@ -278,5 +279,13 @@ public class ClaimTO extends AbstractReadWriteTO {
 
     public void setIssuanceDate(Date issuanceDate) {
         this.issuanceDate = issuanceDate;
-    }    
+    }
+
+    public String getBoundaryId() {
+        return boundaryId;
+    }
+
+    public void setBoundaryId(String boundaryId) {
+        this.boundaryId = boundaryId;
+    }
 }

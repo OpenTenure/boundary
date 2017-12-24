@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:uc="http://xmlns.jcp.org/jsf/composite/uc"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:body>
+        <ui:composition template="../templates/EmptyTemplate.xhtml">
+            <ui:define name="title">
+                #{msg.PUBLIC_DISPLAY_PAGE_TITLE}
+            </ui:define>
+            <ui:define name="head">
+                <style>
+                    td, th {
+                        border: 1px solid #000 !important;
+                        padding: 8px;
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                    }
+
+                    table thead tr th {
+                        background-color: #000 !important; 
+                        border: 1px solid #fff !important;
+                        color: #fff !important;
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                    }
+
+                    body{
+                        background: #fff;
+                        -webkit-print-color-adjust:exact;
+                        color-adjust: exact;
+                    }
+
+                    @media print{
+                        body {
+                            color: #000;
+                            background: #fff;
+                        }
+                        td, th {
+                            border: 1px solid #000 !important;
+                            padding: 8px;
+                        }
+
+                        table thead tr th {
+                            background-color: #000 !important; 
+                            border: 1px solid #fff !important;
+                            color: #fff !important;
+                        }
+                    }
+                </style>
+                
+                <script>
+                    function printList() {
+                        $("#btnPrint").hide();
+                        print();
+                        $("#btnPrint").show();
+                        return false;
+                    }
+
+                    $(function () {
+                        $('#printParamsDialog').modal('show');
+                    });
+
+                    function renderList(data) {
+                        handleAjax(data);
+                        var status = data.status;
+                        switch (status) {
+                            case "success":
+                                $('#printParamsDialog').modal('hide');
+                                $("#btnPrint").show();
+                                break;
+                        }
+                    }
+                </script>
+            </ui:define>
+            
+            <ui:define name="content">
+                <a href="#" id="btnPrint" onclick="return printList()" class="btn btn-primary print-button" style="display: none;">
+                    <i class="glyphicon glyphicon-print"></i> #{msg.GENERAL_LABEL_PRINT}
+                </a>
+                <h:panelGroup layout="block" id="pnlRecords">
+                    <table id="tableClaimants" style="width: 100%;border: 2px solid #000;font-size: #{publicDisplayPageBean.fontSize}">
+                        <thead>
+                            <tr style="background-color: #000; color: #fff;">
+                                <th>#</th>
+                                <th>#{msg.CLAIM_SEARCH_NUMBER}</th>
+                                <th>#{msg.CLAIM_PAGE_OWNER}</th>
+                                <th>#{msg.CLAIM_PAGE_SHARE}</th>
+                                <th>#{msg.CLAIM_PAGE_LAND_USE}</th>
+                                <th>#{msg.MAP_CONTROL_AREA}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ui:repeat value="#{publicDisplayPageBean.publicDisplayRecords}" var="r" varStatus="rs">
+                                <tr>
+                                    <td>
+                                        #{rs.index + 1}
+                                    </td>
+                                    <td>
+                                        #{r.nr}
+                                    </td>
+                                    <td>
+                                        #{r.ownerName}
+                                    </td>
+                                    <td>
+                                        <h:outputText value="#{r.percentage}" >
+                                            <f:convertNumber groupingUsed="true" maxFractionDigits="2" minFractionDigits="0" />
+                                        </h:outputText>
+                                        %
+                                    </td>
+                                    <td>
+                                        #{r.landUse}
+                                    </td>
+                                    <td>
+                                        <h:outputText value="#{r.claimArea}" >
+                                            <f:convertNumber groupingUsed="true" integerOnly="true" /> 
+                                        </h:outputText>
+                                        m2
+                                    </td>
+                                </tr>
+                            </ui:repeat>
+                        </tbody>
+                    </table>
+                </h:panelGroup>
+                
+                <div class="modal fade" id="printParamsDialog" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" style="width:400px;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="myModalLabel">#{msg.PUBLIC_DISPLAY_PAGE_PRINT_PARAMS}</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>#{msg.PUBLIC_DISPLAY_PAGE_CLAIMS_BY}</label>
+                                        <br />
+                                        <h:selectOneListbox size="1" id="cbxBoundary" value="#{publicDisplayPageBean.boundaryId}">
+                                            <f:selectItem itemLabel="#{msg.PUBLIC_DISPLAY_PAGE_ALL}" itemValue=""></f:selectItem>
+                                            <f:selectItems value="#{boundaryPageBean.getAllBoundariesFormatted(false)}" var="b"
+                                                           itemLabelEscaped="false"
+                                                           itemLabel="#{b.name}" 
+                                                           itemValue="#{b.id}" />
+                                        </h:selectOneListbox>
+                                    </div>
+                                </div>
+
+                                <div class="splitter"></div>
+                                    
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>#{msg.BOUNDARY_PRINT_PAGE_PAPER_SIZE}:</label>
+                                        <br />
+                                        <h:selectOneListbox size="1" id="cbxPaperSize" value="#{publicDisplayPageBean.fontSize}" style="width: 100px;">
+                                            <f:selectItem itemLabel="A4" itemValue="14px"></f:selectItem>
+                                            <f:selectItem itemLabel="A3" itemValue="16px"></f:selectItem>
+                                            <f:selectItem itemLabel="A2" itemValue="18px"></f:selectItem>
+                                            <f:selectItem itemLabel="A1" itemValue="20px"></f:selectItem>
+                                            <f:selectItem itemLabel="A0" itemValue="22px"></f:selectItem>
+                                        </h:selectOneListbox>
+                                        <br />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <h:commandButton class="btn btn-primary" value="#{msg.GENERAL_LABEL_OK}">
+                                    <f:ajax event="click" execute="cbxPaperSize cbxBoundary" 
+                                            render=":mainForm:pnlRecords"
+                                            onevent="renderList"
+                                            onerror="handleAjaxError"
+                                            listener="#{publicDisplayPageBean.searchPublicDisplayRecords()}" />
+                                </h:commandButton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

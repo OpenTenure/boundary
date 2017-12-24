@@ -39,9 +39,9 @@
                 <div class="content">
                     <div class="nav-tab-div">
                         <ul class="nav nav-tabs">
-                            <li class="active"><a href="#general" data-toggle="tab">#{msg.CLAIM_PAGE_CLAIM}</a></li>
+                            <li class="active"><a href="#mapTab" data-toggle="tab" onclick="renderMap()">#{msg.CLAIM_PAGE_MAP}</a></li>
+                            <li><a href="#general" data-toggle="tab">#{msg.CLAIM_PAGE_CLAIM}</a></li>
                             <li><a href="#claimant" data-toggle="tab">#{msg.CLAIM_PAGE_CLAIMANT}</a></li>
-                            <li><a href="#mapTab" data-toggle="tab" onclick="renderMap()">#{msg.CLAIM_PAGE_MAP}</a></li>
                             <li><a href="#attachments" data-toggle="tab">#{msg.CLAIM_PAGE_DOCUMENTS}</a></li>
                             <li><a href="#owners" data-toggle="tab">#{msg.CLAIM_PAGE_OWNERS}</a></li>
                             <li><a href="#additional" data-toggle="tab">#{msg.CLAIM_PAGE_ADJACENCIES}</a></li>
@@ -53,7 +53,13 @@
                     
                     <!-- Tab panes -->
                     <div class="tab-content">
-                        <div class="tab-pane active" id="general">
+                        <div class="tab-pane active" id="mapTab">
+                            <div style="padding: 15px 0px;">
+                                <uc:MapClaims id="mapClaimsCtrl" instantMapRender="true" mapHeight="500" claim="#{claimPageBean.claim}" isMapEditable="true"></uc:MapClaims>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane" id="general">
                             <div style="padding: 15px 0px;width:700px;">
                                 <div class="row">
                                     <div class="col-md-4">
@@ -173,11 +179,27 @@
                                         <br />
                                         <h:outputLabel value="#{claimPageBean.claim.claimArea}" /> m<sup>2</sup>
                                     </div>
-                                    <div class="col-md-8">
+                                    <div class="col-md-4">
                                         <label>
                                             #{msg.CLAIM_PAGE_CLAIM_NAME}
                                         </label>
                                         <h:inputTextarea value="#{claimPageBean.claim.description}" class="form-control" rows="2"></h:inputTextarea>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.CLAIM_PAGE_LOCATION}
+                                        </label>
+                                        <br />
+                                        <h:selectOneListbox
+                                            id="cbxLocation" 
+                                            size="1"
+                                            value="#{claimPageBean.claim.boundaryId}"
+                                            class="form-control">
+                                            <f:selectItems value="#{boundaryPageBean.getAllBoundariesFormatted(true)}" var="b"
+                                                           itemLabelEscaped="false"
+                                                           itemLabel="#{b.name}" 
+                                                           itemValue="#{b.id}" />
+                                        </h:selectOneListbox>
                                     </div>
                                 </div>
 
@@ -353,12 +375,6 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane" id="mapTab">
-                            <div style="padding: 15px 0px;">
-                                <uc:MapClaims id="mapClaimsCtrl" instantMapRender="false" mapHeight="500" claim="#{claimPageBean.claim}" isMapEditable="true"></uc:MapClaims>
-                            </div>
-                        </div>
-                        
                         <ui:include src="/controls/DynaForm.xhtml">
                             <ui:param name="allowEdit" value="true" rendererType="java.lang.Boolean" />
                             <ui:param name="columnsNumber" value="3" rendererType="java.lang.Integer" />

@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:uc="http://xmlns.jcp.org/jsf/composite/uc"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:body>
+        <ui:composition template="../templates/EmptyTemplate.xhtml">
+            <ui:define name="title">
+                #{boundaryPageBean.header}
+            </ui:define>
+            <ui:define name="head">
+                <link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/ol4/ol.css" />
+                <script type="text/javascript" src="#{request.contextPath}/js/ol4/ol.js"></script>
+                
+                <style>
+                    body{
+                        background-color: #fff !important;
+                        margin: 0px !important;
+                    }
+
+                    .mapHeader{
+                        text-align: center;
+                        height: 1.2cm;
+                    }
+                    
+                    .mapHeaderLabel{
+                        padding: 5px;
+                        font-weight: bold;
+                        font-size: 22pt;
+                    }
+
+                    .mapDiv{
+                        width: 18cm;
+                        height: 12cm;
+                        border: #888 solid 2px;
+                        margin: 0 auto !important;
+                    }
+
+                    .print-button{
+                        position: fixed;
+                        top: 7px;
+                        left: 35px;
+                        z-index: 1000;
+                    }
+                </style>
+                
+                <script>
+                    sourceCrs = "EPSG:4326";
+                    destCrs = "EPSG:3857";
+
+                    function printMap() {
+                        $("#btnPrint").hide();
+                        print();
+                        $("#btnPrint").show();
+                        return false;
+                    }
+
+                    $(function () {
+                        $('#mapParamsDialog').modal('show');
+                    });
+
+                    function renderMap() {
+                        $('#mapParamsDialog').modal('hide');
+
+                        // Set map height and width
+                        var width = 17.5;
+                        var height = 26.2;
+                        var headerSize = 1.2;
+                        var strokeWidth = 3;
+                        var headerFontSize = "22pt";
+                        var paperSize = $("#paperSize").val();
+                        var orientation = $('input[name=orientation]:checked').val();
+
+                        if (paperSize === "a3") {
+                            width = 26.2;
+                            height = 38.5;
+                            headerSize = 1.7;
+                            headerFontSize = "28pt";
+                            strokeWidth = 4;
+                        } else if (paperSize === "a2") {
+                            width = 38.5;
+                            height = 55.9;
+                            headerSize = 2.2;
+                            headerFontSize = "32pt";
+                            strokeWidth = 5;
+                        } else if (paperSize === "a1") {
+                            width = 55.9;
+                            height = 80.6;
+                            headerSize = 2.7;
+                            headerFontSize = "38pt";
+                            strokeWidth = 6;
+                        } else if (paperSize === "a0") {
+                            width = 80.6;
+                            height = 115.4;
+                            headerSize = 3.2;
+                            headerFontSize = "44pt";
+                            strokeWidth = 7;
+                        }
+
+                        if (orientation === "landscape") {
+                            var tmpHeight = height;
+                            height = width;
+                            width = tmpHeight;
+                        }
+
+                        height = height - headerSize;
+
+                        $("#map").css("width", width + "cm");
+                        $("#map").css("height", height + "cm");
+                        $(".mapHeader").css("height", headerSize + "cm");
+                        $(".mapHeaderLabel").css("font-size", headerFontSize);
+
+                        if ($("body").width() &lt; $("#map").width()) {
+                            $("body").css("width", width + "cm");
+                        }
+
+                        var layers = [];
+                        var wkt = new ol.format.WKT();
+                        
+                        // Add WMS layers
+                        $(':checkbox:checked').each(function () {
+                            if (this.value === "bingAreal") {
+                                layers.push(new ol.layer.Tile({
+                                    visible: true,
+                                    preload: Infinity,
+                                    source: new ol.source.BingMaps({
+                                        key: 'Aln9vuwvZ5OXaB7LaPhpy4Z3DyMEKTzIMxJG07aYluJNdMQukZZhFIA5Dllousf-',
+                                        imagerySet: 'Aerial'
+                                    })
+                                }));
+                            } 
+                            
+                            // Add WMS layers
+                            <ui:repeat var = "l" value = "#{mapSettingsBean.layersArray}" varStatus = "r">
+                                <ui:fragment rendered = "#{l.typeCode eq 'wms' and l.useForOpenTenure}">
+                                    if (this.value === "#{l.id}") {
+                                        layers.push(new ol.layer.Tile({
+                                            source: new ol.source.TileWMS({
+                                                url: '#{l.url}',
+                                                params: {'LAYERS': '#{l.wmsLayers}', 'TILED': true},
+                                                serverType: 'geoserver'
+                                            })
+                                        }));
+                                    }
+                                </ui:fragment>
+                            </ui:repeat>
+                        
+                            // Add community area
+                            if (this.value === "comarea") {
+                                var commAreaFeature = wkt.readFeature(
+                                    "#{mapSettingsBean.communityArea}",
+                                    {dataProjection: sourceCrs, featureProjection: destCrs}
+                                    );
+
+                                var commAreaStyle = new ol.style.Style({
+                                    stroke: new ol.style.Stroke({
+                                        color: '#F5856F',
+                                        width: 3
+                                    }),
+                                    fill: new ol.style.Fill({
+                                        color: 'rgba(255,255,255,0)'
+                                    })
+                                });
+
+                                layers.push(new ol.layer.Vector({
+                                    source: new ol.source.Vector({
+                                        features: [commAreaFeature]
+                                    }),
+                                    style: commAreaStyle
+                                }));
+                            }
+                        });
+
+                        // Add boundary
+                        <c:if test = "#{not empty boundaryPageBean.boundary.geom}">
+                            var currentBoundaryFeature = wkt.readFeature(
+                                "#{boundaryPageBean.boundary.geom}",
+                                {dataProjection: sourceCrs, featureProjection: destCrs}
+                            );
+                            currentBoundaryFeature.setProperties({
+                                name: "#{boundaryPageBean.boundary.name}"
+                            });
+                            
+                            var initialZoomBounds = currentBoundaryFeature.getGeometry().getExtent();
+                            
+                            var borderStyle = new ol.style.Style({
+                                stroke: new ol.style.Stroke({
+                                    color: '#FF5500',
+                                    width: strokeWidth
+                                }),
+                                fill: new ol.style.Fill({
+                                    color: 'rgba(255,255,255,0)'
+                                })
+                            });
+
+                            layers.push(new ol.layer.Vector({
+                                source: new ol.source.Vector({
+                                    features: [currentBoundaryFeature]
+                                }),
+                                style: borderStyle
+                            }));
+                        </c:if>
+                        
+                        var map = new ol.Map({
+                            layers: layers,
+                            loadTilesWhileInteracting: true,
+                            target: 'map',
+                            controls: [],
+                            interactions: ol.interaction.defaults({
+                                doubleClickZoom: false,
+                                dragAndDrop: false,
+                                keyboardPan: false,
+                                dragPan: false,
+                                keyboardZoom: false,
+                                mouseWheelZoom: false,
+                                pointer: false,
+                                select: false
+                            })
+                        });
+                        
+                        if(initialZoomBounds){
+                            map.getView().fit(initialZoomBounds, map.getSize());
+                        }
+                    }
+                </script>
+            </ui:define>
+            
+            <ui:define name="content">
+                <div>
+                    <a href="#" id="btnPrint" onclick="return printMap()" class="btn btn-primary print-button">
+                        <i class="glyphicon glyphicon-print"></i> #{msg.BOUNDARY_PRINT_PAGE_PRINT_WHEN_READY}
+                    </a>
+                    <div class="mapHeader">
+                        <span class="mapHeaderLabel">#{boundaryPageBean.header}</span>
+                    </div>
+                    <div id="map" class="mapDiv" style="margin: 0 auto !important;"></div>
+                </div>
+
+                <div class="modal fade" id="mapParamsDialog" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" style="width:500px;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="myModalLabel">#{msg.BOUNDARY_PRINT_PAGE_MAP_PARAMS}</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>#{msg.MAP_CONTROL_LAYERS}:</label>
+                                        <br />
+                                        <c:if test="#{not mapSettingsBean.isOffline}">
+                                            <input type="checkbox" value="bingAreal" checked = "checked" /> #{msg.MAP_CONTROL_BING_AREAL}
+                                            <br />
+                                        </c:if>
+                                        <ui:repeat var = "l" value = "#{mapSettingsBean.layersArray}" varStatus = "r">
+                                            <ui:fragment rendered = "#{l.typeCode eq 'wms' and l.useForOpenTenure}">
+                                                <input type="checkbox" value="#{l.id}" /> #{l.title}
+                                                <br />
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                        <input type="checkbox" value="comarea" /> #{msg.MAP_CONTROL_COMMUNITY_LAYER_NAME}
+                                        <br />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>#{msg.BOUNDARY_PRINT_PAGE_PAPER_SIZE}:</label>
+                                        <br />
+                                        <select id="paperSize" style="width: 100px;">
+                                            <option value="a4">A4</option>
+                                            <option value="a3">A3</option>
+                                            <option value="a2">A2</option>
+                                            <option value="a1">A1</option>
+                                            <option value="a0" selected="selected">A0</option>
+                                        </select>
+                                        <br /><br />
+                                        <label>#{msg.BOUNDARY_PRINT_PAGE_ORIENTATION}</label>
+                                        <br />
+                                        <input type="radio" name="orientation" value="portrait" /> #{msg.BOUNDARY_PRINT_PAGE_PORTRAIT}
+                                        <br />
+                                        <input type="radio" name="orientation" value="landscape" checked = "checked" /> #{msg.BOUNDARY_PRINT_PAGE_LANDSCAPE}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="renderMap()">#{msg.GENERAL_LABEL_OK}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:uc="http://xmlns.jcp.org/jsf/composite/uc"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:body>
+        <ui:composition template="../templates/MapTemplate.xhtml">
+            <ui:define name="title">
+                #{boundaryPageBean.header}
+            </ui:define>
+            <ui:define name="head2">
+            </ui:define>
+            <ui:define name="content">
+                <div class="PageName">
+                    <i class="glyphicon glyphicon-file"></i> #{boundaryPageBean.header} 
+                    <br />
+                    <div class="btn-group">
+                        <h:outputLink value="#{request.contextPath}/boundary/Boundary.xhtml?id=#{boundaryPageBean.id}" 
+                                      class="btn btn-default" 
+                                      onclick="blockUI()"
+                                      rendered="#{boundaryPageBean.canEdit}">
+                            #{msg.GENERAL_LABEL_EDIT}
+                        </h:outputLink>
+                        <h:commandButton class="btn btn-default" value="#{msg.GENERAL_LABEL_DELETE}"
+                                         rendered="#{boundaryPageBean.canEdit}"
+                                         action="#{boundaryPageBean.delete()}"
+                                         onclick="return confirm('#{msg.BOUNDARY_PAGE_DELETE_WARNING}') ? blockUI() : false" />
+                        <h:outputLink value="" class="btn btn-default" rendered="#{not boundaryPageBean.boundary.isNew()}" onclick="return printBoundary()">
+                            #{msg.GENERAL_LABEL_PRINT}
+                        </h:outputLink>
+                        <h:commandButton class="btn btn-default" value="#{msg.BOUNDARY_PAGE_APPROVE}"
+                                         rendered="#{boundaryPageBean.canApprove}"
+                                         action="#{boundaryPageBean.approve()}"
+                                         onclick="return confirm('#{msg.BOUNDARY_PAGE_APPROVE_WARNING}') ? blockUI() : false" />
+                        <h:inputHidden value="#{boundaryPageBean.id}" />
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="nav-tab-div">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#mapTab" data-toggle="tab">#{msg.CLAIM_PAGE_MAP}</a></li>
+                            <li><a href="#general" data-toggle="tab">#{msg.CLAIM_PAGE_GENERAL}</a></li>
+                        </ul>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="mapTab">
+                            <div style="padding: 15px 0px;">
+                                <uc:MapBoundary id="mapBoundaryCtrl" instantMapRender="true" mapHeight="500" boundary="#{boundaryPageBean.boundary}" isMapEditable="false"></uc:MapBoundary>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="general">
+                            <div style="padding: 15px 0px;width:700px;">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.BOUNDARIES_PAGE_NAME}
+                                            <i class="glyphicon glyphicon-required"></i>
+                                        </label>
+                                        <br />
+                                        #{boundaryPageBean.boundary.name}
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.BOUNDARIES_PAGE_TYPE} 
+                                        </label>
+                                        <br />
+                                        #{boundaryPageBean.boundaryTypeName}
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.GENERAL_LABEL_STATUS} 
+                                        </label>
+                                        <br />
+                                        #{boundaryPageBean.boundaryStatusName}
+                                    </div>
+                                </div>
+
+                                <div class="splitter"></div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.BOUNDARIES_PAGE_PARENT} 
+                                        </label>
+                                        <br />
+                                        #{boundaryPageBean.fullParentNames}
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <label>
+                                            #{msg.BOUNDARIES_PAGE_AUTHORITY}
+                                        </label>
+                                        <br />
+                                        #{boundaryPageBean.boundary.authorityName}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script language="javascript">
+                    function printBoundary() {
+                        var wnd = window.open("#{request.contextPath}/boundary/BoundaryPrint.xhtml?id=#{boundaryPageBean.id}", "_blank", "width=1000,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes,fullscreen=yes");
+                        return false;
+                    }
+                </script>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

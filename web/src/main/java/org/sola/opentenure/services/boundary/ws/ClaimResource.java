@@ -42,6 +42,8 @@ import org.sola.cs.services.boundary.transferobjects.claim.ClaimPartyTO;
 import org.sola.cs.services.boundary.transferobjects.claim.ClaimShareTO;
 import org.sola.cs.services.boundary.transferobjects.claim.ClaimTO;
 import org.sola.cs.services.boundary.transferobjects.claim.FormTemplateTO;
+import org.sola.cs.services.boundary.transferobjects.search.AdministrativeBoundarySearchResultTO;
+import org.sola.cs.services.boundary.transferobjects.search.AdministrativeBoundaryWithGeomSearchResultTO;
 import org.sola.cs.services.boundary.transferobjects.search.ClaimSearchResultTO;
 import org.sola.cs.services.boundary.transferobjects.search.ClaimSpatialSearchResultTO;
 import org.sola.cs.services.boundary.transferobjects.search.MapSearchResultTO;
@@ -50,6 +52,8 @@ import org.sola.services.common.contracts.CsGenericTranslator;
 import org.sola.services.common.faults.OTRestException;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.search.repository.entities.ClaimSpatialSearchParams;
+import org.sola.cs.services.ejb.search.repository.entities.GeoJsonAdministrativeBoundary;
+import org.sola.cs.services.ejb.search.repository.entities.GeoJsonClaim;
 import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 
 /**
@@ -67,8 +71,19 @@ public class ClaimResource extends AbstractWebRestService {
 
     @EJB
     SystemCSEJBLocal systemEjb;
-    
+
     private String hiddenString = "";
+
+    private final String geoJson = "{"
+            + "\"type\": \"FeatureCollection\","
+            + "\"crs\": {"
+            + "\"type\": \"name\","
+            + "\"properties\": {"
+            + "\"name\": \"EPSG:3857\""
+            + "}"
+            + "},"
+            + "\"features\": [%s]"
+            + "}";
 
     /**
      * Creates a new instance of ClaimResource
@@ -106,7 +121,7 @@ public class ClaimResource extends AbstractWebRestService {
     @Path(value = "{a:getdefaultformtemplate|getDefaultFormTemplate}")
     @Deprecated
     /**
-     * Returns default dynamic form template. 
+     * Returns default dynamic form template.
      */
     public String getDefaultFormTemplate(
             @PathParam(value = LOCALE_CODE) String localeCode) {
@@ -142,7 +157,7 @@ public class ClaimResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
-    
+
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getformtemplates|getFormTemplates}")
@@ -245,7 +260,43 @@ public class ClaimResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
-    
+
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getobjectbypoint|getObjectByPoint}")
+    public String getObjectByPoint(
+            @PathParam(value = LOCALE_CODE) String localeCode,
+            @QueryParam(value = "x") String x,
+            @QueryParam(value = "y") String y,
+            @Context HttpServletResponse response) {
+        try {
+            if (StringUtility.isEmpty(x) || StringUtility.isEmpty(y)) {
+                throw ExceptionFactory.buildGeneralException(ServiceMessage.OT_WS_EMPTY_REQUIRED_FIELDS, localeCode);
+            }
+
+            // First look for claims as most top object
+            ClaimSearchResultTO claimTO = CsGenericTranslator
+                    .toTO(searchEjb.getClaimByCoordinates(x, y, localeCode), ClaimSearchResultTO.class);
+            String result = "";
+            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
+            response.addHeader("Access-Control-Allow-Origin", "*");
+
+            if (claimTO != null) {
+                result = getMapper().writeValueAsString(claimTO);
+            } else {
+                // Look for boundary
+                AdministrativeBoundaryWithGeomSearchResultTO boundaryTO = CsGenericTranslator
+                        .toTO(searchEjb.getAdministrativeBoundaryByCoordinates(x, y, localeCode), AdministrativeBoundaryWithGeomSearchResultTO.class);
+                if (boundaryTO != null) {
+                    result = getMapper().writeValueAsString(boundaryTO);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:searchmap|searchMap}")
@@ -284,6 +335,73 @@ public class ClaimResource extends AbstractWebRestService {
                 return getMapper().writeValueAsString(new ArrayList<>());
             }
             return getMapper().writeValueAsString(claimsTOList);
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getjsonclaims|getJsonClaims}")
+    public String getJsonClaims(
+            @PathParam(value = LOCALE_CODE) String localeCode,
+            @QueryParam(value = "boundaryid") String boundaryId,
+            @Context HttpServletResponse response) {
+        try {
+            List<GeoJsonClaim> claims = searchEjb.getGeoJsonClaimsByBoundary(boundaryId);
+
+            String feature = "\n{"
+                    + "\"type\": \"Feature\","
+                    + "\"properties\": {\"id\": \"%s\", \"nr\": \"%s\"},"
+                    + "\"geometry\": %s"
+                    + "}";
+            String features = "";
+
+            if (claims != null && claims.size() > 0) {
+                for (GeoJsonClaim claim : claims) {
+                    if (!StringUtility.isEmpty(claim.getGeom())) {
+                        if (!StringUtility.isEmpty(features)) {
+                            features += ", ";
+                        }
+                        features += String.format(feature, claim.getId(), claim.getNr(), claim.getGeom());
+                    }
+                }
+            }
+
+            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
+            response.addHeader("Access-Control-Allow-Origin", "*");
+
+            return String.format(geoJson, features);
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getjsonboundary|getJsonBoundary}")
+    public String getJsonBoundary(
+            @PathParam(value = LOCALE_CODE) String localeCode,
+            @QueryParam(value = "id") String id,
+            @Context HttpServletResponse response) {
+        try {
+            GeoJsonAdministrativeBoundary boundary = searchEjb.getGeoJsonAdministrativeBoundary(id);
+
+            String feature = "\n{"
+                    + "\"type\": \"Feature\","
+                    + "\"properties\": {\"id\": \"%s\", \"name\": \"%s\"},"
+                    + "\"geometry\": %s"
+                    + "}";
+            String features = "";
+
+            if (boundary != null && !StringUtility.isEmpty(boundary.getGeom())) {
+                features = String.format(feature, boundary.getId(), boundary.getName(), boundary.getGeom());
+            }
+
+            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
+            response.addHeader("Access-Control-Allow-Origin", "*");
+
+            return String.format(geoJson, features);
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -361,7 +479,7 @@ public class ClaimResource extends AbstractWebRestService {
             Claim existingClaim = claimEjb.getClaim(claimTO.getId());
             Claim claim = CsGenericTranslator.fromTO(claimTO, Claim.class, existingClaim);
             final Claim[] claims = new Claim[]{claim};
-            
+
             runUpdate(new Runnable() {
                 @Override
                 public void run() {
@@ -528,7 +646,7 @@ public class ClaimResource extends AbstractWebRestService {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getparcelgeomrequired|getParcelGeomRequired}")
-    public String getParcelGeomRequired(@PathParam(value = LOCALE_CODE) String localeCode){
+    public String getParcelGeomRequired(@PathParam(value = LOCALE_CODE) String localeCode) {
         try {
             String result = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, "1");
             return "{result:\"" + result + "\"}";
@@ -536,7 +654,7 @@ public class ClaimResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
-    
+
     private void removeClaimPrivateInfo(ClaimTO claim) {
         if (claim == null) {
             return;

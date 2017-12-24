@@ -162,4 +162,17 @@ public class MessagesKeys {
     
     /** Claims have been successfully merged. Click on the claims below to review the result. */
     public static final String CLAIMS_MERGE_SUCCESS = "CLAIMS_MERGE_SUCCESS";
+    
+    /** %s %s boundary */
+    public static final String BOUNDARY_PAGE_TITLE = "BOUNDARY_PAGE_TITLE";
+    
+    /** Boundary - New */
+    public static final String BOUNDARY_PAGE_TITLE_NEW = "BOUNDARY_PAGE_TITLE_NEW";
+    
+    /** Boundary has been saved successfully */
+    public static final String BOUNDARY_PAGE_SAVED = "BOUNDARY_PAGE_SAVED";
+    /** Boundary has been approved */
+    public static final String BOUNDARY_PAGE_APPROVED = "BOUNDARY_PAGE_APPROVED";
+    /** Boundary has been deleted */
+    public static final String BOUNDARY_PAGE_DELETED = "BOUNDARY_PAGE_DELETED";
 }

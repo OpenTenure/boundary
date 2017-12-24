@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://java.sun.com/jsf/composite"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:uc="http://xmlns.jcp.org/jsf/composite/uc"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <cc:interface>
+        <cc:attribute name="boundary" type="org.sola.cs.services.ejbs.claim.entities.AdministrativeBoundary" />
+        <cc:attribute name="instantMapRender" type="java.lang.Boolean" default="true" 
+                      shortDescription="If true value is set, map will be rendered and shown immediately. 
+                      With false value, map will be rendered upon calling renderMap() method. 
+                      This is required to workaround issue with displaying map in Twitter bootstrap tabs. 
+                      In case of using map inside tabs, set this attribute to true and call renderMap() method on tab click event." />
+        <cc:attribute name="isMapEditable" type="java.lang.Boolean" default="false" 
+                      shortDescription="Indicates whether map can be edited or not." />
+        <cc:attribute name="mapHeight" type="java.lang.String" default="500" />
+    </cc:interface>
+
+    <cc:implementation id="mapBoundary">
+
+        <uc:Map></uc:Map>
+
+        <c:if test="#{cc.attrs.isMapEditable}">
+            <script src="#{request.contextPath}/js/ot_map_boundary.js"></script>
+        </c:if>
+        <script type="text/javascript">
+            var instantMapRender = #{cc.attrs.instantMapRender};
+            var mapControl;
+            var isMapEditable = #{cc.attrs.isMapEditable};
+            mapControlId = "#{cc.clientId}";
+            
+            Ext.onReady(function() {
+                var wkt = new OpenLayers.Format.WKT();
+                var communityArea = wkt.read("#{mapSettingsBean.communityArea}");
+                communityArea.geometry.transform(sourceCrs, destCrs);
+
+                var maxExtentBounds = communityArea.geometry.getBounds();
+                var initialZoomBounds = maxExtentBounds;
+                var layers = [];
+                var snappingLayers = [];
+
+                <ui:repeat var = "l" value = "#{mapSettingsBean.layersArray}" varStatus = "r">
+                    <ui:fragment rendered = "#{l.typeCode eq 'wms' and l.useForOpenTenure}">
+                        // Add WMS layers
+                        var wmsLayer = new OpenLayers.Layer.WMS("#{l.title}", "#{l.url}",
+                                    {layers: '#{l.wmsLayers}' #{mapSettingsBean.getLayerParamsString(l, true)}},
+                                    {minResolution: 0.001, maxResolution: 200, #{mapSettingsBean.getLayerOptionsString(l, false)}});
+                        wmsLayer.legendOptions = "#{mapSettingsBean.getLegendOptions(l)}";
+                        layers.push(wmsLayer);
+                    </ui:fragment>
+                </ui:repeat>
+
+                // Add community area
+                var layerCommunityArea = new OT.Map.Layer.VectorLayer(
+                        OT.Map.LAYER_IDS.COMMUNITY_AREA,
+                        "#{msg.MAP_CONTROL_COMMUNITY_LAYER_NAME}",
+                        {
+                            isEditable: false,
+                            styleMap: OT.Map.Styles.styleMapCommunityLayer
+                        });
+                layerCommunityArea.addFeatures([communityArea]);
+                
+                layers.push(layerCommunityArea);
+                snappingLayers.push(layerCommunityArea);
+        
+                <c:if test = "#{cc.attrs.isMapEditable or not empty cc.attrs.boundary.geom}">
+                    // Add current boundary layer
+                    var layerSelectedBoundary = new OT.Map.Layer.VectorLayer(
+                            OT.Map.LAYER_IDS.CURRENT_BOUNDARY,
+                            "#{msg.MAP_CONTROL_CURRENT_BOUNDARY}", 
+                            {
+                                styleMap: OT.Map.Styles.styleBoundary, 
+                                isEditable: isMapEditable, 
+                                virtualNodeStyle: OT.Map.Styles.styleClaimNode
+                            });
+                    
+                    layers.push(layerSelectedBoundary);
+                    snappingLayers.push(layerSelectedBoundary);
+                    
+                    <c:if test = "#{not empty cc.attrs.boundary.geom}">
+                        var currentBoundaryFeature = wkt.read("#{cc.attrs.boundary.geom}");
+                        currentBoundaryFeature.geometry.transform(sourceCrs, destCrs);
+
+                        initialZoomBounds = currentBoundaryFeature.geometry.getBounds();
+                        currentBoundaryFeature.attributes = {id: "#{cc.attrs.boundary.id}", label: "#{cc.attrs.boundary.name}", statusCode: "#{cc.attrs.boundary.statusCode}"};
+                        layerSelectedBoundary.addFeatures(currentBoundaryFeature);
+                    </c:if>
+            
+                    layerSelectedBoundary.events.on({"beforefeatureadded": function(evt){
+                            evt.feature.attributes = {label: "", statusCode: "pending"};
+                    }});                   
+                </c:if>
+
+                mapControl = new OT.Map({
+                    isMapEditable: isMapEditable,
+                    mapHeight: #{cc.attrs.mapHeight},
+                    maxExtentBounds: maxExtentBounds,
+                    initialZoomBounds: initialZoomBounds,
+                    isOffline: #{mapSettingsBean.isOffline},
+                    applicationUrl: "#{mapSettingsBean.applicationUrl}",
+                    languageCode: "#{languageBean.locale}",
+                    showSearch: false,
+                    showLine: false, 
+                    showPoint: false,
+                    layers: layers
+                });
+                
+                mapControl.setSnappingLayers(snappingLayers);
+                
+                if (instantMapRender) {
+                    renderMap();
+                }
+            });
+            function renderMap() {
+                mapControl.renderMap();
+            }
+            
+            <c:if test="#{cc.attrs.isMapEditable}">
+                MSG.ERR.MAP_CONTROL_BAD_FEATURE_STRUCTURE = "#{err.MAP_CONTROL_BAD_FEATURE_STRUCTURE}";
+                MSG.ERR.MAP_CONTROL_BOUNDARY_GEOMETRY_MUST_BE_ONE = "#{err.MAP_CONTROL_BOUNDARY_GEOMETRY_MUST_BE_ONE}";
+            </c:if>
+        </script>
+        <h:inputHidden id="hCurrentBoundary" binding="#{hCurrentBoundary}" value="#{boundaryPageBean.boundary.geom}" />
+    </cc:implementation>
+</html>

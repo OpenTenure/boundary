@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
@@ -17,10 +16,11 @@ import org.sola.cs.services.ejb.refdata.entities.LandUseType;
 import org.sola.cs.services.boundary.transferobjects.system.MapExtentTO;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
 import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
-import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 import org.sola.cs.services.ejb.refdata.businesslogic.RefDataCSEJBLocal;
+import org.sola.cs.services.ejb.refdata.entities.AdministrativeBoundaryStatus;
+import org.sola.cs.services.ejb.refdata.entities.AdministrativeBoundaryType;
 import org.sola.cs.services.ejb.refdata.entities.FieldType;
 import org.sola.cs.services.ejb.refdata.entities.GenderType;
 import org.sola.cs.services.ejb.refdata.entities.IdType;
@@ -28,8 +28,6 @@ import org.sola.cs.services.ejb.refdata.entities.Language;
 import org.sola.cs.services.ejb.refdata.entities.RejectionReason;
 import org.sola.cs.services.ejb.refdata.entities.RrrType;
 import org.sola.cs.services.ejb.refdata.entities.SourceType;
-import org.sola.cs.services.ejbs.claim.entities.TerminationReason;
-import org.sola.cs.services.ejbs.claim.entities.TerminationReason;
 import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 
 /**
@@ -387,6 +385,45 @@ public class ReferenceData {
         return result;
     }
 
+    /**
+     * Returns list of {@link AdministrativeBoundaryType}
+     *
+     * @param langCode Language code
+     * @param onlyActive Indicates whether to return only active records or all.
+     * @return
+     */
+     public List<AdministrativeBoundaryType> getAdministrativeBoundaryTypes(String langCode, boolean onlyActive) {
+        return getTypes(refDataEjb.getCodeEntityList(AdministrativeBoundaryType.class, langCode), onlyActive);
+    }
+     
+     /**
+     * Returns list of {@link ClaimStatus}
+     *
+     * @param langCode Language code
+     * @param onlyActive Indicates whether to return only active records or all.
+     * @param addDummy If true, empty item will be inserted on the top
+     * @return
+     */
+    public AdministrativeBoundaryType[] getAdministrativeBoundaryTypes(String langCode, boolean onlyActive, boolean addDummy) {
+        ArrayList<AdministrativeBoundaryType> result = (ArrayList<AdministrativeBoundaryType>) getAdministrativeBoundaryTypes(langCode, onlyActive);
+        if (addDummy) {
+            result = (ArrayList<AdministrativeBoundaryType>) result.clone();
+            result.add(0, createDummy(new AdministrativeBoundaryType()));
+        }
+        return result.toArray(new AdministrativeBoundaryType[result.size()]);
+    }
+    
+    /**
+     * Returns list of {@link AdministrativeBoundaryStatus}
+     *
+     * @param langCode Language code
+     * @param onlyActive Indicates whether to return only active records or all.
+     * @return
+     */
+     public List<AdministrativeBoundaryStatus> getAdministrativeBoundaryStatuses(String langCode, boolean onlyActive) {
+        return getTypes(refDataEjb.getCodeEntityList(AdministrativeBoundaryStatus.class, langCode), onlyActive);
+    }
+     
     /**
      * Searches provided list of beans by bean code and returns found object.
      *

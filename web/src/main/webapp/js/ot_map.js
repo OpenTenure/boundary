@@ -15,21 +15,23 @@ MSG.MAP_CONTROL_EDIT_SHAPE = "Edit shape";
 MSG.MAP_CONTROL_DELETE_SHAPE = "Delete shape";
 MSG.MAP_CONTROL_EDIT_PROPERTIES = "Edit properties";
 MSG.MAP_CONTROL_SNAP = "Snap";
-MSG.MAP_CONTROL_SNAP_SELECT = "Add claims for snapping";
+MSG.MAP_CONTROL_SNAP_SELECT = "Add to snapping";
 MSG.MAP_CONTROL_CONFIRM_FEATURE_DELETE = "Are you sure you want to delete selected feature?";
 MSG.MAP_CONTROL_LOADING = "Loading...";
-MSG.MAP_CONTROL_CLAIM_NOT_FOUND = "Claim not found";
+MSG.MAP_CONTROL_NOTHING_FOUND = "Nothing was found";
 MSG.MAP_CONTROL_CLAIMANT = "Claimant";
 MSG.MAP_CONTROL_STATUS = "Status";
 MSG.MAP_CONTROL_AREA = "Area";
 MSG.MAP_CONTROL_LODGED = "Lodged";
-MSG.MAP_CONTROL_CLAIM_INFO = "Claim information";
+MSG.MAP_CONTROL_INFO = "Information";
 MSG.MAP_CONTROL_PAN = "Pan";
 MSG.MAP_CONTROL_MAXIMIZE = "Maximize";
 MSG.MAP_CONTROL_MAXIMIZE_TITLE = "Maximize map";
 MSG.MAP_CONTROL_GOOGLE_MAP = "Google Map";
 MSG.MAP_CONTROL_GOOGLE_EARTH = "Google Earth";
 MSG.MAP_CONTROL_SEARCH = "Search";
+MSG.MAP_CONTROL_TYPE = "Type";
+MSG.MAP_CONTROL_PARENT = "Parent";
 
 // Map control
 OT.Map = function (mapOptions) {
@@ -43,7 +45,7 @@ OT.Map = function (mapOptions) {
     var isMapEditable = mapOptions.isMapEditable ? mapOptions.isMapEditable : false;
 
     // Boolean flag, indicating whether to show search field or not
-    var showSearch = mapOptions.showSearch ? mapOptions.showSearch : false;
+    var showSearch = typeof mapOptions.showSearch !== 'undefined' ? mapOptions.showSearch : false;
 
     // Boolean flag, indicating whether CS is offline or not
     var isOffline = mapOptions.isOffline ? mapOptions.isOffline : false;
@@ -77,6 +79,12 @@ OT.Map = function (mapOptions) {
 
     // Map height
     var mapHeight = mapOptions.mapHeight ? mapOptions.mapHeight : 500;
+
+    // Force line tool to show/hide
+    var showLine = typeof mapOptions.showLine !== 'undefined' ? mapOptions.showLine : true;
+
+    // Force point tool to show/hide
+    var showPoint = typeof mapOptions.showPoint !== 'undefined' ? mapOptions.showPoint : true;
 
     // Map max extent bounds, used for full extent action
     this.maxExtentBounds = mapOptions.maxExtentBounds ? mapOptions.maxExtentBounds : null;
@@ -238,7 +246,8 @@ OT.Map = function (mapOptions) {
                         var f = new OpenLayers.Format.WKT().read(ui.item.geom);
                         f.geometry.transform(that.sourceCrs, that.destCrs);
                         map.zoomToExtent(f.geometry.getBounds());
-                        if (document.activeElement != document.body) document.activeElement.blur();
+                        if (document.activeElement != document.body)
+                            document.activeElement.blur();
                         return true;
                     }
                 }).data("ui-autocomplete")._renderItem = function (ul, item) {
@@ -339,7 +348,7 @@ OT.Map = function (mapOptions) {
                         attr.component = {
                             xtype: "gx_wmslegend",
                             baseParams: {
-                                LEGEND_OPTIONS: attr.layer.legendOptions === 'undefined' ? '' : attr.layer.legendOptions
+                                LEGEND_OPTIONS: typeof attr.layer.legendOptions === 'undefined' ? '' : attr.layer.legendOptions
                             },
                             layerRecord: mapPanel.layers.getByLayer(attr.layer),
                             showTitle: false,
@@ -434,7 +443,7 @@ OT.Map = function (mapOptions) {
     OpenLayers.Util.extend(claimInfoControl, {
         draw: function () {
             this.clickHandler = new OpenLayers.Handler.Click(claimInfoControl,
-                    {click: handleClaimInfoClick},
+                    {click: handleInfoClick},
                     {delay: 0, single: true, double: false, stopSingle: false, stopDouble: true});
 
         },
@@ -461,8 +470,8 @@ OT.Map = function (mapOptions) {
         toggleGroup: "draw",
         group: "draw",
         pressed: true,
-        text: MSG.MAP_CONTROL_CLAIM_INFO,
-        tooltip: MSG.MAP_CONTROL_CLAIM_INFO
+        text: MSG.MAP_CONTROL_INFO,
+        tooltip: MSG.MAP_CONTROL_INFO
     }));
 
     if (isMapEditable) {
@@ -499,33 +508,37 @@ OT.Map = function (mapOptions) {
             tooltip: MSG.MAP_CONTROL_DRAW_POLYGON
         }));
 
-        mapToolbarItems.push(new GeoExt.Action({
-            id: OT.Map.TOOLBAR_BUTTON_IDS.DRAW_LINE,
-            control: new OT.Map.Control.DrawFeature(defaultEditingLayer,
-                    OpenLayers.Handler.Path, {handlerOptions: {}, featureAdded: featureAdded}),
-            iconCls: 'polylineIcon',
-            map: map,
-            editingTool: true,
-            toggleGroup: "draw",
-            group: "draw",
-            disabled: true,
-            text: MSG.MAP_CONTROL_DRAW_LINE,
-            tooltip: MSG.MAP_CONTROL_DRAW_LINE
-        }));
+        if (showLine) {
+            mapToolbarItems.push(new GeoExt.Action({
+                id: OT.Map.TOOLBAR_BUTTON_IDS.DRAW_LINE,
+                control: new OT.Map.Control.DrawFeature(defaultEditingLayer,
+                        OpenLayers.Handler.Path, {handlerOptions: {}, featureAdded: featureAdded}),
+                iconCls: 'polylineIcon',
+                map: map,
+                editingTool: true,
+                toggleGroup: "draw",
+                group: "draw",
+                disabled: true,
+                text: MSG.MAP_CONTROL_DRAW_LINE,
+                tooltip: MSG.MAP_CONTROL_DRAW_LINE
+            }));
+        }
 
-        mapToolbarItems.push(new GeoExt.Action({
-            id: OT.Map.TOOLBAR_BUTTON_IDS.DRAW_POINT,
-            control: new OpenLayers.Control.DrawFeature(defaultEditingLayer,
-                    OpenLayers.Handler.Point, {handlerOptions: {}, featureAdded: featureAdded}),
-            iconCls: 'pointIcon',
-            map: map,
-            editingTool: true,
-            toggleGroup: "draw",
-            group: "draw",
-            disabled: true,
-            text: MSG.MAP_CONTROL_DRAW_POINT,
-            tooltip: MSG.MAP_CONTROL_DRAW_POINT
-        }));
+        if (showPoint) {
+            mapToolbarItems.push(new GeoExt.Action({
+                id: OT.Map.TOOLBAR_BUTTON_IDS.DRAW_POINT,
+                control: new OpenLayers.Control.DrawFeature(defaultEditingLayer,
+                        OpenLayers.Handler.Point, {handlerOptions: {}, featureAdded: featureAdded}),
+                iconCls: 'pointIcon',
+                map: map,
+                editingTool: true,
+                toggleGroup: "draw",
+                group: "draw",
+                disabled: true,
+                text: MSG.MAP_CONTROL_DRAW_POINT,
+                tooltip: MSG.MAP_CONTROL_DRAW_POINT
+            }));
+        }
 
         mapToolbarItems.push("-");
 
@@ -942,10 +955,11 @@ OT.Map = function (mapOptions) {
     }
 
     // Claim information tool
-    var getClaimUrl = applicationUrl + "/ws/" + this.languageCode + "/claim/getclaimbypoint";
+    var getObjectUrl = applicationUrl + "/ws/" + this.languageCode + "/claim/getobjectbypoint";
     var viewClaimUrl = applicationUrl + "/claim/ViewClaim.xhtml";
+    var viewBoundaryUrl = applicationUrl + "/boundary/ViewBoundary.xhtml";
     var mapWaitContent = "<div id='mapWaitContent' class='mapWaitDiv'>" + MSG.MAP_CONTROL_LOADING + "</div>";
-    var mapNoResutlsContent = "<div id='mapNoResutlsContent' class='mapNoResultsDiv'>" + MSG.MAP_CONTROL_CLAIM_NOT_FOUND + "</div>";
+    var mapNoResutlsContent = "<div id='mapNoResutlsContent' class='mapNoResultsDiv'>" + MSG.MAP_CONTROL_NOTHING_FOUND + "</div>";
     var mapClaimInfoContent = "<div id='mapClaimInfoContent' class='mapClaimInfoDiv'>" +
             "<div class='line'>" +
             "<a href='' id='claimNr' target='_blank'></a>" +
@@ -964,10 +978,25 @@ OT.Map = function (mapOptions) {
             "</div>" +
             "</div>";
 
-    var claimInfoPopup = null;
+    var mapBoundaryInfoContent = "<div id='mapBaoundaryInfoContent' class='mapClaimInfoDiv'>" +
+            "<div class='line'>" +
+            "<a href='' id='boundaryName' target='_blank'></a>" +
+            "</div>" +
+            "<div class='line'>" + MSG.MAP_CONTROL_TYPE +
+            "<br /><b><span id='boundaryType'></span></b> " +
+            "</div>" +
+            "<div id='boundaryDivParent'><div class='line'>" + MSG.MAP_CONTROL_PARENT +
+            "<br /><b><span id='boundaryParent'></span></b> " +
+            "</div></div>" +
+            "<div class='line'>" + MSG.MAP_CONTROL_STATUS +
+            " <br /><b><span id='boundaryStatus'></span></b>" +
+            "</div>" +
+            "</div>";
+
+    var infoPopup = null;
     var xhr;
 
-    function handleClaimInfoClick(evt)
+    function handleInfoClick(evt)
     {
         if (typeof xhr !== 'undefined') {
             xhr.abort();
@@ -976,22 +1005,22 @@ OT.Map = function (mapOptions) {
         var lonlat = map.getLonLatFromViewPortPx(evt.xy);
         var coords = map.getLonLatFromViewPortPx(evt.xy).transform(that.destCrs, that.sourceCrs);
 
-        if (claimInfoPopup === null) {
-            claimInfoPopup = new OpenLayers.Popup.FramedCloud(MSG.MAP_CONTROL_CLAIM_INFO,
+        if (infoPopup === null) {
+            infoPopup = new OpenLayers.Popup.FramedCloud(MSG.MAP_CONTROL_INFO,
                     lonlat,
                     new OpenLayers.Size(220, 220),
                     mapWaitContent,
                     null, true, null);
-            claimInfoPopup.panMapIfOutOfView = true;
-            map.addPopup(claimInfoPopup);
+            infoPopup.panMapIfOutOfView = true;
+            map.addPopup(infoPopup);
         } else {
-            claimInfoPopup.lonlat = lonlat;
-            claimInfoPopup.setContentHTML(mapWaitContent);
-            claimInfoPopup.show();
+            infoPopup.lonlat = lonlat;
+            infoPopup.setContentHTML(mapWaitContent);
+            infoPopup.show();
         }
 
         xhr = $.ajax({
-            url: getClaimUrl + '?x=' + coords.lon + '&y=' + coords.lat,
+            url: getObjectUrl + '?x=' + coords.lon + '&y=' + coords.lat,
             type: 'GET',
             crossDomain: true,
             dataType: 'json',
@@ -999,7 +1028,7 @@ OT.Map = function (mapOptions) {
                 populateFeatureInfo(response);
             },
             error: function (xhr, status) {
-                claimInfoPopup.setContentHTML(mapNoResutlsContent);
+                infoPopup.setContentHTML(mapNoResutlsContent);
             }
         });
     }
@@ -1007,30 +1036,47 @@ OT.Map = function (mapOptions) {
     function populateFeatureInfo(response) {
         try {
             if (response === "") {
-                claimInfoPopup.setContentHTML(mapNoResutlsContent);
+                infoPopup.setContentHTML(mapNoResutlsContent);
             } else {
-                var lodgingDate = "";
-                if (response.lodgementDate) {
-                    var lDate = new Date(parseDate(response.lodgementDate));
-                    lodgingDate = (lDate.getDate() < 10 ? "0" + lDate.getDate() : lDate.getDate())
-                            + "/"
-                            + (lDate.getMonth() + 1 < 10 ? "0" + (lDate.getMonth() + 1) : lDate.getMonth() + 1)
-                            + "/" + lDate.getFullYear() + " "
-                            + (lDate.getHours() < 10 ? "0" + lDate.getHours() : lDate.getHours())
-                            + ":"
-                            + (lDate.getMinutes() < 10 ? "0" + lDate.getMinutes() : lDate.getMinutes());
-                    //lodgingDate = new Date(parseDate(response.lodgementDate)).toDateString();
+                if (typeof response.nr !== "undefined") {
+                    // This is claim
+                    var lodgingDate = "";
+                    if (response.lodgementDate) {
+                        var lDate = new Date(parseDate(response.lodgementDate));
+                        lodgingDate = (lDate.getDate() < 10 ? "0" + lDate.getDate() : lDate.getDate())
+                                + "/"
+                                + (lDate.getMonth() + 1 < 10 ? "0" + (lDate.getMonth() + 1) : lDate.getMonth() + 1)
+                                + "/" + lDate.getFullYear() + " "
+                                + (lDate.getHours() < 10 ? "0" + lDate.getHours() : lDate.getHours())
+                                + ":"
+                                + (lDate.getMinutes() < 10 ? "0" + lDate.getMinutes() : lDate.getMinutes());
+                        //lodgingDate = new Date(parseDate(response.lodgementDate)).toDateString();
+                    }
+                    infoPopup.setContentHTML(mapClaimInfoContent);
+                    $("#claimNr").attr('href', viewClaimUrl + '?id=' + response.id);
+                    $("#claimNr").text('#' + response.nr);
+                    $("#claimantName").text(response.claimantName);
+                    $("#claimLodgingDate").text(lodgingDate);
+                    $("#claimStatus").text(response.statusName);
+                    $("#claimArea").html(response.claimArea + " m<sup>2</sup>");
                 }
-                claimInfoPopup.setContentHTML(mapClaimInfoContent);
-                $("#claimNr").attr('href', viewClaimUrl + '?id=' + response.id);
-                $("#claimNr").text('#' + response.nr);
-                $("#claimantName").text(response.claimantName);
-                $("#claimLodgingDate").text(lodgingDate);
-                $("#claimStatus").text(response.statusName);
-                $("#claimArea").html(response.claimArea + " m<sup>2</sup>");
+                if (typeof response.level !== "undefined") {
+                    // This is boundary
+                    infoPopup.setContentHTML(mapBoundaryInfoContent);
+                    $("#boundaryName").attr('href', viewBoundaryUrl + '?id=' + response.id);
+                    $("#boundaryName").text(response.name);
+                    $("#boundaryType").text(response.typeName);
+                    if(response.parentName === null || response.parentName === ""){
+                        $("#boundaryDivParent").hide();
+                    } else {
+                        $("#boundaryParent").text(response.parentName);
+                        $("#boundaryDivParent").show();
+                    }
+                    $("#boundaryStatus").text(response.statusName);
+                }
             }
         } catch (ex) {
-            claimInfoPopup.hide();
+            infoPopup.hide();
             alert(ex);
         }
     }
@@ -1043,7 +1089,7 @@ OT.Map = function (mapOptions) {
         var coords = map.getLonLatFromViewPortPx(evt.xy).transform(that.destCrs, that.sourceCrs);
 
         xhr = $.ajax({
-            url: getClaimUrl + '?x=' + coords.lon + '&y=' + coords.lat,
+            url: getObjectUrl + '?x=' + coords.lon + '&y=' + coords.lat,
             type: 'GET',
             crossDomain: true,
             dataType: 'json',
@@ -1053,8 +1099,12 @@ OT.Map = function (mapOptions) {
                         if (layerSnappingFeatures) {
                             // Check if claim alredy in the list
                             var featureExists = false;
+                            var type = "claim";
+                            if (typeof response.level !== "undefined") {
+                                type = "boundary";
+                            }
                             for (var i = 0; i < layerSnappingFeatures.features.length; i++) {
-                                if (layerSnappingFeatures.features[i].attributes.id === response.id) {
+                                if (layerSnappingFeatures.features[i].attributes.id === response.id && layerSnappingFeatures.features[i].attributes.type === type) {
                                     featureExists = true;
                                     // Remove feature (deselect)
                                     layerSnappingFeatures.removeFeatures([layerSnappingFeatures.features[i]]);
@@ -1065,20 +1115,36 @@ OT.Map = function (mapOptions) {
 
                         if (!featureExists) {
                             // Check it's not the current claim
-                            var claimLayer = map.getLayer(OT.Map.LAYER_IDS.CURRENT_CLAIM);
-                            if (claimLayer) {
-                                for (var i = 0; i < claimLayer.features.length; i++) {
-                                    if (claimLayer.features[i].attributes.nr === response.nr) {
-                                        featureExists = true;
-                                        break;
+                            if (type === "claim") {
+                                var claimLayer = map.getLayer(OT.Map.LAYER_IDS.CURRENT_CLAIM);
+                                if (claimLayer) {
+                                    for (var i = 0; i < claimLayer.features.length; i++) {
+                                        if (claimLayer.features[i].attributes.nr === response.nr) {
+                                            featureExists = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
-
+                            // Check in the boundary layer
+                            if (!featureExists) {
+                                if (type === "boundary") {
+                                    var boundaryLayer = map.getLayer(OT.Map.LAYER_IDS.CURRENT_BOUNDARY);
+                                    if (boundaryLayer) {
+                                        for (var i = 0; i < boundaryLayer.features.length; i++) {
+                                            if (boundaryLayer.features[i].attributes.id === response.id) {
+                                                featureExists = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
                             // Add feature to the snapping layer
                             if (!featureExists) {
                                 var featureToAdd = new OpenLayers.Format.WKT().read(response.geom);
-                                featureToAdd.attributes = {id: response.id, nr: "#" + response.nr, label: "#" + response.nr, area: response.claimArea};
+                                featureToAdd.attributes = {id: response.id, type: type};
                                 featureToAdd.geometry.transform(that.sourceCrs, that.destCrs);
                                 layerSnappingFeatures.addFeatures([featureToAdd]);
                             }
@@ -1125,6 +1191,7 @@ OT.Map.LAYER_IDS = {
     GOOGLE_EARTH: "layerGoogleEarth",
     GOOGLE_MAP: "layerGoogleMap",
     CURRENT_CLAIM: "layerCurrentClaim",
+    CURRENT_BOUNDARY: "layerCurrentBoundary",
     CLAIM_ADDITIONAL_LOCATIONS: "layerClaimAdditionalLocations",
     SNAPPING_FEATURES: "layerSnappingFeatures"
 };
@@ -1264,6 +1331,121 @@ OT.Map.Styles = {
         strokeOpacity: 0.3,
         strokeColor: "#E96EFF"
     },
+    styleMainBoundary: new OpenLayers.StyleMap({
+        "default": new OpenLayers.Style({
+            fontSize: "12px",
+            fontFamily: "Arial",
+            labelOutlineColor: "white",
+            labelOutlineWidth: 3
+        }, {
+            rules: [
+                new OpenLayers.Rule({
+                    symbolizer: {
+                        "Polygon": {
+                            fillColor: "#0000ff",
+                            fillOpacity: 0,
+                            strokeColor: "#FF5500",
+                            strokeWidth: 3
+                        }
+                    }
+                })
+            ]
+        })
+    }),
+    styleBoundary: new OpenLayers.StyleMap({
+        "default": new OpenLayers.Style({
+            fontSize: "12px",
+            fontFamily: "Arial",
+            labelOutlineColor: "white",
+            labelOutlineWidth: 3
+        }, {
+            rules: [
+                new OpenLayers.Rule({
+                    symbolizer: {
+                        "Point": {
+                            pointRadius: 5,
+                            labelYOffset: -10,
+                            graphicName: "circle",
+                            fillColor: "white",
+                            fillOpacity: 0.7,
+                            strokeWidth: 2,
+                            strokeColor: "#00AAFF"
+                        },
+                        "Line": {
+                            strokeWidth: 2,
+                            strokeColor: "#00AAFF",
+                            labelYOffset: 10,
+                            labelAlign: "l"
+                        },
+                        "Polygon": {
+                            fillColor: "#0000ff",
+                            fillOpacity: 0,
+                            strokeColor: "#33BBFF",
+                            strokeWidth: 2
+                        }
+                    }
+                })
+            ]
+        }),
+        "select": new OpenLayers.Style(null, {
+            rules: [
+                new OpenLayers.Rule({
+                    symbolizer: {
+                        "Point": {
+                            pointRadius: 7,
+                            labelYOffset: -10,
+                            graphicName: "circle",
+                            fillColor: "white",
+                            fillOpacity: 1,
+                            strokeWidth: 2,
+                            strokeColor: "#00AAFF"
+                        },
+                        "Line": {
+                            strokeWidth: 3,
+                            strokeColor: "#00AAFF",
+                            labelYOffset: 10,
+                            labelAlign: "l"
+                        },
+                        "Polygon": {
+                            fillColor: "#33BBFF",
+                            fillOpacity: 0.3,
+                            strokeColor: "#00AAFF",
+                            strokeWidth: 2
+                        }
+                    }
+                })
+            ]
+        }),
+        "temporary": new OpenLayers.Style(null, {
+            rules: [
+                new OpenLayers.Rule({
+                    symbolizer: {
+                        "Point": {
+                            pointRadius: 7,
+                            labelYOffset: -10,
+                            graphicName: "circle",
+                            fillColor: "white",
+                            fillOpacity: 1,
+                            strokeWidth: 2,
+                            strokeColor: "#00AAFF"
+                        },
+                        "Line": {
+                            strokeWidth: 2,
+                            strokeColor: "#00AAFF",
+                            labelYOffset: 10,
+                            labelAlign: "l"
+                        },
+                        "Polygon": {
+                            fillColor: "#33BBFF",
+                            fillOpacity: 0.3,
+                            strokeColor: "#00AAFF",
+                            strokeWidth: 2
+                        }
+                    }
+                })
+            ]
+        })
+    }),
     styleMapLocations: new OpenLayers.StyleMap({
         "default": new OpenLayers.Style({
             label: "${getLabel}",

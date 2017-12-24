@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:uc="http://xmlns.jcp.org/jsf/composite/uc"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:body>
+        <ui:composition template="../templates/MapTemplate.xhtml">
+            <ui:define name="title">
+                #{boundaryPageBean.header}
+            </ui:define>
+            <ui:define name="head2">
+            </ui:define>
+            <ui:define name="content">
+                <f:metadata>
+                    <f:viewAction action="#{boundaryPageBean.checkCanEdit()}" onPostback="true" />
+                </f:metadata>
+                <div class="PageName">
+                    <i class="glyphicon glyphicon-file"></i> #{boundaryPageBean.header} 
+                    <br />
+                    <div class="btn-group">
+                        <h:outputLink value="#{request.contextPath}/boundary/ViewBoundary.xhtml?id=#{boundaryPageBean.id}" 
+                                      class="btn btn-default" rendered="#{not boundaryPageBean.boundary.isNew()}">
+                            #{msg.GENERAL_LABEL_BACK}
+                        </h:outputLink>
+                        <h:commandButton class="btn btn-default" value="#{msg.GENERAL_LABEL_SAVE}"
+                                         action="#{boundaryPageBean.save()}"
+                                         rendered="#{boundaryPageBean.canEdit}"
+                                         onclick="return checkForm() ? blockUI() : false" />
+                        <h:inputHidden value="#{boundaryPageBean.id}" />
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="nav-tab-div">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#mapTab" data-toggle="tab">#{msg.CLAIM_PAGE_MAP}</a></li>
+                            <li><a href="#general" data-toggle="tab">#{msg.CLAIM_PAGE_GENERAL}</a></li>
+                        </ul>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="mapTab">
+                            <div style="padding: 15px 0px;">
+                                <uc:MapBoundary id="mapBoundaryCtrl" instantMapRender="true" mapHeight="500" boundary="#{boundaryPageBean.boundary}" isMapEditable="true"></uc:MapBoundary>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane" id="general">
+                            <div style="padding: 15px 0px;width:700px;">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.BOUNDARIES_PAGE_NAME}
+                                            <i class="glyphicon glyphicon-required"></i>
+                                        </label>
+                                        <br />
+                                        <h:inputText id="txtName" 
+                                                     value="#{boundaryPageBean.boundary.name}"  
+                                                     class="form-control"
+                                                     maxlength="250"
+                                                     autocomplete="off" />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.BOUNDARIES_PAGE_TYPE} 
+                                        </label>
+                                        <br />
+                                        <h:outputLabel id="lblType" value="#{boundaryPageBean.boundaryTypeName}" style="font-weight: normal;"/>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.GENERAL_LABEL_STATUS} 
+                                        </label>
+                                        <br />
+                                        #{boundaryPageBean.boundaryStatusName}
+                                    </div>
+                                </div>
+
+                                <div class="splitter"></div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label>
+                                            #{msg.BOUNDARIES_PAGE_PARENT} 
+                                        </label>
+                                        <h:selectOneListbox
+                                            id="cbxParents" 
+                                            size="1"
+                                            value="#{boundaryPageBean.boundary.parentId}"
+                                            class="form-control">
+                                            <f:selectItems value="#{boundaryPageBean.parentBoundaries}" var="b"
+                                                           itemLabelEscaped="false"
+                                                           itemLabel="#{b.name}" 
+                                                           itemValue="#{b.id}" />
+                                            <f:ajax event="change" 
+                                                    render= ":mainForm:lblType"
+                                                    execute=":mainForm:cbxParents" 
+                                                    listener="#{boundaryPageBean.setBoundaryTypeCode()}" />
+                                        </h:selectOneListbox>
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <label>
+                                            #{msg.BOUNDARIES_PAGE_AUTHORITY}
+                                        </label>
+                                        <h:inputText id="txtAuthority" 
+                                                     value="#{boundaryPageBean.boundary.authorityName}"  
+                                                     class="form-control"
+                                                     maxlength="250"
+                                                     autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script language="javascript">
+                    function checkForm() {
+                        return saveBoundaryFeature();
+                    }
+                </script>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

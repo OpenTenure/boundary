@@ -2,8 +2,6 @@ package org.sola.opentenure.services.boundary.ws;
 
 import java.util.List;
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
@@ -17,6 +15,8 @@ import org.sola.opentenure.services.boundary.beans.responses.ResponseFactory;
 import org.sola.cs.services.ejbs.claim.entities.ClaimStatus;
 import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 import org.sola.cs.services.boundary.transferobjects.configuration.CrsTO;
+import org.sola.cs.services.boundary.transferobjects.referencedata.AdministrativeBoundaryStatusTO;
+import org.sola.cs.services.boundary.transferobjects.referencedata.AdministrativeBoundaryTypeTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.ClaimStatusTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.IdTypeTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.LandUseTO;
@@ -154,6 +154,38 @@ public class ReferenceDataResource extends AbstractWebRestService {
     public String getDocumentTypes(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
             return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getDocumentTypes(localeCode, true), SourceTypeTO.class));
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+    
+    /**
+     * Returns List of {@link AdministrativeBoundaryTypeTO} objects
+     * @param localeCode Locale code used to return localized values
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getadministrativeboundarytypes|getAdministrativeBoundaryTypes}")
+    public String getAdministrativeBoundaryTypes(@PathParam(value = LOCALE_CODE) String localeCode){
+        try {
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getAdministrativeBoundaryTypes(localeCode, true), AdministrativeBoundaryTypeTO.class));
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+    
+    /**
+     * Returns List of {@link AdministrativeBoundaryStatusTO} objects
+     * @param localeCode Locale code used to return localized values
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getadministrativeboundarystatuses|getAdministrativeBoundaryStatuses}")
+    public String getAdministrativeBoundaryStatuses(@PathParam(value = LOCALE_CODE) String localeCode){
+        try {
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getAdministrativeBoundaryStatuses(localeCode, true), AdministrativeBoundaryStatusTO.class));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }

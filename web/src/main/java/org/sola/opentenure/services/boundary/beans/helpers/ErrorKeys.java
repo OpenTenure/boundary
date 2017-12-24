@@ -514,4 +514,10 @@ public class ErrorKeys {
     
     /** For claims split, there must be 1 claim to split and at least 2 new claims as a result of split. */
     public static final String CLAIM_SPLIT_COUNT = "CLAIM_SPLIT_COUNT";
+    
+    /**
+     * Boundary can't be edited. Make sure you have sufficient rights and boundary
+     * status is appropriate
+     */
+    public static final String BOUNDARY_EDIT_NOT_ALLOWED = "BOUNDARY_EDIT_NOT_ALLOWED";
 }

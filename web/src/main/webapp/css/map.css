@@ -192,7 +192,7 @@ div.olControlMousePosition{
 }
 
 .fullScreen {
-    position: absolute;
+    position: fixed;
     z-index: 1000;
     left: 0px;
     top: 0px;

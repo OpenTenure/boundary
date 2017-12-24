@@ -27,6 +27,7 @@ import org.sola.cs.services.ejb.refdata.entities.IdType;
 import org.sola.cs.services.ejb.refdata.entities.LandUseType;
 import org.sola.cs.services.ejb.refdata.entities.RejectionReason;
 import org.sola.cs.services.ejb.refdata.entities.RrrType;
+import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
 import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
@@ -68,6 +69,9 @@ public class ClaimPageBean extends AbstractBackingBean {
     @EJB
     SystemCSEJBLocal systemEjb;
 
+    @EJB
+    SearchCSEJBLocal searchEjb;
+    
     @Inject
     ReferenceData refData;
 
@@ -839,6 +843,14 @@ public class ClaimPageBean extends AbstractBackingBean {
         return dateBean.getShortDate(getRestriction().getStartDate());
     }
 
+    public String getLocation(){
+        if(claim != null && !StringUtility.isEmpty(claim.getBoundaryId())){
+            return searchEjb.getFullLocation(claim.getBoundaryId(), langBean.getLocale());
+        } else {
+            return "";
+        }
+    }
+    
     public void setRestrictionStartDate(String startDate) {
         if (!StringUtility.isEmpty(startDate)) {
             getRestriction().setStartDate(DateUtility.convertToDate(startDate, dateBean.getDatePattern()));
