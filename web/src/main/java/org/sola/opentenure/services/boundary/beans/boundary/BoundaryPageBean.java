@@ -15,6 +15,7 @@ import org.sola.cs.services.ejb.refdata.entities.AdministrativeBoundaryStatus;
 import org.sola.cs.services.ejb.refdata.entities.AdministrativeBoundaryType;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.search.repository.entities.AdministrativeBoundarySearchResult;
+import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
 import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 import org.sola.cs.services.ejbs.claim.entities.AdministrativeBoundary;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
@@ -40,6 +41,9 @@ public class BoundaryPageBean extends AbstractBackingBean {
     SearchCSEJBLocal searchEjb;
 
     @EJB
+    AdminCSEJBLocal adminEjb;
+    
+    @EJB
     ClaimEJBLocal claimEjb;
 
     @Inject
@@ -60,6 +64,7 @@ public class BoundaryPageBean extends AbstractBackingBean {
 
     private String id;
     private AdministrativeBoundary boundary;
+    private String recorderName;
     private AdministrativeBoundarySearchResult[] allBoundaries;
     private AdministrativeBoundarySearchResult[] parentBoundaries;
     private AdministrativeBoundarySearchResult[] allBoundariesFormatted;
@@ -147,6 +152,23 @@ public class BoundaryPageBean extends AbstractBackingBean {
         }
     }
 
+    public String getRecorderName() {
+        if (StringUtility.isEmpty(recorderName) && boundary != null) {
+            recorderName = getFullUserName(boundary.getRecorderName());
+            if(StringUtility.isEmpty(recorderName)){
+                recorderName = StringUtility.empty(boundary.getRecorderName());
+            }
+        }
+        return recorderName;
+    }
+    
+    public String getFullUserName(String userName) {
+        if (!StringUtility.isEmpty(userName)) {
+            return adminEjb.getUserFullName(userName);
+        }
+        return "";
+    }
+    
     public String getFullParentNames() {
         if (StringUtility.isEmpty(boundary.getParentId())) {
             return "";
