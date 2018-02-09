@@ -195,7 +195,7 @@
                                             size="1"
                                             value="#{claimPageBean.claim.boundaryId}"
                                             class="form-control">
-                                            <f:selectItems value="#{boundaryPageBean.getAllBoundariesFormatted(true)}" var="b"
+                                            <f:selectItems value="#{boundaryPageBean.getApprovedBoundariesFormatted(true)}" var="b"
                                                            itemLabelEscaped="false"
                                                            itemLabel="#{b.name}" 
                                                            itemValue="#{b.id}" />

@@ -29,6 +29,7 @@ import org.sola.common.StringUtility;
 import org.sola.common.logging.LogUtility;
 import org.sola.cs.common.messaging.MessageUtility;
 import org.sola.cs.common.messaging.ServiceMessage;
+import org.sola.cs.services.boundary.transferobjects.claim.AdministrativeBoundaryTO;
 import org.sola.opentenure.services.boundary.beans.AbstractWebRestService;
 import org.sola.opentenure.services.boundary.beans.exceptions.ExceptionFactory;
 import org.sola.opentenure.services.boundary.beans.responses.ResponseFactory;
@@ -55,6 +56,7 @@ import org.sola.cs.services.ejb.search.repository.entities.ClaimSpatialSearchPar
 import org.sola.cs.services.ejb.search.repository.entities.GeoJsonAdministrativeBoundary;
 import org.sola.cs.services.ejb.search.repository.entities.GeoJsonClaim;
 import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
+import org.sola.cs.services.ejbs.claim.entities.AdministrativeBoundary;
 
 /**
  * Claim REST Web Service
@@ -493,6 +495,45 @@ public class ClaimResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
+    
+    @POST
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:saveboundary|saveBoundary}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String saveBoundary(
+            @PathParam(value = LOCALE_CODE) final String localeCode,
+            String boundaryDescriptor) {
+        try {
+
+            AdministrativeBoundaryTO boundaryTO;
+            try {
+                boundaryTO = getMapper().readValue(boundaryDescriptor, AdministrativeBoundaryTO.class);
+            } catch (Exception e) {
+                //throw ExceptionFactory.buildBadJson(localeCode);
+                LogUtility.log("Failed to convert boundary JSON", e);
+                throw new OTRestException(400, e.getLocalizedMessage());
+            }
+
+            AdministrativeBoundary existingBoundary = claimEjb.getAdministrativeBoundary(boundaryTO.getId());
+            if(existingBoundary != null){
+                throw ExceptionFactory.buildObjectExist(ServiceMessage.OT_WS_BOUNDARY_EXISTS, localeCode);
+            }
+            
+            AdministrativeBoundary boundary = CsGenericTranslator.fromTO(boundaryTO, AdministrativeBoundary.class, existingBoundary);
+            final AdministrativeBoundary[] boundarys = new AdministrativeBoundary[]{boundary};
+
+            runUpdate(new Runnable() {
+                @Override
+                public void run() {
+                    boundarys[0] = claimEjb.saveAdministrativeBoundary(boundarys[0]);
+                }
+            });
+
+            return ResponseFactory.buildResultResponse(boundarys[0].getId());
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
 
     @GET
     @Produces("application/json; charset=UTF-8")
@@ -655,6 +696,25 @@ public class ClaimResource extends AbstractWebRestService {
         }
     }
 
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getapprovedadministrativeboundaries|getApprovedAdministrativeBoundaries}")
+    /**
+     * Returns approved administrative boundaries
+     */
+    public String getApprovedAdministrativeBoundaries(@PathParam(value = LOCALE_CODE) String localeCode) {
+        try {
+            List<AdministrativeBoundaryTO> boundaries = CsGenericTranslator.toTOList(claimEjb.getApprovedAdministrativeBoundaries(), AdministrativeBoundaryTO.class);
+
+            if (boundaries == null) {
+                throw ExceptionFactory.buildNotFound(localeCode);
+            }
+            return getMapper().writeValueAsString(boundaries);
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+    
     private void removeClaimPrivateInfo(ClaimTO claim) {
         if (claim == null) {
             return;

@@ -13,6 +13,6 @@ public class ProtocolVersionFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
-        responseContext.getHeaders().add("ProtoVersion", "1.0");
+        responseContext.getHeaders().add("ProtoVersion", "1.1");
     }
 }

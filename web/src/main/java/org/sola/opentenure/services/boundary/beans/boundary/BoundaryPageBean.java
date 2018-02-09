@@ -68,7 +68,7 @@ public class BoundaryPageBean extends AbstractBackingBean {
     private AdministrativeBoundarySearchResult[] allBoundaries;
     private AdministrativeBoundarySearchResult[] parentBoundaries;
     private AdministrativeBoundarySearchResult[] allBoundariesFormatted;
-
+    private AdministrativeBoundarySearchResult[] approvedBoundariesFormatted;
     public BoundaryPageBean() {
         super();
     }
@@ -107,6 +107,13 @@ public class BoundaryPageBean extends AbstractBackingBean {
             allBoundariesFormatted = getFormattedBoundaries(searchEjb.searchAllAdministrativeBoundaries(langBean.getLocale()), addDummy);
         }
         return allBoundariesFormatted;
+    }
+    
+    public AdministrativeBoundarySearchResult[] getApprovedBoundariesFormatted(boolean addDummy) {
+        if (approvedBoundariesFormatted == null) {
+            approvedBoundariesFormatted = getFormattedBoundaries(searchEjb.searchApprovedAdministrativeBoundaries(langBean.getLocale()), addDummy);
+        }
+        return approvedBoundariesFormatted;
     }
 
     public AdministrativeBoundarySearchResult[] getBoundaries() {

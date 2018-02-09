@@ -206,7 +206,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
-    
+      
     /**
      * Returns list of CRS allowed on the server
      * @param localeCode Locale code used to return localized values
