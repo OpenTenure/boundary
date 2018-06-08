@@ -42,6 +42,7 @@ public class MapSettingsBean extends AbstractBackingBean {
     private final String MAP_WEST = "MAP_WEST";
     private final String MAP_EAST = "MAP_EAST";
     private final String MAP_EPSG = "MAP_EPSG";
+    private final String MAP_PRINT_PROJ4 = "MAP_PRINT_PROJ4";
     private final String MAP_COMMUNITY_AREA = "MAP_COMMUNITY_AREA";
     private final String CS_OFFLINE_MODE = "CS_OFFLINE_MODE";
 
@@ -92,6 +93,13 @@ public class MapSettingsBean extends AbstractBackingBean {
             init();
         }
         return cacheEjb.get(MAP_EPSG);
+    }
+    
+    public String getMapPrintProj4() {
+        if (!cacheEjb.containsKey(MAP_PRINT_PROJ4)) {
+            init();
+        }
+        return cacheEjb.get(MAP_PRINT_PROJ4);
     }
 
     public List<ConfigMapLayer> getLayers() {
@@ -187,12 +195,14 @@ public class MapSettingsBean extends AbstractBackingBean {
         cacheEjb.clear(MAP_SOUTH);
         cacheEjb.clear(MAP_WEST);
         cacheEjb.clear(CS_OFFLINE_MODE);
+        cacheEjb.clear(MAP_PRINT_PROJ4);
 
         HashMap<String, String> mapSettings = searchEjb.getMapSettingList();
 
         List<Crs> crs = searchEjb.getCrsList();
         cacheEjb.put(MAP_COMMUNITY_AREA, systemEjb.getSetting(ConfigConstants.OT_COMMUNITY_AREA, ""));
         cacheEjb.put(CS_OFFLINE_MODE, systemEjb.getSetting(ConfigConstants.OT_OFFLINE_MODE, "0"));
+        cacheEjb.put(MAP_PRINT_PROJ4, systemEjb.getSetting(ConfigConstants.OT_TITLE_PLAN_CRS_PROJ4, ""));
         
         if (mapSettings != null) {
             cacheEjb.put(MAP_WEST, mapSettings.get("map-west"));

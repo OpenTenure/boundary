@@ -175,4 +175,6 @@ public class MessagesKeys {
     public static final String BOUNDARY_PAGE_APPROVED = "BOUNDARY_PAGE_APPROVED";
     /** Boundary has been deleted */
     public static final String BOUNDARY_PAGE_DELETED = "BOUNDARY_PAGE_DELETED";
+    /** Location Map of the %s */
+    public static final String BOUNDARY_PRINT_PAGE_LOCATION_OF = "BOUNDARY_PRINT_PAGE_LOCATION_OF";
 }

@@ -15,6 +15,8 @@
             <ui:define name="head">
                 <link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/ol4/ol.css" />
                 <script type="text/javascript" src="#{request.contextPath}/js/ol4/ol.js"></script>
+                <script type="text/javascript" src="#{request.contextPath}/js/proj4.js"></script>
+                <script type="text/javascript" src="#{request.contextPath}/js/ot_boundary_print.js"></script>
                 
                 <style>
                     body{
@@ -24,18 +26,20 @@
 
                     .mapHeader{
                         text-align: center;
-                        height: 1.2cm;
+                        background-color: #0066cc;
+                        margin-bottom: 10px;
                     }
                     
                     .mapHeaderLabel{
                         padding: 5px;
                         font-weight: bold;
-                        font-size: 22pt;
+                        font-size: 20pt;
+                        color: #fff !important;
                     }
 
                     .mapDiv{
                         width: 18cm;
-                        height: 12cm;
+                        height: 10cm;
                         border: #888 solid 2px;
                         margin: 0 auto !important;
                     }
@@ -46,12 +50,113 @@
                         left: 35px;
                         z-index: 1000;
                     }
+                    
+                    .legendBlock {
+                        background-color: #BEE8FF;
+                        border: 2px solid #000;
+                        padding: 5px;
+                    }
+                    
+                    table.coordsTable {
+                        border-collapse: collapse;
+                        width: 100%;
+                    }
+                    
+                    table.coordsTable thead td {
+                        font-weight: bold;
+                        background-color: #6C96CD;
+                        color: #fff !important;
+                    }
+                    
+                    table.coordsTable thead td {
+                        border: 1px solid #000;
+                    }
+                    
+                    table.coordsTable, table.coordsTable tbody td {
+                        border: 1px solid black;
+                    }
+                    
+                    table.coordsTable th, table.coordsTable td {
+                        padding: 1px;
+                        text-align: left;
+                    }
+                    
+                    table.coordsTable tr:nth-child(even) {
+                        background-color: #BEE8FF;
+                    }
+                    
+                    table.coordsTable tr:nth-child(odd) {
+                        background-color: #EEF8FF;
+                    }
+                    
+                    .circle {
+                        background: #000;
+                        border: 2px solid #fff;
+                        width: 15px;
+                        height: 15px;
+                        border-radius: 50%;
+                        float:left;
+                        margin-right: 5px;
+                    }
+                    
+                    .boundary {
+                        border: 3px solid #FF5500;
+                        width: 30px;
+                        height: 15px;
+                        float: left;
+                        margin-right: 5px;
+                        margin-left: 15px;
+                    }
+                    
+                    #scaleBarLabelsTable {
+                        margin-left: auto;
+                        margin-right: auto;
+                        margin-top: 7px;
+                    } 
+                    
+                    #scaleBarTable {
+                        margin: 0 auto;
+                    } 
+                    
+                    #scaleBarLabelsTable tr td{
+                        width: 1cm !important;
+                    }
+                    
+                    #scaleBarTable tr td{
+                        border: 1px solid #000;
+                        height: 10px;
+                        font-size: 1px;
+                        width: 1cm !important;
+                        background-color: #000;
+                    }
+                    
+                    #scaleBarTable tr td:nth-child(even){
+                        background-color: #fff;
+                    }
+                    
+                    .gridCoord {
+                        position: absolute; 
+                        background-color: #000; 
+                        font-size: 1px;
+                    }
+                    
+                    .gridCoordLabel {
+                        position: absolute; 
+                    }
+                    
+                    .gridCoordLabelRight {
+                        writing-mode: tb-rl;
+                    }
                 </style>
                 
                 <script>
                     sourceCrs = "EPSG:4326";
                     destCrs = "EPSG:3857";
-
+                    var printCrs = sourceCrs;
+                    var printProj4 = "#{mapSettingsBean.mapPrintProj4}";
+                    
+                    prepareProjection();
+                    
                     function printMap() {
                         $("#btnPrint").hide();
                         print();
@@ -67,59 +172,45 @@
                         $('#mapParamsDialog').modal('hide');
 
                         // Set map height and width
-                        var width = 17.5;
-                        var height = 26.2;
-                        var headerSize = 1.2;
-                        var strokeWidth = 3;
-                        var headerFontSize = "22pt";
-                        var paperSize = $("#paperSize").val();
-                        var orientation = $('input[name=orientation]:checked').val();
+                        northImage = "#{resource['default:images/north_a4.png']}";
+                        paperSize = $("#paperSize").val();
+                        orientation = $('input[name=orientation]:checked').val();
 
                         if (paperSize === "a3") {
                             width = 26.2;
                             height = 38.5;
-                            headerSize = 1.7;
-                            headerFontSize = "28pt";
-                            strokeWidth = 4;
+                            scaleMultiplier = 1;
+                            northImage = "#{resource['default:images/north_a3.png']}";
                         } else if (paperSize === "a2") {
                             width = 38.5;
                             height = 55.9;
-                            headerSize = 2.2;
-                            headerFontSize = "32pt";
-                            strokeWidth = 5;
+                            scaleMultiplier = 2;
+                            northImage = "#{resource['default:images/north_a2.png']}";
                         } else if (paperSize === "a1") {
                             width = 55.9;
                             height = 80.6;
-                            headerSize = 2.7;
-                            headerFontSize = "38pt";
-                            strokeWidth = 6;
+                            scaleMultiplier = 3;
+                            northImage = "#{resource['default:images/north_a1.png']}";
                         } else if (paperSize === "a0") {
                             width = 80.6;
                             height = 115.4;
-                            headerSize = 3.2;
-                            headerFontSize = "44pt";
-                            strokeWidth = 7;
+                            scaleMultiplier = 4;
+                            northImage = "#{resource['default:images/north_a0.png']}";
                         }
 
                         if (orientation === "landscape") {
                             var tmpHeight = height;
                             height = width;
                             width = tmpHeight;
+                            var tmpHSteps = hSteps;
+                            hSteps = vSteps;
+                            vSteps = tmpHSteps;
                         }
 
-                        height = height - headerSize;
+                        prepareMapDefaults();
 
-                        $("#map").css("width", width + "cm");
-                        $("#map").css("height", height + "cm");
-                        $(".mapHeader").css("height", headerSize + "cm");
-                        $(".mapHeaderLabel").css("font-size", headerFontSize);
-
-                        if ($("body").width() &lt; $("#map").width()) {
-                            $("body").css("width", width + "cm");
-                        }
-
-                        var layers = [];
-                        var wkt = new ol.format.WKT();
+                        layers = [];
+                        wkt = new ol.format.WKT();
                         
                         // Add WMS layers
                         $(':checkbox:checked').each(function () {
@@ -177,7 +268,7 @@
 
                         // Add boundary
                         <c:if test = "#{not empty boundaryPageBean.boundary.geom}">
-                            var currentBoundaryFeature = wkt.readFeature(
+                            currentBoundaryFeature = wkt.readFeature(
                                 "#{boundaryPageBean.boundary.geom}",
                                 {dataProjection: sourceCrs, featureProjection: destCrs}
                             );
@@ -187,25 +278,11 @@
                             
                             var initialZoomBounds = currentBoundaryFeature.getGeometry().getExtent();
                             
-                            var borderStyle = new ol.style.Style({
-                                stroke: new ol.style.Stroke({
-                                    color: '#FF5500',
-                                    width: strokeWidth
-                                }),
-                                fill: new ol.style.Fill({
-                                    color: 'rgba(255,255,255,0)'
-                                })
-                            });
-
-                            layers.push(new ol.layer.Vector({
-                                source: new ol.source.Vector({
-                                    features: [currentBoundaryFeature]
-                                }),
-                                style: borderStyle
-                            }));
+                            addPoints();
+                            
                         </c:if>
                         
-                        var map = new ol.Map({
+                        map = new ol.Map({
                             layers: layers,
                             loadTilesWhileInteracting: true,
                             target: 'map',
@@ -225,6 +302,8 @@
                         if(initialZoomBounds){
                             map.getView().fit(initialZoomBounds, map.getSize());
                         }
+                        
+                        drawScaleAndGrid();
                     }
                 </script>
             </ui:define>
@@ -234,10 +313,72 @@
                     <a href="#" id="btnPrint" onclick="return printMap()" class="btn btn-primary print-button">
                         <i class="glyphicon glyphicon-print"></i> #{msg.BOUNDARY_PRINT_PAGE_PRINT_WHEN_READY}
                     </a>
-                    <div class="mapHeader">
-                        <span class="mapHeaderLabel">#{boundaryPageBean.header}</span>
+                    <div class="mapHeader" style="display: none;">
+                        <span class="mapHeaderLabel">#{boundaryPageBean.header}<br /> #{msg.MAP_CONTROL_AREA} = </span>
                     </div>
-                    <div id="map" class="mapDiv" style="margin: 0 auto !important;"></div>
+                    <div id="mapContainer" style="float:left; margin: 0px auto !important; position: relative; display: none;">
+                        <img id="imgNorth" style="position: absolute;z-index: 100000;" />
+                        <div id="hTopCoords" style="position: relative;clear: both;"></div>
+                        <div id="vLeftCoords" style="margin: 0px;float: left;position: relative;"></div>
+                        <div id="map" class="mapDiv" style="margin: 0px;float: left;"></div>
+                        <div id="vRightCoords" style="margin: 0px;float: left;position: relative;"></div>
+                        <div id="hBottomCoords" style="position: relative; clear: both;"></div>
+                    </div>
+                    <div id="legend" style="float:left; display: none;padding-left: 10px;display: none;">
+                        <div class="legendBlock">
+                            #{boundaryPageBean.boundaryPrintLocationDescription}
+                            <p></p>
+                            #{msg.BOUNDARY_PRINT_PAGE_BOUNDARY_COLOR}
+                            <p></p>
+                            <div class="smallText">
+                                <h:outputText escape="false" value="#{boundaryPageBean.boundaryPrintCrsDescription}"></h:outputText>
+                                <p></p>
+                                <div style="text-align: center;">
+                                    <b>Scale <span id="lblScale"></span></b>
+                                    <table id="scaleBarLabelsTable">
+                                        <tr>
+                                            <td><span id="lblScale1"></span></td><td><span id="lblScale2"></span></td>
+                                            <td><span id="lblScale3"></span></td><td><span id="lblScale4"></span></td>
+                                            <td><span id="lblScale5"></span></td>
+                                        </tr>
+                                    </table>
+                                    <table id="scaleBarTable">
+                                        <tr>
+                                            <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+                                        </tr>
+                                    </table>
+                                    <span id="lblScaleUnits"></span>
+                                </div>
+                                <p></p>
+                                <div class="circle"></div> <span style="float: left;">#{msg.BOUNDARY_PRINT_PAGE_BEACON}</span>
+                                <div class="boundary"></div> <span style="float: left;">#{msg.BOUNDARY_PRINT_PAGE_BOUNDARY}</span>
+                                <br />
+                            </div>
+                        </div>
+                        <div class="legendBlock" style="margin-top: 7px;">
+                            <table class="coordsTable" id="tableCoords">
+                                <thead>
+                                    <tr>
+                                        <td>
+                                            #{msg.BOUNDARY_PRINT_PAGE_BEACON} #
+                                        </td>
+                                        <td>
+                                            #{msg.BOUNDARY_PRINT_PAGE_X}
+                                        </td>
+                                        <td>
+                                            #{msg.BOUNDARY_PRINT_PAGE_Y}
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <p></p>
+                            <div class="smallText">
+                                #{boundaryPageBean.boundaryPrintProducedBy}. <b>#{boundaryPageBean.monthAndYear}</b>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal fade" id="mapParamsDialog" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="myModalLabel">

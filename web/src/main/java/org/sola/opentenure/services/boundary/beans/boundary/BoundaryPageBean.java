@@ -1,7 +1,12 @@
 package org.sola.opentenure.services.boundary.beans.boundary;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -9,12 +14,14 @@ import javax.faces.application.FacesMessage;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.sola.common.ConfigConstants;
 import org.sola.common.RolesConstants;
 import org.sola.common.StringUtility;
 import org.sola.cs.services.ejb.refdata.entities.AdministrativeBoundaryStatus;
 import org.sola.cs.services.ejb.refdata.entities.AdministrativeBoundaryType;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.search.repository.entities.AdministrativeBoundarySearchResult;
+import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
 import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 import org.sola.cs.services.ejbs.claim.entities.AdministrativeBoundary;
@@ -52,6 +59,9 @@ public class BoundaryPageBean extends AbstractBackingBean {
     @Inject
     MessageProvider msgProvider;
 
+    @EJB
+    SystemCSEJBLocal systemEjb;
+    
     @Inject
     MessageBean msg;
 
@@ -210,6 +220,43 @@ public class BoundaryPageBean extends AbstractBackingBean {
         return name;
     }
 
+    public String getBoundaryPrintCrsDescription(){
+        return systemEjb.getSetting(ConfigConstants.BOUNDARY_PRINT_CRS_DESCRIPTION, "");
+    }
+    
+    public String getBoundaryPrintProducedBy(){
+        return systemEjb.getSetting(ConfigConstants.BOUNDARY_PRINT_PRODUCED_BY, "");
+    }
+    
+    public String getMonthAndYear(){
+        Format formatter = new SimpleDateFormat("MMMM", new Locale(langBean.getLocaleCodeForBundle())); 
+        String s = formatter.format(new Date());
+        s = s.substring(0, 1).toUpperCase() + s.substring(1);
+        Calendar cal = Calendar.getInstance();
+        
+        return s + " " + cal.get(Calendar.YEAR);
+    }
+    
+    public String getBoundaryPrintLocationDescription(){
+        String location = "";
+        String countryName = systemEjb.getSetting(ConfigConstants.BOUNDARY_PRINT_COUNTRY_NAME, "");
+        
+        if (boundary != null && !StringUtility.isEmpty(boundary.getName())) {
+            location = String.format(msgProvider.getMessage(MessagesKeys.BOUNDARY_PAGE_TITLE), boundary.getName(), getBoundaryTypeName());
+            List<AdministrativeBoundarySearchResult> parents = searchEjb.searchParentAdministrativeBoundaries(boundary.getId(), langBean.getLocale());
+            if(parents != null && parents.size() > 0){
+                for (int i = 0; i < parents.size() - 1; i++) {
+                    location += ", " + parents.get(i).getName() + " " + parents.get(i).getTypeName();
+                }
+            }
+        }
+        if(!StringUtility.isEmpty(countryName)){
+            location += ", " + countryName;
+        }
+        
+        return String.format(msgProvider.getMessage(MessagesKeys.BOUNDARY_PRINT_PAGE_LOCATION_OF), location);
+    }
+    
     public AdministrativeBoundary getBoundary() {
         return boundary;
     }
