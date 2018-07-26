@@ -1,5 +1,6 @@
 package org.sola.opentenure.services.boundary.ws;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -301,7 +302,8 @@ public class ReferenceDataResource extends AbstractWebRestService {
             List<FormTemplateTO> formTemplates = CsGenericTranslator.toTOList(claimEJB.getFormTemplates(localeCode), FormTemplateTO.class);
 
             if (formTemplates == null) {
-                throw ExceptionFactory.buildNotFound(localeCode);
+                return getMapper().writeValueAsString(new ArrayList<>());
+                //throw ExceptionFactory.buildNotFound(localeCode);
             }
             return getMapper().writeValueAsString(formTemplates);
         } catch (Exception e) {

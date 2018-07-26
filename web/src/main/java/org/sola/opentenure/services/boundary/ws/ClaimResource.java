@@ -707,7 +707,8 @@ public class ClaimResource extends AbstractWebRestService {
             List<AdministrativeBoundaryTO> boundaries = CsGenericTranslator.toTOList(claimEjb.getApprovedAdministrativeBoundaries(), AdministrativeBoundaryTO.class);
 
             if (boundaries == null) {
-                throw ExceptionFactory.buildNotFound(localeCode);
+                return getMapper().writeValueAsString(new ArrayList<>());
+                //throw ExceptionFactory.buildNotFound(localeCode);
             }
             return getMapper().writeValueAsString(boundaries);
         } catch (Exception e) {
