@@ -102,7 +102,7 @@ public class ReportServerBean extends AbstractBackingBean {
             reportsFolder = systemEjb.getSetting(ConfigConstants.REPORTS_FOLDER_URL, "");
             cacheEjb.put(ConfigConstants.REPORTS_FOLDER_URL, reportsFolder);
         }
-    }
+        }
 
     /**
      * Initialize Jersey client and authenticate user.
@@ -144,7 +144,12 @@ public class ReportServerBean extends AbstractBackingBean {
             WebTarget target = client.target(baseServerUrl + "/rest/login?j_username=" + user + "&j_password=" + password);
             Response response = target.request("application/json").get();
 
-            if (response.getStatus() != 200) {
+            LogUtility.log("JapserReport Login: " + baseServerUrl + "/rest/login?j_username=" + user + "&j_password=" + "***Refer CS Config***");
+            LogUtility.log("JasperReport Login Response:" + response.getStatus());
+
+            // AM 4 Aug 2018
+            // JapserServer throws a 404 error for version 7 and 7.1, but still succeeds in authenticating. 
+            if (response.getStatus() != 200 && response.getStatus() != 404) {
                 throw new RuntimeException(String.format(
                         msgProvider.getErrorMessage(ErrorKeys.REPORTS_FAILED_AUTHENTICATE),
                         Integer.toString(response.getStatus())));
@@ -177,6 +182,8 @@ public class ReportServerBean extends AbstractBackingBean {
 
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/resources?folderUri=" + folderPath);
             Response response = target.request("application/xml").get();
+            LogUtility.log("JapserReport folder URI: " + baseServerUrl + "/rest_v2/resources?folderUri=" + folderPath);
+            LogUtility.log("JasperReport folder URI response:" + response.getStatus());
 
             if (response.getStatus() != 200) {
                 getContext().addMessage(null, new FacesMessage(
@@ -238,6 +245,9 @@ public class ReportServerBean extends AbstractBackingBean {
 
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/resources" + uri);
             Response response = target.request("application/xml").get();
+
+            LogUtility.log("JapserReport Resource URI: " + baseServerUrl + "/rest_v2/resources" + uri);
+            LogUtility.log("JasperReport Resource URI response:" + response.getStatus());
 
             if (response.getStatus() != 200) {
                 getContext().addMessage(null, new FacesMessage(
@@ -304,7 +314,7 @@ public class ReportServerBean extends AbstractBackingBean {
             if (response.getStatus() == 204){
                 return null;
             }
-            
+
             if (response.getStatus() != 200) {
                 getContext().addMessage(null, new FacesMessage(
                         String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_FAILED_TO_GET_PARAMS),
@@ -399,15 +409,15 @@ public class ReportServerBean extends AbstractBackingBean {
                             }
                         } else {
                             if (param.getValueString() == null || param.getValueString().equals("")
-                                    || param.getValueString().equalsIgnoreCase("~NOTHING~")) {
-                                error += String.format(
-                                        msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
-                                        param.getLabel()) + ";";
-                                getContext().addMessage(null, new FacesMessage(
-                                        String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
-                                                param.getLabel()) + ";"));
-                            }
+                                || param.getValueString().equalsIgnoreCase("~NOTHING~")) {
+                            error += String.format(
+                                    msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
+                                    param.getLabel()) + ";";
+                            getContext().addMessage(null, new FacesMessage(
+                                    String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
+                                            param.getLabel()) + ";"));
                         }
+                    }
                     }
 
                     if (param.getType().equalsIgnoreCase(ParamTypeConst.BOOL)) {
@@ -494,6 +504,9 @@ public class ReportServerBean extends AbstractBackingBean {
 
             WebTarget target = getClient().target(fullReportUrl);
             Response response = target.request("text/html").get();
+
+            LogUtility.log("JapserReport Report URL: " + fullReportUrl);
+            LogUtility.log("JasperReport Report URL response:" + response.getStatus());
 
             if (response.getStatus() != 200) {
                 getContext().addMessage(null, new FacesMessage(
