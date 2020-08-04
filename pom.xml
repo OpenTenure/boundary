@@ -4,12 +4,11 @@
     <parent>
         <artifactId>sola-cs-services</artifactId>
         <groupId>org.sola.cs</groupId>
-        <version>1712a</version>
+        <version>2006a</version>
     </parent>
     <groupId>org.sola.cs.services</groupId>
     <artifactId>sola-cs-boundary</artifactId>
     <packaging>pom</packaging>
-    <version>1712a</version>
     <name>Boundary CS POM</name>
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>

@@ -4,11 +4,10 @@
     <parent>
         <groupId>org.sola.cs.services</groupId>
         <artifactId>sola-cs-boundary</artifactId>
-        <version>1712a</version>
+        <version>2006a</version>
     </parent>
   <groupId>org.sola.cs.services.boundary</groupId>
   <artifactId>sola-cs-transfer-objects</artifactId>
-  <version>1712a</version>
   <packaging>jar</packaging>
 
   <name>Boundary CS Transfer Objects</name>
