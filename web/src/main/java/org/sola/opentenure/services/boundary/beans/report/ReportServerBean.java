@@ -52,6 +52,9 @@ public class ReportServerBean extends AbstractBackingBean {
     private String password;
     private String reportsFolder;
     private ArrayList<Object> cookies;
+    
+    private static final String APP_XML = "application/xml";
+    private static final String UTF8 = "UTF-8";
 
     @EJB
     CacheCSEJBLocal cacheEjb;
@@ -61,10 +64,6 @@ public class ReportServerBean extends AbstractBackingBean {
     MessageProvider msgProvider;
     @Inject
     LanguageBean langBean;
-
-    public ReportServerBean() {
-
-    }
 
     /**
      * Initializes various variables related to reporting server configuration
@@ -181,7 +180,7 @@ public class ReportServerBean extends AbstractBackingBean {
             }
 
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/resources?folderUri=" + folderPath);
-            Response response = target.request("application/xml").get();
+            Response response = target.request(APP_XML).get();
             LogUtility.log("JapserReport folder URI: " + baseServerUrl + "/rest_v2/resources?folderUri=" + folderPath);
             LogUtility.log("JasperReport folder URI response:" + response.getStatus());
 
@@ -196,7 +195,7 @@ public class ReportServerBean extends AbstractBackingBean {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes(UTF8));
             Document doc = builder.parse(input);
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName(ResourceTagNameConst.RESOURCE_LOOKUP);
@@ -244,7 +243,7 @@ public class ReportServerBean extends AbstractBackingBean {
             }
 
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/resources" + uri);
-            Response response = target.request("application/xml").get();
+            Response response = target.request(APP_XML).get();
 
             LogUtility.log("JapserReport Resource URI: " + baseServerUrl + "/rest_v2/resources" + uri);
             LogUtility.log("JasperReport Resource URI response:" + response.getStatus());
@@ -260,7 +259,7 @@ public class ReportServerBean extends AbstractBackingBean {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes(UTF8));
             Document doc = builder.parse(input);
             doc.getDocumentElement().normalize();
             Element root = doc.getDocumentElement();
@@ -308,7 +307,7 @@ public class ReportServerBean extends AbstractBackingBean {
             }
 
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/reports" + reportPath + "/inputControls");
-            Response response = target.request("application/xml").get();
+            Response response = target.request(APP_XML).get();
 
             // if no parameters
             if (response.getStatus() == 204){
@@ -326,7 +325,7 @@ public class ReportServerBean extends AbstractBackingBean {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes(UTF8));
             Document doc = builder.parse(input);
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName(ResourceTagNameConst.INPUT_CONTROL);

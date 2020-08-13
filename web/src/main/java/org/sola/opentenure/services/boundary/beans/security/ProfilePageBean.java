@@ -36,10 +36,6 @@ public class ProfilePageBean extends RegistrationPageBean {
         //userBean = new UserBean(admin.getCurrentUser());
         CsGenericTranslator.getMapper().map(admin.getCurrentUser(), userBean);
     }
-    
-    public ProfilePageBean() {
-        
-    }
 
     public void validateOldPassword(AjaxBehaviorEvent event) {
         String error = userBean.getFirstError(userBean.validateProperty(userBean.getPropertyOldPassword(), PasswordChangeGroup.class));

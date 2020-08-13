@@ -75,7 +75,10 @@ public class ClaimResource extends AbstractWebRestService {
     SystemCSEJBLocal systemEjb;
 
     private String hiddenString = "";
-
+    private static final String X_REQ_WITH = "x-requested-with";
+    private static final String ACA_HEADERS = "Access-Control-Allow-Headers";
+    private static final String ACA_ORIGIN = "Access-Control-Allow-Origin";
+    
     private final String geoJson = "{"
             + "\"type\": \"FeatureCollection\","
             + "\"crs\": {"
@@ -86,12 +89,6 @@ public class ClaimResource extends AbstractWebRestService {
             + "},"
             + "\"features\": [%s]"
             + "}";
-
-    /**
-     * Creates a new instance of ClaimResource
-     */
-    public ClaimResource() {
-    }
 
     @PostConstruct
     private void init() {
@@ -251,8 +248,8 @@ public class ClaimResource extends AbstractWebRestService {
             ClaimSearchResultTO claimTO = CsGenericTranslator
                     .toTO(searchEjb.getClaimByCoordinates(x, y, localeCode), ClaimSearchResultTO.class);
             String result = "";
-            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
-            response.addHeader("Access-Control-Allow-Origin", "*");
+            response.addHeader(ACA_HEADERS, X_REQ_WITH);
+            response.addHeader(ACA_ORIGIN, "*");
 
             if (claimTO != null) {
                 result = getMapper().writeValueAsString(claimTO);
@@ -280,8 +277,8 @@ public class ClaimResource extends AbstractWebRestService {
             ClaimSearchResultTO claimTO = CsGenericTranslator
                     .toTO(searchEjb.getClaimByCoordinates(x, y, localeCode), ClaimSearchResultTO.class);
             String result = "";
-            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
-            response.addHeader("Access-Control-Allow-Origin", "*");
+            response.addHeader(ACA_HEADERS, X_REQ_WITH);
+            response.addHeader(ACA_ORIGIN, "*");
 
             if (claimTO != null) {
                 result = getMapper().writeValueAsString(claimTO);
@@ -313,8 +310,8 @@ public class ClaimResource extends AbstractWebRestService {
 
             List<MapSearchResultTO> searchresults = CsGenericTranslator.toTOList(searchEjb.searchMap(query), MapSearchResultTO.class);
             String result = "";
-            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
-            response.addHeader("Access-Control-Allow-Origin", "*");
+            response.addHeader(ACA_HEADERS, X_REQ_WITH);
+            response.addHeader(ACA_ORIGIN, "*");
 
             if (searchresults != null) {
                 result = getMapper().writeValueAsString(searchresults);
@@ -370,8 +367,8 @@ public class ClaimResource extends AbstractWebRestService {
                 }
             }
 
-            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
-            response.addHeader("Access-Control-Allow-Origin", "*");
+            response.addHeader(ACA_HEADERS, X_REQ_WITH);
+            response.addHeader(ACA_ORIGIN, "*");
 
             return String.format(geoJson, features);
         } catch (Exception e) {
@@ -400,8 +397,8 @@ public class ClaimResource extends AbstractWebRestService {
                 features = String.format(feature, boundary.getId(), boundary.getName(), boundary.getGeom());
             }
 
-            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
-            response.addHeader("Access-Control-Allow-Origin", "*");
+            response.addHeader(ACA_HEADERS, X_REQ_WITH);
+            response.addHeader(ACA_ORIGIN, "*");
 
             return String.format(geoJson, features);
         } catch (Exception e) {

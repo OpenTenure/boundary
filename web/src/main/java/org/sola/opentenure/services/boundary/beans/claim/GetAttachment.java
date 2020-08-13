@@ -30,13 +30,15 @@ public class GetAttachment extends HttpServlet {
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
     private static final long DEFAULT_EXPIRE_TIME = 604800000L; // ..ms = 1 week.
     private static final String MULTIPART_BOUNDARY = "MULTIPART_BYTERANGES";
+    private static final String EXPIRES = "Expires";
+    private static final String CONTENT_RANGE = "Content-Range";
     
     @EJB
     ClaimEJBLocal claimEjb;
 
     @Override
     public void init() throws ServletException {
-
+         // overridden method
     }
 
     @Override
@@ -113,7 +115,7 @@ public class GetAttachment extends HttpServlet {
         if (ifNoneMatch != null && matches(ifNoneMatch, eTag)) {
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
             response.setHeader("ETag", eTag); // Required in 304.
-            response.setDateHeader("Expires", expires); // Postpone cache with 1 week.
+            response.setDateHeader(EXPIRES, expires); // Postpone cache with 1 week.
             return;
         }
 
@@ -123,7 +125,7 @@ public class GetAttachment extends HttpServlet {
         if (ifNoneMatch == null && ifModifiedSince != -1 && ifModifiedSince + 1000 > lastModified) {
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
             response.setHeader("ETag", eTag); // Required in 304.
-            response.setDateHeader("Expires", expires); // Postpone cache with 1 week.
+            response.setDateHeader(EXPIRES, expires); // Postpone cache with 1 week.
             return;
         }
 
@@ -153,7 +155,7 @@ public class GetAttachment extends HttpServlet {
 
             // Range header should match format "bytes=n-n,n-n,n-n...". If not, then return 416.
             if (!range.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*$")) {
-                response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
+                response.setHeader(CONTENT_RANGE, "bytes */" + length); // Required in 416.
                 response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                 return;
             }
@@ -189,7 +191,7 @@ public class GetAttachment extends HttpServlet {
 
                     // Check if Range is syntactically valid. If not, then return 416.
                     if (start > end) {
-                        response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
+                        response.setHeader(CONTENT_RANGE, "bytes */" + length); // Required in 416.
                         response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                         return;
                     }
@@ -233,7 +235,7 @@ public class GetAttachment extends HttpServlet {
         response.setHeader("Accept-Ranges", "bytes");
         response.setHeader("ETag", eTag);
         response.setDateHeader("Last-Modified", lastModified);
-        response.setDateHeader("Expires", expires);
+        response.setDateHeader(EXPIRES, expires);
 
         // Send requested file (part(s)) to client
         // Prepare streams.
@@ -250,7 +252,7 @@ public class GetAttachment extends HttpServlet {
                 // Return full file.
                 Range r = full;
                 response.setContentType(contentType);
-                response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
+                response.setHeader(CONTENT_RANGE, "bytes " + r.start + "-" + r.end + "/" + r.total);
 
                 if (includeContent) {
                     if (acceptsGzip) {
@@ -272,7 +274,7 @@ public class GetAttachment extends HttpServlet {
                 // Return single part of file.
                 Range r = ranges.get(0);
                 response.setContentType(contentType);
-                response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
+                response.setHeader(CONTENT_RANGE, "bytes " + r.start + "-" + r.end + "/" + r.total);
                 response.setHeader("Content-Length", String.valueOf(r.length));
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
 

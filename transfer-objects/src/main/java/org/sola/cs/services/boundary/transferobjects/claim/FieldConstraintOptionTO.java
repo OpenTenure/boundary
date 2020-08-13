@@ -48,7 +48,4 @@ public class FieldConstraintOptionTO extends AbstractReadWriteTO {
     public void setItemOrder(int itemOrder) {
         this.itemOrder = itemOrder;
     }
-    
-    public FieldConstraintOptionTO(){
-    }
 }

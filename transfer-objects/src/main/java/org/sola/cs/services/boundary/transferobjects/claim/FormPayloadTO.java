@@ -40,7 +40,4 @@ public class FormPayloadTO extends AbstractReadWriteTO {
     public void setSectionPayloadList(List<SectionPayloadTO> sectionPayloadList) {
         this.sectionPayloadList = sectionPayloadList;
     }
-    
-    public FormPayloadTO(){
-    }
 }

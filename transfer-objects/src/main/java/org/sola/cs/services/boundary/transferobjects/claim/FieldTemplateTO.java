@@ -76,7 +76,4 @@ public class FieldTemplateTO extends AbstractReadWriteTO {
     public void setItemOrder(int itemOrder) {
         this.itemOrder = itemOrder;
     }
-    
-    public FieldTemplateTO(){
-    }
 }

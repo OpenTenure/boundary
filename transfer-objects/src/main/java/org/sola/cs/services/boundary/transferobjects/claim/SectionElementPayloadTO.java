@@ -31,7 +31,4 @@ public class SectionElementPayloadTO extends AbstractReadWriteTO {
     public void setSectionPayloadId(String sectionPayloadId) {
         this.sectionPayloadId = sectionPayloadId;
     }
-    
-    public SectionElementPayloadTO(){
-    }
 }
