@@ -1443,12 +1443,13 @@ public class ClaimPageBean extends AbstractBackingBean {
 
     public void copyClaimant(String shareId) {
         if (claim.getClaimant() != null && !StringUtility.isEmpty(claim.getClaimant().getName())) {
-            ClaimParty owner = MappingManager.getMapper().map(claim.getClaimant(), ClaimParty.class);
+            addOwner(claim.getClaimant(), shareId);
+            /*ClaimParty owner = MappingManager.getMapper().map(claim.getClaimant(), ClaimParty.class);
             owner.setId(UUID.randomUUID().toString());
             owner.setRowId(null);
             owner.setRowVersion(0);
             owner.setLoaded(false);
-            addOwner(owner, shareId);
+            addOwner(owner, shareId);*/
         }
     }
 

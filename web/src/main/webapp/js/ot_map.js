@@ -184,7 +184,7 @@ OT.Map = function (mapOptions) {
         maxExtentBounds: this.maxExtentBounds,
         initialZoomBounds: this.initialZoomBounds,
         units: 'm',
-        zoom: 22
+        numZoomLevels: 22
     });
 
     // Add search control
@@ -276,7 +276,7 @@ OT.Map = function (mapOptions) {
 
     try {
         if (!isOffline) {
-            var gsat = new OpenLayers.Layer.Google(MSG.MAP_CONTROL_GOOGLE_EARTH, {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
+            var gsat = new OpenLayers.Layer.Google(MSG.MAP_CONTROL_GOOGLE_EARTH, {numZoomLevels: 20, type: google.maps.MapTypeId.SATELLITE});
             var gmap = new OpenLayers.Layer.Google(MSG.MAP_CONTROL_GOOGLE_MAP, {numZoomLevels: 20, visibility: false});
             map.addLayers([gsat, gmap]);
         }
