@@ -238,6 +238,7 @@ ul{
 .table-header th{
     background-color:#87a968;
     color:#fff;
+    font-weight: bold;
 }
 
 .table{

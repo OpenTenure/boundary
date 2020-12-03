@@ -4,7 +4,7 @@
     <parent>
         <artifactId>sola-cs-services</artifactId>
         <groupId>org.sola.cs</groupId>
-        <version>2006a</version>
+        <version>2020a</version>
     </parent>
     <groupId>org.sola.cs.services</groupId>
     <artifactId>sola-cs-boundary</artifactId>
