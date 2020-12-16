@@ -4,12 +4,11 @@
     <parent>
         <artifactId>sola-cs-boundary</artifactId>
         <groupId>org.sola.cs.services</groupId>
-        <version>1712a</version>
+        <version>2020a</version>
     </parent>
 
     <groupId>org.sola.cs.services.boundary</groupId>
     <artifactId>sola-cs-web</artifactId>
-    <version>1712a</version>
     <packaging>war</packaging>
 
     <name>Boundary CS Web</name>

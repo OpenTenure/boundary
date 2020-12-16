@@ -32,7 +32,6 @@ import org.sola.services.common.faults.SOLAFault;
 import org.sola.services.common.faults.SOLAObjectExistsException;
 import org.sola.services.common.faults.SOLAValidationException;
 import org.sola.services.common.faults.SOLAValidationFault;
-import org.sola.services.common.faults.UnhandledFault;
 import org.sola.services.common.repository.entities.AbstractEntity;
 
 /**

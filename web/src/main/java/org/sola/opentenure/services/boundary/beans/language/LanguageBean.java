@@ -44,9 +44,6 @@ public class LanguageBean extends AbstractBackingBean {
     private static final String OT_LANGAUGE = "ot_language";
     private static final String DELIMETER = "::::";
 
-    public LanguageBean() {
-    }
-
     @PostConstruct
     private void init() {
         loadLanguages();

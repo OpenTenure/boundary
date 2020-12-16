@@ -47,7 +47,4 @@ public class MessageBean {
     public void setWarningMessage(String message) {
         setMessage(message, MESSAGE_TYPE.WARNING);
     }
-    
-    public MessageBean(){
-    }
 }

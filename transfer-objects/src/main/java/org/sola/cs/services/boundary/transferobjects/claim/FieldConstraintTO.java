@@ -95,7 +95,4 @@ public class FieldConstraintTO extends AbstractReadWriteTO {
     public void setFieldConstraintOptionList(List<FieldConstraintOptionTO> fieldConstraintOptionList) {
         this.fieldConstraintOptionList = fieldConstraintOptionList;
     }
-    
-    public FieldConstraintTO(){
-    }
 }

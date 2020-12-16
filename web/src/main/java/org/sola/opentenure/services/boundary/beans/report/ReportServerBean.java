@@ -1,14 +1,19 @@
 package org.sola.opentenure.services.boundary.beans.report;
 
+import java.io.BufferedReader;
 import javax.inject.Named;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -18,6 +23,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.ClientRequestContext;
@@ -53,6 +59,9 @@ public class ReportServerBean extends AbstractBackingBean {
     private String reportsFolder;
     private ArrayList<Object> cookies;
 
+    private static final String APP_XML = "application/xml";
+    private static final String UTF8 = "UTF-8";
+
     @EJB
     CacheCSEJBLocal cacheEjb;
     @EJB
@@ -61,10 +70,6 @@ public class ReportServerBean extends AbstractBackingBean {
     MessageProvider msgProvider;
     @Inject
     LanguageBean langBean;
-
-    public ReportServerBean() {
-
-    }
 
     /**
      * Initializes various variables related to reporting server configuration
@@ -102,7 +107,7 @@ public class ReportServerBean extends AbstractBackingBean {
             reportsFolder = systemEjb.getSetting(ConfigConstants.REPORTS_FOLDER_URL, "");
             cacheEjb.put(ConfigConstants.REPORTS_FOLDER_URL, reportsFolder);
         }
-        }
+    }
 
     /**
      * Initialize Jersey client and authenticate user.
@@ -181,7 +186,7 @@ public class ReportServerBean extends AbstractBackingBean {
             }
 
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/resources?folderUri=" + folderPath);
-            Response response = target.request("application/xml").get();
+            Response response = target.request(APP_XML).get();
             LogUtility.log("JapserReport folder URI: " + baseServerUrl + "/rest_v2/resources?folderUri=" + folderPath);
             LogUtility.log("JasperReport folder URI response:" + response.getStatus());
 
@@ -196,7 +201,7 @@ public class ReportServerBean extends AbstractBackingBean {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes(UTF8));
             Document doc = builder.parse(input);
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName(ResourceTagNameConst.RESOURCE_LOOKUP);
@@ -244,7 +249,7 @@ public class ReportServerBean extends AbstractBackingBean {
             }
 
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/resources" + uri);
-            Response response = target.request("application/xml").get();
+            Response response = target.request(APP_XML).get();
 
             LogUtility.log("JapserReport Resource URI: " + baseServerUrl + "/rest_v2/resources" + uri);
             LogUtility.log("JasperReport Resource URI response:" + response.getStatus());
@@ -260,7 +265,7 @@ public class ReportServerBean extends AbstractBackingBean {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes(UTF8));
             Document doc = builder.parse(input);
             doc.getDocumentElement().normalize();
             Element root = doc.getDocumentElement();
@@ -308,10 +313,10 @@ public class ReportServerBean extends AbstractBackingBean {
             }
 
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/reports" + reportPath + "/inputControls");
-            Response response = target.request("application/xml").get();
+            Response response = target.request(APP_XML).get();
 
             // if no parameters
-            if (response.getStatus() == 204){
+            if (response.getStatus() == 204) {
                 return null;
             }
 
@@ -326,7 +331,7 @@ public class ReportServerBean extends AbstractBackingBean {
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+            ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes(UTF8));
             Document doc = builder.parse(input);
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName(ResourceTagNameConst.INPUT_CONTROL);
@@ -409,15 +414,15 @@ public class ReportServerBean extends AbstractBackingBean {
                             }
                         } else {
                             if (param.getValueString() == null || param.getValueString().equals("")
-                                || param.getValueString().equalsIgnoreCase("~NOTHING~")) {
-                            error += String.format(
-                                    msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
-                                    param.getLabel()) + ";";
-                            getContext().addMessage(null, new FacesMessage(
-                                    String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
-                                            param.getLabel()) + ";"));
+                                    || param.getValueString().equalsIgnoreCase("~NOTHING~")) {
+                                error += String.format(
+                                        msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
+                                        param.getLabel()) + ";";
+                                getContext().addMessage(null, new FacesMessage(
+                                        String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_FILL_IN_PARAM),
+                                                param.getLabel()) + ";"));
+                            }
                         }
-                    }
                     }
 
                     if (param.getType().equalsIgnoreCase(ParamTypeConst.BOOL)) {
@@ -501,41 +506,99 @@ public class ReportServerBean extends AbstractBackingBean {
             if (StringUtility.isEmpty(fullReportUrl)) {
                 return;
             }
-
-            WebTarget target = getClient().target(fullReportUrl);
-            Response response = target.request("text/html").get();
+            String contentType = "text/html";
+            if (format.equalsIgnoreCase("pdf")) {
+                contentType = "application/pdf";
+            } else if (format.equalsIgnoreCase("docx")) {
+                contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            } else if (format.equalsIgnoreCase("rtf")) {
+                contentType = "application/rtf";
+            } else if (format.equalsIgnoreCase("xlsx")) {
+                contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            }
 
             LogUtility.log("JapserReport Report URL: " + fullReportUrl);
-            LogUtility.log("JasperReport Report URL response:" + response.getStatus());
 
-            if (response.getStatus() != 200) {
-                getContext().addMessage(null, new FacesMessage(
-                        String.format(msgProvider.getErrorMessage(ErrorKeys.REPORTS_FAILED_TO_GET_REPORT),
-                                Integer.toString(response.getStatus()))));
-                return;
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+
+            response.reset();
+            response.setContentType(contentType);
+            response.setHeader("Content-Disposition", "inline; filename=\"report." + format + "\"");
+
+            try (OutputStream responseOutputStream = response.getOutputStream()) {
+                String sessionId = login();
+                URL url = new URL(fullReportUrl);
+
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setRequestProperty("Cookie", "JSESSIONID=" + sessionId);
+                con.setDoOutput(true);
+                con.setRequestMethod("GET");
+                con.connect();
+
+                try (InputStream inputStream = con.getInputStream()) {
+                    byte[] bytesBuffer = new byte[2048];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(bytesBuffer)) > 0) {
+                        responseOutputStream.write(bytesBuffer, 0, bytesRead);
+                    }
+                    responseOutputStream.flush();
+                }
             }
+            facesContext.responseComplete();
 
-            FacesContext fc = FacesContext.getCurrentInstance();
-            ExternalContext ec = fc.getExternalContext();
-
-            ec.responseReset();
-            ec.setResponseContentType(response.getMediaType().getType());
-            ec.setResponseContentLength(response.getLength());
-            ec.setResponseHeader("Content-Disposition", "inline; filename=\"report." + format + "\"");
-
-            OutputStream output = ec.getResponseOutputStream();
-            byte[] buffer = new byte[1024];
-            int i = 0;
-            InputStream in = response.readEntity(InputStream.class);
-
-            while ((i = in.read(buffer)) != -1) {
-                output.write(buffer);
-                //output.flush();
-            }
-            fc.responseComplete();
         } catch (Exception e) {
             LogUtility.log(e.getMessage());
             getContext().addMessage(null, new FacesMessage(e.getMessage()));
         }
+    }
+
+    /**
+     * Logs in to Jasper Reports and returns session id
+     *
+     * @return
+     */
+    public String login() {
+        URL url;
+        HttpURLConnection conn;
+        String jsessionId = "";
+        String urlLink = baseServerUrl + "/rest/login?j_username=" + user + "&j_password=" + password;
+        String sessionId = "";
+
+        try {
+            url = new URL(urlLink);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.connect();
+
+            if (conn.getResponseCode() == 200) {
+                Map<String, List<String>> map = conn.getHeaderFields();
+                
+                for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                    if(!sessionId.equals("")){
+                        break;
+                    }
+                        
+                    if (entry.getKey() == null) {
+                        continue;
+                    }
+                    if (entry.getKey().equalsIgnoreCase("Set-Cookie")) {
+                        List<String> headerValues = entry.getValue();
+                        for(String value: headerValues){
+                            if(value.toUpperCase().startsWith("JSESSIONID")){
+                                sessionId = value.substring(value.indexOf("=") + 1, value.indexOf(";"));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            conn.disconnect();
+            return sessionId;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return jsessionId;
     }
 }

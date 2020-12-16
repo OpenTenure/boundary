@@ -45,6 +45,7 @@ public class MapSettingsBean extends AbstractBackingBean {
     private final String MAP_PRINT_PROJ4 = "MAP_PRINT_PROJ4";
     private final String MAP_COMMUNITY_AREA = "MAP_COMMUNITY_AREA";
     private final String CS_OFFLINE_MODE = "CS_OFFLINE_MODE";
+    private final String LEGEND_OPTIONS = "LEGEND_OPTIONS";
 
     public boolean getIsOffline() {
         if (!cacheEjb.containsKey(CS_OFFLINE_MODE)) {
@@ -131,7 +132,7 @@ public class MapSettingsBean extends AbstractBackingBean {
 
         for (ConfigMapLayerMetadata param : layer.getMetadataList()) {
             if (!param.isForClient() && layer.getTypeCode().equalsIgnoreCase("wms") 
-                    && !param.getName().equalsIgnoreCase("LEGEND_OPTIONS")) {
+                    && !param.getName().equalsIgnoreCase(LEGEND_OPTIONS)) {
                 if (!result.equals("")) {
                     result += ", ";
                 }
@@ -155,7 +156,7 @@ public class MapSettingsBean extends AbstractBackingBean {
 
         for (ConfigMapLayerMetadata param : layer.getMetadataList()) {
             if (param.isForClient() && layer.getTypeCode().equalsIgnoreCase("wms") 
-                    && !param.getName().equalsIgnoreCase("LEGEND_OPTIONS")) {
+                    && !param.getName().equalsIgnoreCase(LEGEND_OPTIONS)) {
                 if (!result.equals("")) {
                     result += ", ";
                 }
@@ -178,7 +179,7 @@ public class MapSettingsBean extends AbstractBackingBean {
         }
 
         for (ConfigMapLayerMetadata param : layer.getMetadataList()) {
-            if (param.getName().equalsIgnoreCase("LEGEND_OPTIONS")) {
+            if (param.getName().equalsIgnoreCase(LEGEND_OPTIONS)) {
                 return param.getValue();
             }
         }

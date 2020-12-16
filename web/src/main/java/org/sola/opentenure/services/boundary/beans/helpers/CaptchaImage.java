@@ -8,12 +8,14 @@ import java.io.*;
 import java.awt.*;
 import java.util.*;
 import java.awt.font.TextAttribute;
+import java.security.SecureRandom;
  
 public class CaptchaImage extends HttpServlet {
  
     private int height = 0;
     private int width = 0;
     public static final String CAPTCHA_KEY = "captcha_key_name";
+    private final Random rand = new Random();
  
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -34,9 +36,8 @@ public class CaptchaImage extends HttpServlet {
         Graphics2D graphics2D = image.createGraphics();
         graphics2D.setColor(new Color(135, 169, 104));
         graphics2D.fillRect(0, 0, width, height);
-        Hashtable<TextAttribute, Object> map = new Hashtable<TextAttribute, Object>();
-        Random r = new Random();
-        String token = Long.toString(Math.abs(r.nextLong()), 36);
+        //Hashtable<TextAttribute, Object> map = new Hashtable<TextAttribute, Object>();
+        String token = Long.toString(Math.abs(rand.nextLong()), 36);
         String ch = token.substring(0, 6);
         Color c = new Color(150,150,150);
         GradientPaint gp = new GradientPaint(30, 30, c, 15, 25, Color.white, true);

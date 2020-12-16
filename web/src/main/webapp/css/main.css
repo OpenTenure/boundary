@@ -235,11 +235,10 @@ ul{
 /*---------------------------------
         TABLES
 -----------------------------------*/
-.table-header{
+.table-header th{
     background-color:#87a968;
-    height:38px;
     color:#fff;
-    vertical-align: top !important;
+    font-weight: bold;
 }
 
 .table{

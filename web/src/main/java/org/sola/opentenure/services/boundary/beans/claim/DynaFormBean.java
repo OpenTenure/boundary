@@ -40,9 +40,6 @@ public class DynaFormBean extends AbstractBackingBean {
     private FormTemplate formTemplate;
     HashMap<String, SectionElementPayload> tempSectionElements;
 
-    public DynaFormBean() {
-    }
-
     public void init(Claim claim) {
         tempSectionElements = new HashMap<>();
         if (claim != null) {

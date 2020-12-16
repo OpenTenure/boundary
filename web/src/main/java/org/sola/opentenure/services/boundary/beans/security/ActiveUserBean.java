@@ -49,12 +49,6 @@ public class ActiveUserBean extends AbstractModelBean {
         String userName = FacesContext.getCurrentInstance().getExternalContext().getRemoteUser();
         return userName != null && !userName.equals("");
     }
- 
-    /**
-     * Creates a new instance of ActiveUser bean
-     */
-    public ActiveUserBean() {
-    }
 
     public boolean getCanReviewClaim(){
         return adminEjb.isInRole(RolesConstants.CS_REVIEW_CLAIM);

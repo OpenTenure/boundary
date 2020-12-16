@@ -38,6 +38,7 @@ public class PasswordsValidator implements ConstraintValidator<PasswordsCheck, U
 
     @Override
     public void initialize(PasswordsCheck a) {
+        // overridden method
     }
 
     @Override

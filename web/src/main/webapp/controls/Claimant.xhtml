@@ -290,7 +290,7 @@
                             <div id="claimantBody" class="modal-body"></div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">#{msg.GENERAL_LABEL_CLOSE}</button>
-                                <h:commandButton class="btn btn-primary" value="#{msg.GENERAL_LABEL_SAVE}" onclick="return checkPartyForm()">
+                                <h:commandButton class="btn btn-primary" value="#{msg.GENERAL_LABEL_DONE}" onclick="return checkPartyForm()">
                                     <f:ajax event="click" execute=":mainForm:pnlParty" 
                                             render=":mainForm:pnlClaimant :mainForm:pnlClaimantEditButtons"
                                             onevent="onEditClaimant"

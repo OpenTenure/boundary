@@ -8,8 +8,6 @@ public class FormTemplateTO extends AbstractReadWriteTO {
     private String displayName;
     private List<SectionTemplateTO> sectionTemplateList;
     
-    public FormTemplateTO(){
-    }
     
     public String getDisplayName() {
         return displayName;

@@ -18,8 +18,7 @@
             <h:panelGroup id="pnlAttachments">
                 <h:dataTable value="#{claimPageBean.attachments}" var="a"
                              id="tableAttachments"
-                             class="table"
-                             headerClass="table-header">
+                             class="table table-striped table-hover table-header">
                     <h:column>
                         <f:facet name="header">#{msg.CLAIM_PAGE_DOCUMENT_TYPE}</f:facet>
                         <h:commandLink class="BlueLink" rendered="#{allowEdit or claimAttachmentBean.getCanEdit(a.typeCode)}" style="margin-right: 5px;">
