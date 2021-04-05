@@ -29,14 +29,24 @@
                                          rendered="#{boundaryPageBean.canEdit}"
                                          action="#{boundaryPageBean.delete()}"
                                          onclick="return confirm('#{msg.BOUNDARY_PAGE_DELETE_WARNING}') ? blockUI() : false" />
-                        <h:outputLink value="" class="btn btn-default" rendered="#{not boundaryPageBean.boundary.isNew()}" onclick="return printBoundary()">
+                        <h:outputLink value="" class="btn btn-default" 
+                                        rendered="#{not boundaryPageBean.boundary.isNew()}" 
+                                        onclick="return printBoundary()">
                             #{msg.GENERAL_LABEL_PRINT}
+                        </h:outputLink>
+                        <h:outputLink value="" class="btn btn-default" 
+                                        rendered="#{not boundaryPageBean.boundary.isNew()}" 
+                                        onclick="return printBoundaryCert()">
+                            #{msg.GENERAL_LABEL_PRINT_CERT}
                         </h:outputLink>
                         <h:commandButton class="btn btn-default" value="#{msg.BOUNDARY_PAGE_APPROVE}"
                                          rendered="#{boundaryPageBean.canApprove}"
                                          action="#{boundaryPageBean.approve()}"
-                                         onclick="return confirm('#{msg.BOUNDARY_PAGE_APPROVE_WARNING}') ? blockUI() : false" />
-                        <h:inputHidden value="#{boundaryPageBean.id}" />
+                                         onclick="return confirm('#{msg.BOUNDARY_PAGE_APPROVE_WARNING}') ? blockUI() : false" />                       
+                        <h:commandButton class="btn btn-default" value="#{msg.BOUNDARY_PAGE_REVISE}"
+                                         rendered="#{boundaryPageBean.canRevise}"
+                                         action="#{boundaryPageBean.revise()}"
+                                         onclick="return confirm('#{msg.BOUNDARY_PAGE_REVISE_WARNING}') ? blockUI() : false" />                       
                     </div>
                 </div>
                 <div class="content">
@@ -122,6 +132,10 @@
                         var wnd = window.open("#{request.contextPath}/boundary/BoundaryPrint.xhtml?id=#{boundaryPageBean.id}", "_blank", "width=1000,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes,fullscreen=yes");
                         return false;
                     }
+                    function printBoundaryCert() {
+                        var wnd = window.open("#{request.contextPath}/boundary/BoundaryCertificatePrint.xhtml?id=#{boundaryPageBean.id}", "_blank", "width=900,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes");
+                                return false;
+                            }
                 </script>
             </ui:define>
         </ui:composition>

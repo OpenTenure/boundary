@@ -90,7 +90,13 @@
                         </h:outputLink>
                         <h:commandButton class="btn btn-default" value="#{msg.GENERAL_LABEL_ISSUE}"
                                          rendered="#{claimPageBean.canIssueCertificate}"
-                                         action="#{claimPageBean.issueCertificate()}" />
+                                         action="#{claimPageBean.issueCertificate()}"
+                                         onclick="return confirm('#{msg.CLAIM_PAGE_ISSUE_WARNING}') ? blockUI() : false" />
+                                            
+                        <h:commandButton class="btn btn-default" value="#{msg.GENERAL_LABEL_CANCEL_CERT}"
+                                         rendered="#{claimPageBean.canTransfer}"
+                                         action="#{claimPageBean.cancelCertificate()}" 
+                                         onclick="return confirm('#{msg.CLAIM_PAGE_CANCEL_WARNING}') ? blockUI() : false" />
 
                         <h:outputLink value="#{request.contextPath}/claim/TransferClaim.xhtml?id=#{claimPageBean.id}" 
                                       class="btn btn-default" 
@@ -197,7 +203,7 @@
                                             #{msg.MAP_CONTROL_AREA}
                                         </label>
                                         <br />
-                                        <h:outputLabel value="#{claimPageBean.claim.claimArea}" /> m<sup>2</sup>
+                                        <h:outputLabel value="#{claimPageBean.claim.claimArea/10000}" /> hectare
                                     </div>
                                     <div class="col-md-4">
                                         <label>

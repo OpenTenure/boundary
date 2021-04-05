@@ -202,7 +202,12 @@ public class ErrorKeys {
      * claim status is appropriate
      */
     public static final String CLAIM_TRANSFER_NOT_ALLOWED = "CLAIM_TRANSFER_NOT_ALLOWED";
-    /**
+     /**
+     * Claim can't be renumbered. Make sure you have sufficient rights and claim
+     * status is appropriate and claim has initial number with prefix TEMP
+     */
+    public static final String CLAIM_RENUMBER_NOT_ALLOWED = "CLAIM_RENUMBER_NOT_ALLOWED";
+  /**
      * Management of mortgages is not allowed. Make sure you have sufficient
      * rights and claim status is appropriate
      */
@@ -520,4 +525,10 @@ public class ErrorKeys {
      * status is appropriate
      */
     public static final String BOUNDARY_EDIT_NOT_ALLOWED = "BOUNDARY_EDIT_NOT_ALLOWED";
+
+    /**
+     * Boundary certificate can't be generated. Make sure you have sufficient rights and boundary
+     * status is appropriate
+     */
+    public static final String BOUNDARY_CERTIFICATE_NOT_ALLOWED = "BOUNDARY_CERTIFICATE_NOT_ALLOWED";
 }

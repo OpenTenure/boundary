@@ -103,4 +103,7 @@ public class SectionTemplateTO extends AbstractReadWriteTO {
     public void setItemOrder(int itemOrder) {
         this.itemOrder = itemOrder;
     }
+
+    public SectionTemplateTO(){
+    }
 }

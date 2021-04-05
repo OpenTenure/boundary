@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"   
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:uc="http://xmlns.jcp.org/jsf/composite/uc"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Certificate map</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../templates/EmptyMapTemplate.xhtml">
+            <ui:define name="title">
+                #{claimPageBean.header}
+            </ui:define>
+            <ui:define name="head2">
+                <style>
+                    body{
+                        background-color: #fff;
+                        margin: 20px;
+                    }
+                    .headerCaption{
+                        vertical-align: middle;height: 30px; background-color: #ddd;font-weight: bold;padding: 5px 0 0 5px;border-top: #aaa solid 1px;
+                    }
+                    .contentTable td, .contentTable th{
+                        padding: 8px 5px;
+                        font-size: 13px;
+                    }
+                    .contentTable th{
+                        font-weight: bold;
+                        border-bottom: #888 dotted 1px;
+                    }
+                </style>
+                <script>
+                    sourceCrs = "EPSG:4326";
+                    destCrs = "EPSG:3857";
+
+                    Ext.onReady(function() {
+                        map = new OpenLayers.Map('map', {
+                            controls: [],
+                            div: "map",
+                            allOverlays: false,
+                            maxResolution: 19.296875,
+                            projection: destCrs,
+                            displayProjection: sourceCrs,
+                            units: 'm',
+                            zoom: 5
+                        });
+
+                        var layers = [];                
+                
+                        <c:if test="#{not mapSettingsBean.isOffline}">
+                            var gsat = new OpenLayers.Layer.Google("Google Earth", {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
+                            layers.push(gsat);
+                        </c:if>
+
+                        <ui:repeat var = "l" value = "#{mapSettingsBean.layersArray}" varStatus = "r">
+                            <ui:fragment rendered = "#{l.typeCode eq 'wms' and l.useForOpenTenure}">
+                                // Add WMS layers
+                                layers.push(new OpenLayers.Layer.WMS("#{l.title}", "#{l.url}",
+                                            {layers: '#{l.wmsLayers}', transparent: 'true'}));
+                            </ui:fragment>
+                        </ui:repeat>
+
+                        var wkt = new OpenLayers.Format.WKT();
+                        var communityArea = wkt.read("#{mapSettingsBean.communityArea}");
+                        communityArea.geometry.transform(sourceCrs, destCrs);
+
+                        var maxExtentBounds = communityArea.geometry.getBounds();
+                        var initialZoomBounds = maxExtentBounds;
+                        
+                        // Add community area
+                        var layerCommunityArea = new OT.Map.Layer.VectorLayer(
+                                OT.Map.LAYER_IDS.COMMUNITY_AREA,
+                                "#{msg.MAP_CONTROL_COMMUNITY_LAYER_NAME}",
+                                {
+                                    isEditable: false,
+                                    styleMap: OT.Map.Styles.styleMapCommunityLayer
+                                });
+                        layerCommunityArea.addFeatures([communityArea]);
+
+                        layers.push(layerCommunityArea);
+                
+                        <c:if test="#{not empty claimPageBean.claim.locationsArray}">
+                            // Add aditional location layer
+                            var layerAdditionalLocations = new OT.Map.Layer.VectorLayer(
+                                    OT.Map.LAYER_IDS.CLAIM_ADDITIONAL_LOCATIONS,
+                                    "#{msg.MAP_CONTROL_LOCATIONS_LAYER_TITLE}",
+                                    {styleMap: OT.Map.Styles.styleMapLocations,
+                                        virtualNodeStyle: OT.Map.Styles.styleLocationsNode,
+                                        isEditable: false
+                                    });
+                            layers.push(layerAdditionalLocations);
+
+                            <c:if test = "#{not empty claimPageBean.claim.locationsArray}">
+                                var claimAdditionalLocations = [];
+                                var additionalLocation;
+                                <ui:repeat var = "l" value = "#{claimPageBean.claim.locationsArray}" varStatus = "r">
+                                    additionalLocation = wkt.read("#{l.mappedLocation}");
+                                    additionalLocation.geometry.transform(sourceCrs, destCrs);
+                                    additionalLocation.attributes = {id: "#{l.id}", description: "#{l.description}"};
+                                    claimAdditionalLocations[claimAdditionalLocations.length] = additionalLocation;
+                                    layerAdditionalLocations.addFeatures(claimAdditionalLocations);
+                                </ui:repeat>
+                            </c:if>
+                        </c:if>
+
+                        <c:if test = "#{not empty claimPageBean.claim.mappedGeometry}">
+                            // Add current claim layer
+                            var layerSelectedClaim = new OT.Map.Layer.VectorLayer(
+                                    OT.Map.LAYER_IDS.CURRENT_CLAIM,
+                                    "#{msg.MAP_CONTROL_CURRENT_CLAIM}", 
+                                    {
+                                        styleMap: OT.Map.Styles.styleMapClaim, 
+                                        isEditable: false
+                                    });
+                            layers.push(layerSelectedClaim);
+
+                            var currentClaimFeature = wkt.read("#{claimPageBean.claim.mappedGeometry}");
+                            currentClaimFeature.geometry.transform(sourceCrs, destCrs);
+
+                            initialZoomBounds = currentClaimFeature.geometry.getBounds();
+
+                            var statusCode = "#{claimPageBean.claim.statusCode}";
+                            <c:if test = "#{claimPageBean.claim.isReadyForReview}">
+                                statusCode = "forreview";
+                            </c:if>
+
+                            var currentClaimFeatureLabel = "";
+                            <c:if test = "#{not empty claimPageBean.claim.challengedClaimId or claimPageBean.claim.statusCode eq 'rejected' or claimPageBean.claim.statusCode eq 'withdrawn'}" >
+                                currentClaimFeatureLabel = "#{claimPageBean.claim.nr}";
+                            </c:if>
+
+                            currentClaimFeature.attributes = {label: currentClaimFeatureLabel, nr: "#{claimPageBean.claim.nr}", statusCode: statusCode, area: "#{claimPageBean.claim.claimArea}"};
+                            layerSelectedClaim.addFeatures(currentClaimFeature);
+                        </c:if>
+
+                        map.addLayers(layers);
+                        //map.zoomToExtent(initialZoomBounds);
+
+                        setTimeout(function() {
+                            map.zoomToExtent(initialZoomBounds);
+                        }, 500);
+                    });
+                </script>
+            </ui:define>
+            <ui:define name="content">
+                <div style="padding: 5px 0 0 3px;">
+                    <div style="text-align: center;">
+                        <div id="map" style="width: 523px;height: 330px;border: #888 solid 1px;">
+                        </div>
+                    </div>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

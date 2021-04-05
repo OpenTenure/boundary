@@ -359,12 +359,25 @@ public class BoundaryPageBean extends AbstractBackingBean {
         return (boundary.getStatusCode().equalsIgnoreCase(AdministrativeBoundaryStatus.STATUS_PENDING) && isInRole(RolesConstants.CS_MODERATE_CLAIM));
     }
 
+    public boolean getCanRevise() {
+        return (boundary.getStatusCode().equalsIgnoreCase(AdministrativeBoundaryStatus.STATUS_APPROVED) && isInRole(RolesConstants.CS_MODERATE_CLAIM));
+    }
+
+    public boolean getCanPrintCertificate() {
+        return (boundary.getStatusCode().equalsIgnoreCase(AdministrativeBoundaryStatus.STATUS_APPROVED) && isInRole(RolesConstants.CS_MODERATE_CLAIM));
+    }
+    
     public void checkCanEdit() throws Exception {
         if (!getCanEdit()) {
             throw new OTWebException(msgProvider.getErrorMessage(ErrorKeys.BOUNDARY_EDIT_NOT_ALLOWED));
         }
     }
-
+    
+    public void checkCanPrintCertificate() throws Exception {
+        if (!getCanPrintCertificate()) {
+            throw new OTWebException(msgProvider.getErrorMessage(ErrorKeys.BOUNDARY_CERTIFICATE_NOT_ALLOWED));
+        }
+    }
     public void save() {
         try {
             runUpdate(new Runnable() {
@@ -381,6 +394,7 @@ public class BoundaryPageBean extends AbstractBackingBean {
         }
     }
 
+    
     public void approve() {
         try {
             if (!StringUtility.isEmpty(id) && getCanApprove()) {
@@ -389,6 +403,23 @@ public class BoundaryPageBean extends AbstractBackingBean {
                     public void run() {
                         LocalInfo.setBaseUrl(getApplicationUrl());
                         claimEjb.approveAdministrativeBoundary(id);
+                    }
+                });
+                redirectWithAction(ACTION_APPROVED);
+            }
+        } catch (Exception e) {
+            getContext().addMessage(null, new FacesMessage(processException(e, langBean.getLocale()).getMessage()));
+        }
+    }
+   
+    public void revise() {
+        try {
+            if (!StringUtility.isEmpty(id) && getCanRevise()) {
+                runUpdate(new Runnable() {
+                    @Override
+                    public void run() {
+                        LocalInfo.setBaseUrl(getApplicationUrl());
+                        claimEjb.reviseAdministrativeBoundary(id);
                     }
                 });
                 redirectWithAction(ACTION_APPROVED);

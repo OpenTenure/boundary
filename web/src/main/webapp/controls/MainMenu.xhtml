@@ -48,11 +48,9 @@
                                     </c:if>
                                     <c:if test="#{activeUserBean.canViewReports}">
                                         <li><a href="#" onclick="return openPublicDisplayMap();"><i class="glyphicon glyphicon-bullhorn"></i> #{msg.MAIN_MENU_PUBLIC_DISPLAY_MAP}</a></li>
-                                        <li><a href="#" onclick="return openPublicDisplayOwners();"><i class="glyphicon glyphicon-bullhorn"></i> #{msg.MAIN_MENU_PUBLIC_DISPLAY_OWNERS}</a></li>
                                     </c:if>
                                 </ul>
                             </li>
-
                             <li class='#{mainMenuBean.getItemClassByPath("/boundary/")}'>
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                     #{msg.MAIN_MENU_BOUNDARIES} <b class="caret"></b>
@@ -86,6 +84,12 @@
                                 </ul>
                             </li>
                         </c:if>
+                        <li class='#{mainMenuBean.getItemClassByPath("/aboutidx.xhtml")}'>
+                            <a href="#{request.contextPath}/aboutidx.xhtml">#{msg.MAIN_MENU_ABOUT}</a>
+                        </li>
+                        <li class='#{mainMenuBean.getItemClassByPath("/contactidx.xhtml")}'>
+                            <a href="#{request.contextPath}/contactidx.xhtml">#{msg.MAIN_MENU_CONTACT}</a>
+                        </li>                        
                     </ul>
                 </div>
             </nav>

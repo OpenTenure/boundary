@@ -56,11 +56,11 @@ public class ClaimCertificatePrintBean extends AbstractBackingBean {
                             // So, try to replace https to http for workaround
                             appUrl = appUrl.replace("https:", "http:").replace(":8181", ":8080").replace(":443", "");
                         }
-                        param.setValueString(URLEncoder.encode(appUrl + "/claim/GetMapImage.xhtml", "UTF-8"));
+                        param.setValueString(URLEncoder.encode(appUrl + "/claim/GetMapImage.xhtml", "UTF-8"));                        getContext().addMessage(null, new FacesMessage(appUrl));
                     }
                 }
                 server.runReport(report.getUri(), params.toArray(new ReportParam[params.size()]), "pdf");
-            }
+            } 
         } catch (Exception e) {
             getContext().addMessage(null, new FacesMessage("Failed to run claim certificate printing"));
             LogUtility.log("Failed to run claim certificate printing", e);

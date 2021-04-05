@@ -71,11 +71,12 @@ public class ClaimAttachmentBean extends AbstractBackingBean {
     }
     public SourceType[] getDocumentTypes() {
         SourceType[] docType;
-     if (!claimPageBean.getIsTransfer() && !claimPageBean.getIsRestriction() && claimPageBean.getCanIssueCertificate()) {            // Retrurn only allowed documents
-            docType = refData.getDocumentTypesForCertIssuance(isNew, langBean.getLocale());
-        } else {
+    // Remove document type limitations in the case of issue of certificate for ALUR implementation    
+//     if (!claimPageBean.getIsTransfer() && !claimPageBean.getIsRestriction() && claimPageBean.getCanIssueCertificate()) {            // Retrurn only allowed documents
+//            docType = refData.getDocumentTypesForCertIssuance(isNew, langBean.getLocale());
+//        } else {
             docType = refData.getDocumentTypes(isNew, langBean.getLocale(), true);
-        }
+//        }
         return docType;
     }
 

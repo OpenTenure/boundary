@@ -18,7 +18,7 @@
         <table border="0" width="100%">
             <tbody>
                 <tr>
-                    <td class="table-cell" style="min-width: 90px;">
+                    <td class="table-cell" style="width: 130px;">
                         <h:outputLabel for="txtClaimNumber">
                             #{msg.CLAIM_SEARCH_NUMBER}
                         </h:outputLabel>
@@ -28,7 +28,7 @@
                                      maxlength="20"
                                      autocomplete="off" />
                     </td>
-                    <td class="table-cell" style="min-width: 120px;">
+                    <td class="table-cell">
                         <h:outputLabel for="txtDescription">
                             #{msg.CLAIM_SEARCH_DESCRIPTION}
                         </h:outputLabel>
@@ -38,7 +38,7 @@
                                      maxlength="200"
                                      autocomplete="off" />
                     </td>
-                    <td class="table-cell" style="min-width: 180px;">
+                    <td class="table-cell" style="width: 180px;">
                         <h:outputLabel for="txtDateFrom">
                             #{msg.CLAIM_SEARCH_LODGING_DATE_FROM}
                         </h:outputLabel>
@@ -53,7 +53,7 @@
                                          autocomplete="off" />
                         </div>
                     </td>
-                    <td class="table-cell" style="min-width: 180px;">
+                    <td class="table-cell" style="width: 180px;">
                         <h:outputLabel for="txtDateTo">
                             #{msg.CLAIM_SEARCH_LODGING_DATE_TO}
                         </h:outputLabel>
@@ -68,7 +68,7 @@
                                          autocomplete="off" />
                         </div>
                     </td>
-                    <td class="table-cell" style="min-width: 150px;">
+                    <td class="table-cell">
                         <h:outputLabel for="txtClaimantName">
                             #{msg.CLAIM_SEARCH_CLAIMANT_NAME}
                         </h:outputLabel>
@@ -78,7 +78,7 @@
                                      maxlength="200"
                                      autocomplete="off" />
                     </td>
-                    <td class="table-cell" style="min-width: 130px;">
+                    <td class="table-cell" style="width: 150px;">
                         <h:outputLabel for="cbxStatus">
                             #{msg.GENERAL_LABEL_STATUS}
                         </h:outputLabel>
@@ -93,21 +93,6 @@
                                            itemValue="#{c.code}" />
                         </h:selectOneListbox>
                     </td>
-                    <td class="table-cell" style="min-width: 130px;">
-                        <h:outputLabel for="cbxType">
-                            #{msg.CLAIM_PAGE_CHALLENGE_TYPE}
-                        </h:outputLabel>
-                        <h:selectOneListbox
-                            id="cbxChallenges" 
-                            style="line-height:27px;"
-                            size="1"
-                            value="#{claimSearchComponentBean.searchParams.challengeType}"
-                            class="form-control">
-                            <f:selectItem itemValue = "" itemLabel = " " /> 
-                            <f:selectItem itemValue = "challenged" itemLabel = "#{msg.CLAIM_PAGE_CHALLENGED}" /> 
-                            <f:selectItem itemValue = "challenging" itemLabel = "#{msg.CLAIM_PAGE_CHALLENGING}" />
-                        </h:selectOneListbox>
-                    </td>
                     <td style="width: 90px;">
                         <h:outputLabel>
                             &nbsp;
@@ -120,6 +105,7 @@
             </tbody>
         </table>
 
+        <div class="LineSpace"></div>
         <div class="LineSpace"></div>
 
         <h:panelGroup layout="block" rendered="#{claimSearchComponentBean.hasSearchResults}">

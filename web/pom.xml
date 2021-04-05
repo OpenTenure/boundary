@@ -4,11 +4,12 @@
     <parent>
         <artifactId>sola-cs-boundary</artifactId>
         <groupId>org.sola.cs.services</groupId>
-        <version>2020a</version>
+        <version>1712a</version>
     </parent>
 
     <groupId>org.sola.cs.services.boundary</groupId>
     <artifactId>sola-cs-web</artifactId>
+    <version>1712a</version>
     <packaging>war</packaging>
 
     <name>Boundary CS Web</name>
@@ -113,6 +114,19 @@
         <dependency>
             <groupId>org.sola.cs.services.ejbs</groupId>
             <artifactId>sola-cs-claim</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>servlet-api</artifactId>
+                    <groupId>javax.servlet</groupId>
+                </exclusion>
+            </exclusions>
+            <type>ejb</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sola.cs.services.ejbs</groupId>
+            <artifactId>sola-cs-boundary</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>

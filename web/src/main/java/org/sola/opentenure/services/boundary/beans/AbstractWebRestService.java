@@ -1,9 +1,9 @@
 package org.sola.opentenure.services.boundary.beans;
 
-import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import javax.annotation.Resource;
 import javax.ejb.EJBAccessException;
+import javax.enterprise.context.Dependent;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Status;
@@ -123,10 +123,6 @@ public class AbstractWebRestService {
     public ObjectMapper getMapper() {
         if (mapper == null) {
             mapper = new ObjectMapper();
-            
-            SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	    SerializationConfig serializationConfig = mapper.getSerializationConfig();
-            mapper.setSerializationConfig(serializationConfig.withDateFormat(DATE_FORMAT));
             mapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
             mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         }
