@@ -141,6 +141,12 @@ public class MessagesKeys {
     public static final String CLAIM_PAGE_ISSUED = "CLAIM_PAGE_ISSUED";
     /** Ownership rights have been transferred */
     public static final String CLAIM_PAGE_RIGHTS_TRANSFERRED = "CLAIM_PAGE_RIGHTS_TRANSFERRED";
+    /** Claim Certificate has been cancelled */
+    public static final String CLAIM_PAGE_CANCELLED = "CLAIM_PAGE_CANCELLED";
+    /** Claim Certificate has been renewed */
+    public static final String CLAIM_PAGE_RENEWED = "CLAIM_PAGE_RENEWED";
+    /** Claim has been renumbered */
+    public static final String CLAIM_PAGE_RENUMBERED = "CLAIM_PAGE_RENUMBERED";
     
     // Claim upload
     
@@ -177,4 +183,6 @@ public class MessagesKeys {
     public static final String BOUNDARY_PAGE_DELETED = "BOUNDARY_PAGE_DELETED";
     /** Location Map of the %s */
     public static final String BOUNDARY_PRINT_PAGE_LOCATION_OF = "BOUNDARY_PRINT_PAGE_LOCATION_OF";
+    /** Boundary has been revised */
+    public static final String BOUNDARY_PAGE_REVISED = "BOUNDARY_PAGE_REVISED";
 }

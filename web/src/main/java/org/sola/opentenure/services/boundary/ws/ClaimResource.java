@@ -4,10 +4,8 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -45,6 +43,7 @@ import org.sola.cs.services.boundary.transferobjects.claim.ClaimPartyTO;
 import org.sola.cs.services.boundary.transferobjects.claim.ClaimShareTO;
 import org.sola.cs.services.boundary.transferobjects.claim.ClaimTO;
 import org.sola.cs.services.boundary.transferobjects.claim.FormTemplateTO;
+import org.sola.cs.services.boundary.transferobjects.claim.SpatialUnitTO;
 import org.sola.cs.services.boundary.transferobjects.search.AdministrativeBoundaryWithGeomSearchResultTO;
 import org.sola.cs.services.boundary.transferobjects.search.ClaimSearchResultTO;
 import org.sola.cs.services.boundary.transferobjects.search.ClaimSpatialSearchResultTO;
@@ -58,6 +57,7 @@ import org.sola.cs.services.ejb.search.repository.entities.GeoJsonAdministrative
 import org.sola.cs.services.ejb.search.repository.entities.GeoJsonClaim;
 import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 import org.sola.cs.services.ejbs.claim.entities.AdministrativeBoundary;
+import org.sola.cs.services.boundary.transferobjects.search.SpatialUnitWithGeomSearchResultTO;
 
 /**
  * Claim REST Web Service
@@ -76,10 +76,7 @@ public class ClaimResource extends AbstractWebRestService {
     SystemCSEJBLocal systemEjb;
 
     private String hiddenString = "";
-    private static final String X_REQ_WITH = "x-requested-with";
-    private static final String ACA_HEADERS = "Access-Control-Allow-Headers";
-    private static final String ACA_ORIGIN = "Access-Control-Allow-Origin";
-    
+
     private final String geoJson = "{"
             + "\"type\": \"FeatureCollection\","
             + "\"crs\": {"
@@ -90,6 +87,12 @@ public class ClaimResource extends AbstractWebRestService {
             + "},"
             + "\"features\": [%s]"
             + "}";
+
+    /**
+     * Creates a new instance of ClaimResource
+     */
+    public ClaimResource() {
+    }
 
     @PostConstruct
     private void init() {
@@ -249,8 +252,8 @@ public class ClaimResource extends AbstractWebRestService {
             ClaimSearchResultTO claimTO = CsGenericTranslator
                     .toTO(searchEjb.getClaimByCoordinates(x, y, localeCode), ClaimSearchResultTO.class);
             String result = "";
-            response.addHeader(ACA_HEADERS, X_REQ_WITH);
-            response.addHeader(ACA_ORIGIN, "*");
+            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
+            response.addHeader("Access-Control-Allow-Origin", "*");
 
             if (claimTO != null) {
                 result = getMapper().writeValueAsString(claimTO);
@@ -277,20 +280,34 @@ public class ClaimResource extends AbstractWebRestService {
             // First look for claims as most top object
             ClaimSearchResultTO claimTO = CsGenericTranslator
                     .toTO(searchEjb.getClaimByCoordinates(x, y, localeCode), ClaimSearchResultTO.class);
+            // Look for boundary
+            AdministrativeBoundaryWithGeomSearchResultTO boundaryTO = CsGenericTranslator
+                    .toTO(searchEjb.getAdministrativeBoundaryByCoordinates(x, y, localeCode), AdministrativeBoundaryWithGeomSearchResultTO.class);
+            // Look for spatial-unit            
+            //SpatialUnitWithGeomSearchResultTO spatialUnitTO = CsGenericTranslator
+            //        .toTO(searchEjb.getSpatialUnitByCoordinates(x, y, localeCode), SpatialUnitWithGeomSearchResultTO.class);
+            List<SpatialUnitWithGeomSearchResultTO> suresults = CsGenericTranslator.toTOList(searchEjb.getSpatialUnitsByCoordinates(x, y, localeCode), SpatialUnitWithGeomSearchResultTO.class);
             String result = "";
-            response.addHeader(ACA_HEADERS, X_REQ_WITH);
-            response.addHeader(ACA_ORIGIN, "*");
+            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
+            response.addHeader("Access-Control-Allow-Origin", "*");
 
             if (claimTO != null) {
                 result = getMapper().writeValueAsString(claimTO);
-            } else {
+            } else if (boundaryTO != null) {
                 // Look for boundary
-                AdministrativeBoundaryWithGeomSearchResultTO boundaryTO = CsGenericTranslator
-                        .toTO(searchEjb.getAdministrativeBoundaryByCoordinates(x, y, localeCode), AdministrativeBoundaryWithGeomSearchResultTO.class);
-                if (boundaryTO != null) {
-                    result = getMapper().writeValueAsString(boundaryTO);
-                }
+                result = getMapper().writeValueAsString(boundaryTO);
+            } else if (suresults != null) {
+                String suresult = "";
+                int suCount = 1;
+     //  to be fixed to allow multiple layers from cadastre.spatial_unit to be displayed - only one is displayed currently
+    //           do {
+                    suresult = getMapper().writeValueAsString(suresults.get(suCount));
+     //               suCount++;
+  //                  result = result + suresult;
+     //           } while (suCount <= suresults.size());  
+                result = suresult;
             }
+ 
             return result;
         } catch (Exception e) {
             throw processException(e, localeCode);
@@ -311,8 +328,8 @@ public class ClaimResource extends AbstractWebRestService {
 
             List<MapSearchResultTO> searchresults = CsGenericTranslator.toTOList(searchEjb.searchMap(query), MapSearchResultTO.class);
             String result = "";
-            response.addHeader(ACA_HEADERS, X_REQ_WITH);
-            response.addHeader(ACA_ORIGIN, "*");
+            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
+            response.addHeader("Access-Control-Allow-Origin", "*");
 
             if (searchresults != null) {
                 result = getMapper().writeValueAsString(searchresults);
@@ -368,8 +385,8 @@ public class ClaimResource extends AbstractWebRestService {
                 }
             }
 
-            response.addHeader(ACA_HEADERS, X_REQ_WITH);
-            response.addHeader(ACA_ORIGIN, "*");
+            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
+            response.addHeader("Access-Control-Allow-Origin", "*");
 
             return String.format(geoJson, features);
         } catch (Exception e) {
@@ -398,8 +415,8 @@ public class ClaimResource extends AbstractWebRestService {
                 features = String.format(feature, boundary.getId(), boundary.getName(), boundary.getGeom());
             }
 
-            response.addHeader(ACA_HEADERS, X_REQ_WITH);
-            response.addHeader(ACA_ORIGIN, "*");
+            response.addHeader("Access-Control-Allow-Headers", "x-requested-with");
+            response.addHeader("Access-Control-Allow-Origin", "*");
 
             return String.format(geoJson, features);
         } catch (Exception e) {
@@ -713,7 +730,7 @@ public class ClaimResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
-    
+ 
     private void removeClaimPrivateInfo(ClaimTO claim) {
         if (claim == null) {
             return;
@@ -750,4 +767,19 @@ public class ClaimResource extends AbstractWebRestService {
             party.setEmail(hiddenString);
         }
     }
+
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getspatialunit|getSpatialUnit}/{spatialUnitId}")
+    public String getSpatialUnit(
+            @PathParam(value = LOCALE_CODE) String localeCode,
+            @PathParam(value = "spatialUnitId") String spatialUnitId) {
+        try {
+            SpatialUnitTO spatialUnitTO = CsGenericTranslator.toTO(claimEjb.getSpatialUnit(spatialUnitId), SpatialUnitTO.class);
+                return getMapper().writeValueAsString(spatialUnitTO);
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+
 }

@@ -26,6 +26,8 @@ public class DashboardBean extends AbstractBackingBean {
     private boolean showAllForReview = false;
     private boolean showAllForModeration = false;
     
+    public DashboardBean(){
+    }
     
     public boolean isShowAllForReview() {
         return showAllForReview;

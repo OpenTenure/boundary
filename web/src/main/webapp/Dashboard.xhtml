@@ -12,19 +12,10 @@
             <ui:define name="title">
                 #{msg.DASHBOARD_PAGE_TITLE}
             </ui:define>
-            <ui:define name="head">
-                <link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/datatables.min.css" />
-                <script type="text/javascript" src="#{request.contextPath}/js/datatables.min.js"></script>
-            </ui:define>
             <ui:define name="content">
                 <script type="text/javascript">
                     $(function() {
                         bindDateFields('#{dateBean.datePattern.toLowerCase()}');
-                        
-                        // Sign up for bootstrap tab click to adjust datatables components.
-                        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                            $.fn.dataTable.tables({visible: true, api: true}).columns.adjust();
-                        });
                     });
                 </script>
 

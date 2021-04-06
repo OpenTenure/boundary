@@ -31,4 +31,8 @@ public class ReportParamOption {
     public void setValue(String value) {
         this.value = value;
     }
+    
+    public ReportParamOption(){
+        
+    }
 }

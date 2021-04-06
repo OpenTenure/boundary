@@ -67,8 +67,43 @@ public class RegActivationPageBean extends AbstractBackingBean {
         }
     }
 
+    public RegActivationPageBean() {
+
+    }
+
     public String activate() throws IOException {
+        final FacesContext context = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
         String activationForm = "/user/regactivation";
+
+        if (activated) {
+            return activationForm;
+        }
+
+        // Check captcha
+        javax.servlet.http.HttpSession session = request.getSession();
+        String c = (String) session.getAttribute(CaptchaImage.CAPTCHA_KEY);
+        if (!captchaValue.equals(c)) {
+            context.addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.USER_REGISTRATION_WRONG_CAPTCHA)));
+            return activationForm;
+        }
+
+        // Activate
+        try {
+            runUpdate(new Runnable() {
+                @Override
+                public void run() {
+//                    if (admin.activeteCommuninityRecorderUser(getUserName(), getActivationCode())) {
+//                        activated = true;
+//                    } else {
+//                        context.addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.USER_ACTIVATION_ACTIVATION_FAILED)));
+//                    }
+                }
+            });
+        } catch (Exception e) {
+            context.addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.GENERAL_UNEXPECTED_ERROR)));
+        }
+
         return activationForm;
     }
 }

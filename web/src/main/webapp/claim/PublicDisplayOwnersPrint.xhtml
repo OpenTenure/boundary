@@ -116,7 +116,7 @@
                                         #{r.landUse}
                                     </td>
                                     <td>
-                                        <h:outputText value="#{r.claimArea}" >
+                                        <h:outputText value="#{r.claimArea/10000}" (ha) >
                                             <f:convertNumber groupingUsed="true" integerOnly="true" /> 
                                         </h:outputText>
                                         m2

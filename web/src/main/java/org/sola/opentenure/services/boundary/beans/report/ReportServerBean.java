@@ -1,25 +1,20 @@
 package org.sola.opentenure.services.boundary.beans.report;
 
-import java.io.BufferedReader;
 import javax.inject.Named;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -146,11 +141,8 @@ public class ReportServerBean extends AbstractBackingBean {
             });
 
             // Authenticate
-            WebTarget target = client.target(baseServerUrl + "/rest/login?j_username=" + user + "&j_password=" + password);
+            WebTarget target = client.target(baseServerUrl + "/rest_v2/login?j_username=" + user + "&j_password=" + password);
             Response response = target.request("application/json").get();
-
-            LogUtility.log("JapserReport Login: " + baseServerUrl + "/rest/login?j_username=" + user + "&j_password=" + "***Refer CS Config***");
-            LogUtility.log("JasperReport Login Response:" + response.getStatus());
 
             // AM 4 Aug 2018
             // JapserServer throws a 404 error for version 7 and 7.1, but still succeeds in authenticating. 
@@ -251,7 +243,7 @@ public class ReportServerBean extends AbstractBackingBean {
             WebTarget target = getClient().target(baseServerUrl + "/rest_v2/resources" + uri);
             Response response = target.request(APP_XML).get();
 
-            LogUtility.log("JapserReport Resource URI: " + baseServerUrl + "/rest_v2/resources" + uri);
+            LogUtility.log("JasperReport Resource URI: " + baseServerUrl + "/rest_v2/resources" + uri);
             LogUtility.log("JasperReport Resource URI response:" + response.getStatus());
 
             if (response.getStatus() != 200) {
@@ -517,7 +509,7 @@ public class ReportServerBean extends AbstractBackingBean {
                 contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
             }
 
-            LogUtility.log("JapserReport Report URL: " + fullReportUrl);
+            LogUtility.log("JasperReport Report URL: " + fullReportUrl);
 
             FacesContext facesContext = FacesContext.getCurrentInstance();
             HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
@@ -562,7 +554,7 @@ public class ReportServerBean extends AbstractBackingBean {
         URL url;
         HttpURLConnection conn;
         String jsessionId = "";
-        String urlLink = baseServerUrl + "/rest/login?j_username=" + user + "&j_password=" + password;
+        String urlLink = baseServerUrl + "/rest_v2/login?j_username=" + user + "&j_password=" + password;
         String sessionId = "";
 
         try {

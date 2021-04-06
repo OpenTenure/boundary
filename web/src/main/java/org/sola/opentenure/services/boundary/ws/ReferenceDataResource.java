@@ -41,6 +41,12 @@ public class ReferenceDataResource extends AbstractWebRestService {
    
     @Inject
     ReferenceData refData;
+    
+    /**
+     * Creates a new instance of TestResource
+     */
+    public ReferenceDataResource() {
+    }
 
     /**
      * Returns List of {@link LanguageTO} objects

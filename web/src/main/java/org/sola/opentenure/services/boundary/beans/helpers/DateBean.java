@@ -17,6 +17,8 @@ public class DateBean {
     private final String dateFormatForDisplay = "dd/MM/yyyy";
     private final String timeFormat = "HH:mm";
     
+    public DateBean(){
+    }
     
     /** Returns date pattern for short format. */
     public String getDatePattern(){

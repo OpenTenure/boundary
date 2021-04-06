@@ -22,4 +22,7 @@ public class Feature {
     public void setId(String id) {
         this.id = id;
     }
+    
+    public Feature(){
+    }
 }

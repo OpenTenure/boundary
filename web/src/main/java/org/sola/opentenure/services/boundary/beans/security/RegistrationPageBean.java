@@ -166,6 +166,12 @@ public class RegistrationPageBean extends AbstractBackingBean {
     }
 
     /**
+     * Default constructor
+     */
+    public RegistrationPageBean() {
+    }
+
+    /**
      * Registers new user (Community Recorder)
      *
      * @return

@@ -50,6 +50,10 @@ public class ReportPageBean extends AbstractBackingBean {
     public ResourceDescription getReport() {
         return report;
     }
+    
+    public ReportPageBean(){
+        
+    }
         
     @PostConstruct
     private void init() {

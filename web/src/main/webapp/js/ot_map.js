@@ -22,6 +22,8 @@ MSG.MAP_CONTROL_NOTHING_FOUND = "Nothing was found";
 MSG.MAP_CONTROL_CLAIMANT = "Claimant";
 MSG.MAP_CONTROL_STATUS = "Status";
 MSG.MAP_CONTROL_AREA = "Area";
+MSG.MAP_CONTROL_LEVEL = "Level";
+MSG.MAP_CONTROL_LABEL = "Label";
 MSG.MAP_CONTROL_LODGED = "Lodged";
 MSG.MAP_CONTROL_INFO = "Information";
 MSG.MAP_CONTROL_PAN = "Pan";
@@ -71,7 +73,7 @@ OT.Map = function (mapOptions) {
     // Map container html container id
     var mapContainerName = mapOptions.mapContainerName ? mapOptions.mapContainerName : "mapCtrl";
 
-    // Idicates whether map was rendered or not
+    // Indicates whether map was rendered or not
     var isRendered = false;
 
     // Initial layers
@@ -184,7 +186,7 @@ OT.Map = function (mapOptions) {
         maxExtentBounds: this.maxExtentBounds,
         initialZoomBounds: this.initialZoomBounds,
         units: 'm',
-        numZoomLevels: 22
+        zoom: 22
     });
 
     // Add search control
@@ -276,7 +278,7 @@ OT.Map = function (mapOptions) {
 
     try {
         if (!isOffline) {
-            var gsat = new OpenLayers.Layer.Google(MSG.MAP_CONTROL_GOOGLE_EARTH, {numZoomLevels: 20, type: google.maps.MapTypeId.SATELLITE});
+            var gsat = new OpenLayers.Layer.Google(MSG.MAP_CONTROL_GOOGLE_EARTH, {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
             var gmap = new OpenLayers.Layer.Google(MSG.MAP_CONTROL_GOOGLE_MAP, {numZoomLevels: 20, visibility: false});
             map.addLayers([gsat, gmap]);
         }
@@ -958,6 +960,7 @@ OT.Map = function (mapOptions) {
     var getObjectUrl = applicationUrl + "/ws/" + this.languageCode + "/claim/getobjectbypoint";
     var viewClaimUrl = applicationUrl + "/claim/ViewClaim.xhtml";
     var viewBoundaryUrl = applicationUrl + "/boundary/ViewBoundary.xhtml";
+    var viewSpatialUnitUrl = applicationUrl + "/spatialUnit/ViewSpatialUnit.xhtml";
     var mapWaitContent = "<div id='mapWaitContent' class='mapWaitDiv'>" + MSG.MAP_CONTROL_LOADING + "</div>";
     var mapNoResutlsContent = "<div id='mapNoResutlsContent' class='mapNoResultsDiv'>" + MSG.MAP_CONTROL_NOTHING_FOUND + "</div>";
     var mapClaimInfoContent = "<div id='mapClaimInfoContent' class='mapClaimInfoDiv'>" +
@@ -990,6 +993,18 @@ OT.Map = function (mapOptions) {
             "</div></div>" +
             "<div class='line'>" + MSG.MAP_CONTROL_STATUS +
             " <br /><b><span id='boundaryStatus'></span></b>" +
+            "</div>" +
+            "</div>";
+
+    var mapSpatialUnitInfoContent = "<div id='mapSpatialUnitInfoContent' class='mapClaimInfoDiv'>" +
+            "<div class='line'>" +
+            "<a href='' id='spatialUnitId' target='_blank'></a>" +
+            "</div>" +
+            "<div class='line'>" + MSG.MAP_CONTROL_LEVEL +
+            "<br /><b><span id='levelId'></span></b> " +
+            "</div>" +
+            "<div class='line'>" + MSG.MAP_CONTROL_LABEL +
+            " <br /><b><span id='label'></span></b>" +
             "</div>" +
             "</div>";
 
@@ -1058,7 +1073,8 @@ OT.Map = function (mapOptions) {
                     $("#claimantName").text(response.claimantName);
                     $("#claimLodgingDate").text(lodgingDate);
                     $("#claimStatus").text(response.statusName);
-                    $("#claimArea").html(response.claimArea + " m<sup>2</sup>");
+                 //   $("#claimArea").html(response.claimArea + " m<sup>2</sup>");
+                    $("#claimArea").html((response.claimArea/10000) + " hectare");
                 }
                 if (typeof response.level !== "undefined") {
                     // This is boundary
@@ -1074,6 +1090,13 @@ OT.Map = function (mapOptions) {
                     }
                     $("#boundaryStatus").text(response.statusName);
                 }
+                if (typeof response.levelId !== "undefined") {
+                    // This is spatial_unit
+                    infoPopup.setContentHTML(mapSpatialUnitInfoContent);
+                    $("#levelId").text(response.levelId);
+                    $("#label").text(response.label);
+                 }
+
             }
         } catch (ex) {
             infoPopup.hide();
@@ -1567,7 +1590,7 @@ OT.Map.Styles = {
         }, {
             context: {getLabel: function (feature) {
                     if (typeof feature.attributes.label !== 'undefined') {
-                        return feature.attributes.label + "\n\n(" + (feature.attributes.area) + " m2)";
+                        return feature.attributes.label + "\n\n(" + (feature.attributes.area/10000) + " ha)";
                     } else {
                         if (typeof feature.attributes.area !== 'undefined') {
                             "\n\n(" + (feature.attributes.area) + " m2)";

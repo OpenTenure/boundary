@@ -40,7 +40,6 @@ public class CaptchaValidator implements ConstraintValidator<CaptchaCheck, Strin
 
     @Override
     public void initialize(CaptchaCheck a) {
-        // overridden method
     }
 
     @Override

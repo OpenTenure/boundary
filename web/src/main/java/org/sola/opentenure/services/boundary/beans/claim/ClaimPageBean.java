@@ -100,6 +100,7 @@ public class ClaimPageBean extends AbstractBackingBean {
     private String recorderName;
     private Claim[] challengingClaims = null;
     private String assigneeName = null;
+    private String nr;
     private ClaimPermissions claimPermissions;
     private final String ACTION_ASSIGNED = "assigned";
     private final String ACTION_UNASSIGNED = "unassigned";
@@ -110,10 +111,13 @@ public class ClaimPageBean extends AbstractBackingBean {
     private final String ACTION_MODERATION_APPROVED = "moderated";
     private final String ACTION_SUBMITTED = "submitted";
     private final String ACTION_ISSUED = "issued";
+    private final String ACTION_RENEWED = "renewed";
+    private final String ACTION_RENUMBERED = "renumbered";
     private final String ACTION_SAVED = "saved";
     private final String ACTION_TRANSFER = "transfer";
     private final String ACTION_TRANSFERRED = "transferred";
     private final String ACTION_MORTGAGED = "mortgaged";
+    private final String ACTION_CANCELLED = "cancelled";
     private String rejectionReasonCode;
     private String commentText;
     private String commentId;
@@ -180,6 +184,15 @@ public class ClaimPageBean extends AbstractBackingBean {
             }
             if (action.equalsIgnoreCase(ACTION_ISSUED)) {
                 msg.setSuccessMessage(msgProvider.getMessage(MessagesKeys.CLAIM_PAGE_ISSUED));
+            }
+            if (action.equalsIgnoreCase(ACTION_RENEWED)) {
+                msg.setSuccessMessage(msgProvider.getMessage(MessagesKeys.CLAIM_PAGE_RENEWED));
+            }
+            if (action.equalsIgnoreCase(ACTION_RENUMBERED)) {
+                msg.setSuccessMessage(msgProvider.getMessage(MessagesKeys.CLAIM_PAGE_RENUMBERED));
+            }
+            if (action.equalsIgnoreCase(ACTION_CANCELLED)) {
+                msg.setSuccessMessage(msgProvider.getMessage(MessagesKeys.CLAIM_PAGE_CANCELLED));
             }
         }
         loadClaim();
@@ -584,6 +597,14 @@ public class ClaimPageBean extends AbstractBackingBean {
         return getClaimPermissions().isCanIssue();
     }
 
+    public boolean getCanRenewCertificate() {
+        return getClaimPermissions().isCanRenew();
+    }
+
+    public boolean getCanCancelCertificate() {
+        return getClaimPermissions().isCanCancel();
+    }
+
     public boolean getCanPrintCertificate() {
         return getClaimPermissions().isCanPrintCertificate();
     }
@@ -598,6 +619,10 @@ public class ClaimPageBean extends AbstractBackingBean {
 
     public boolean getCanSubmit() {
         return getClaimPermissions().isCanSubmitClaim();
+    }
+
+    public boolean getCanRenumber() {
+        return getClaimPermissions().isCanRenumberClaim();
     }
 
     public boolean getCanAddDocuments() {
@@ -654,6 +679,11 @@ public class ClaimPageBean extends AbstractBackingBean {
         }
     }
 
+    public void checkCanRenumber() throws Exception {
+    if (claim.getNr().substring(0,4) != "TEMP"){
+        throw new OTWebException(msgProvider.getErrorMessage(ErrorKeys.CLAIM_RENUMBER_NOT_ALLOWED));
+    }
+    }
     public boolean getCanTransfer() {
         return getClaimPermissions().isCanTransfer();
     }
@@ -933,7 +963,7 @@ public class ClaimPageBean extends AbstractBackingBean {
                     @Override
                     public void run() {
                         LocalInfo.setBaseUrl(getApplicationUrl());
-                        if (claimEjb.issueClaim(id, langBean.getLocale())) {
+                        if (claimEjb.issueCertificate(id, langBean.getLocale())) {
                             redirectWithAction(ACTION_ISSUED);
                         }
                     }
@@ -944,6 +974,42 @@ public class ClaimPageBean extends AbstractBackingBean {
         }
     }
 
+    public void renewCertificate() {
+        try {
+            if (!StringUtility.isEmpty(id) && getCanRenewCertificate()) {
+                runUpdate(new Runnable() {
+                    @Override
+                    public void run() {
+                        LocalInfo.setBaseUrl(getApplicationUrl());
+                        if (claimEjb.renewCertificate(id, langBean.getLocale())) {
+                            redirectWithAction(ACTION_RENEWED);
+                        }
+                    }
+                });
+            }
+        } catch (Exception e) {
+            getContext().addMessage(null, new FacesMessage(processException(e, langBean.getLocale()).getMessage()));
+        }
+    }
+    
+    
+    public void cancelCertificate() {
+        try {
+            if (!StringUtility.isEmpty(id) && getCanCancelCertificate()) {
+                runUpdate(new Runnable() {
+                    @Override
+                    public void run() {
+                        LocalInfo.setBaseUrl(getApplicationUrl());
+                        if (claimEjb.cancelCertificate(id, langBean.getLocale())) {
+                            redirectWithAction(ACTION_CANCELLED);
+                        }
+                    }
+                });
+            }
+        } catch (Exception e) {
+            getContext().addMessage(null, new FacesMessage(processException(e, langBean.getLocale()).getMessage()));
+        }
+    }
 
     public void deleteClaim() {
         try {
@@ -1443,13 +1509,12 @@ public class ClaimPageBean extends AbstractBackingBean {
 
     public void copyClaimant(String shareId) {
         if (claim.getClaimant() != null && !StringUtility.isEmpty(claim.getClaimant().getName())) {
-            addOwner(claim.getClaimant(), shareId);
-            /*ClaimParty owner = MappingManager.getMapper().map(claim.getClaimant(), ClaimParty.class);
+            ClaimParty owner = MappingManager.getMapper().map(claim.getClaimant(), ClaimParty.class);
             owner.setId(UUID.randomUUID().toString());
             owner.setRowId(null);
             owner.setRowVersion(0);
             owner.setLoaded(false);
-            addOwner(owner, shareId);*/
+            addOwner(owner, shareId);
         }
     }
 
@@ -1708,6 +1773,23 @@ public class ClaimPageBean extends AbstractBackingBean {
                     }
                 });
                 redirectWithAction(ACTION_SUBMITTED);
+            }
+        } catch (Exception e) {
+            getContext().addMessage(null, new FacesMessage(processException(e, langBean.getLocale()).getMessage()));
+        }
+    }
+
+    public void renumberClaim() {
+        try {
+            if (!StringUtility.isEmpty(id) && getCanSubmit()) {
+                runUpdate(new Runnable() {
+                    @Override
+                    public void run() {
+                        LocalInfo.setBaseUrl(getApplicationUrl());
+                        claimEjb.renumberClaim(id, langBean.getLocale());
+                    }
+                });
+                redirectWithAction(ACTION_RENUMBERED);
             }
         } catch (Exception e) {
             getContext().addMessage(null, new FacesMessage(processException(e, langBean.getLocale()).getMessage()));

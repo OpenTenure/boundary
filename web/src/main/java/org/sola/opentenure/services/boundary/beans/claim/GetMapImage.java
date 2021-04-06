@@ -28,16 +28,28 @@ public class GetMapImage extends AbstractBackingBean {
     @EJB
     MapImageEJBLocal mapEjb;
 
-    public void getMapImage() throws IOException {
+    private enum MapType {
+        parcel, boundary
+    }
+
+    public void getBoundaryMapImage() throws IOException {
+        getMapImage(MapType.boundary);
+    }
+    
+    public void getParcelMapImage() throws IOException {
+        getMapImage(MapType.parcel);
+    }
+
+    private void getMapImage(MapType mapType) throws IOException {
         BufferedImage mapImage = null;
         int width = 700;
         int height = 400;
         String scaleLabel = "Scale";
         boolean drawScale = true;
-        
+
         try {
             String id = getRequestParam("id");
-            
+
             if (StringUtility.isEmpty(id)) {
                 return;
             }
@@ -53,9 +65,16 @@ public class GetMapImage extends AbstractBackingBean {
             if (!StringUtility.isEmpty(getRequestParam("scalelabel"))) {
                 scaleLabel = getRequestParam("scalelabel");
             }
-            
-            mapImage = mapEjb.getMapImage(id, width, height,drawScale, scaleLabel);
 
+            switch (mapType) {
+                case parcel:
+                    mapImage = mapEjb.getMapImage(id, width, height, drawScale, scaleLabel);
+                    break;
+                case boundary:
+                    mapImage = mapEjb.getBoundaryMapImage(id, width, height, drawScale, scaleLabel);
+                    break;
+            }
+            
             if (mapImage == null) {
                 mapImage = drawEmptyImage(width, height);
             }
@@ -66,11 +85,11 @@ public class GetMapImage extends AbstractBackingBean {
         FacesContext fc = getContext();
         ExternalContext ec = fc.getExternalContext();
         ec.responseReset();
-        
+
         ec.setResponseContentType("image/jpeg");
         ec.setResponseCharacterEncoding("utf-8");
         //ec.setResponseContentLength(mapImage);
-        
+
         ec.setResponseHeader("Content-Disposition", "inline; filename=\"map.jpeg\"");
 
         OutputStream output = ec.getResponseOutputStream();
