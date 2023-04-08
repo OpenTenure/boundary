@@ -281,7 +281,7 @@ OT.Map = function (mapOptions) {
             map.addLayers([gsat, gmap]);
         }
     } catch (e) {
-
+        console.log(e);
     }
 
     map.events.register('addlayer', map, handleAddLayer);

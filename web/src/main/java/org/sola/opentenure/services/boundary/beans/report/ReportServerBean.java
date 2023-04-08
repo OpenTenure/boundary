@@ -146,11 +146,8 @@ public class ReportServerBean extends AbstractBackingBean {
             });
 
             // Authenticate
-            WebTarget target = client.target(baseServerUrl + "/rest/login?j_username=" + user + "&j_password=" + password);
+            WebTarget target = client.target(baseServerUrl + "/rest_v2/login?j_username=" + user + "&j_password=" + password);
             Response response = target.request("application/json").get();
-
-            LogUtility.log("JapserReport Login: " + baseServerUrl + "/rest/login?j_username=" + user + "&j_password=" + "***Refer CS Config***");
-            LogUtility.log("JasperReport Login Response:" + response.getStatus());
 
             // AM 4 Aug 2018
             // JapserServer throws a 404 error for version 7 and 7.1, but still succeeds in authenticating. 
@@ -562,7 +559,7 @@ public class ReportServerBean extends AbstractBackingBean {
         URL url;
         HttpURLConnection conn;
         String jsessionId = "";
-        String urlLink = baseServerUrl + "/rest/login?j_username=" + user + "&j_password=" + password;
+        String urlLink = baseServerUrl + "/rest_v2/login?j_username=" + user + "&j_password=" + password;
         String sessionId = "";
 
         try {
