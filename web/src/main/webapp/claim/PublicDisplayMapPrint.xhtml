@@ -199,7 +199,7 @@
                         // Add claims layer
                         layers.push(new ol.layer.Vector({
                             source: new ol.source.Vector({
-                                url: '#{mapSettingsBean.applicationUrl}/ws/en-en/claim/getjsonclaims?boundaryid=' + boundaryFilter,
+                                url: fixAppProto('#{mapSettingsBean.applicationUrl}/ws/en-en/claim/getjsonclaims?boundaryid=') + boundaryFilter,
                                 format: new ol.format.GeoJSON()
                             }),
                             style: function (feature) {
@@ -249,7 +249,7 @@
                             displayMap();
                         } else {
                             $.ajax({
-                                url: '#{mapSettingsBean.applicationUrl}/ws/en-en/claim/getjsonboundary?id=' + boundaryFilter
+                                url: fixAppProto('#{mapSettingsBean.applicationUrl}/ws/en-en/claim/getjsonboundary?id=') + boundaryFilter
                             }).done(function (data) {
                                 if (data !== null &amp;&amp; data.length !== "") {
                                     // Add boundary layer

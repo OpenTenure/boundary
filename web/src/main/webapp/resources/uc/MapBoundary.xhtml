@@ -100,7 +100,7 @@
                     maxExtentBounds: maxExtentBounds,
                     initialZoomBounds: initialZoomBounds,
                     isOffline: #{mapSettingsBean.isOffline},
-                    applicationUrl: "#{mapSettingsBean.applicationUrl}",
+                    applicationUrl: fixAppProto("#{mapSettingsBean.applicationUrl}"),
                     languageCode: "#{languageBean.locale}",
                     showSearch: false,
                     showLine: false, 
