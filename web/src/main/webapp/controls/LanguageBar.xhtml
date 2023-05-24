@@ -14,6 +14,7 @@
                 <f:selectItems value="#{languageBean.activeLanguages}" 
                                var="l" itemLabel="#{l.displayValue}" itemValue="#{l.code}" />
             </h:selectOneMenu>
+            <input type="hidden" name="params" value="#{request.queryString}" />
         </ui:composition>
     </body>
 </html>

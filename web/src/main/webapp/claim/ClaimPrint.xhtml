@@ -14,12 +14,14 @@
             </ui:define>
             <ui:define name="head2">
                 <style>
+                    @media print {
+                       #map {
+                           break-inside: avoid;
+                       }
+                    }
                     body{
                         background-color: #fff;
                         margin: 20px;
-                    }
-                    .headerCaption{
-                        vertical-align: middle;height: 30px; background-color: #ddd;font-weight: bold;padding: 5px 0 0 5px;border-top: #aaa solid 1px;
                     }
                     .contentTable td, .contentTable th{
                         padding: 8px 5px;
@@ -28,6 +30,15 @@
                     .contentTable th{
                         font-weight: bold;
                         border-bottom: #888 dotted 1px;
+                    }
+                    .headerCaption{
+                        vertical-align: middle;
+                        height: 30px; 
+                        background-color: #ddd !important;
+                        font-weight: bold;
+                        padding: 5px 0 0 5px;
+                        border-top: #aaa solid 1px;
+                        print-color-adjust: exact; 
                     }
                 </style>
                 <script>
@@ -56,8 +67,11 @@
                         <ui:repeat var = "l" value = "#{mapSettingsBean.layersArray}" varStatus = "r">
                             <ui:fragment rendered = "#{l.typeCode eq 'wms' and l.useForOpenTenure}">
                                 // Add WMS layers
-                                layers.push(new OpenLayers.Layer.WMS("#{l.title}", "#{l.url}",
-                                            {layers: '#{l.wmsLayers}', transparent: 'true'}));
+                                var wmsLayer = new OpenLayers.Layer.WMS("#{l.title}", "#{l.url}",
+                                    {layers: '#{l.wmsLayers}' #{mapSettingsBean.getLayerParamsString(l, true)}},
+                                    {minResolution: 0.001, maxResolution: 200, #{mapSettingsBean.getLayerOptionsString(l, false)}});
+                                wmsLayer.legendOptions = "#{mapSettingsBean.getLegendOptions(l)}";
+                                layers.push(wmsLayer);
                             </ui:fragment>
                         </ui:repeat>
 
@@ -139,9 +153,12 @@
 
                         setTimeout(function() {
                             map.zoomToExtent(initialZoomBounds);
+                            $('.gm-style-cc').hide();
                         }, 500);
 
                         setTimeout(function() {
+                            $('.gm-style-cc').hide();
+                            $('#map a').attr("href", "");
                             print();
                         }, 2000);
                     });
@@ -394,10 +411,14 @@
                     <p></p>
                     <div style="border-bottom: #888 dotted 1px;height: 1px;"></div>
                     <br />
-                    <div style="text-align: center;">
-                        <div id="map" style="width: 600px;height: 400px;border: #888 solid 1px;">
-                        </div>
-                    </div>
+                    <table>
+                        <tr>
+                            <td>
+                                <div id="map" style="width: 600px;height: 400px;border: #888 solid 1px;">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
                 <p><br /></p>
                 <ui:repeat var = "sec" value = "#{dynaFormBean.sections}" id="sections" varStatus="secStatus">

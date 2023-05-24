@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.inject.Inject;
@@ -167,7 +168,13 @@ public class LanguageBean extends AbstractBackingBean {
         mapSettings.init();
         try {
             // Redirect to the same page to avoid postback
-            getExtContext().redirect(((HttpServletRequest) getRequest()).getRequestURI());
+            HttpServletRequest req = (HttpServletRequest) getRequest();
+            String qString = req.getParameter("params");
+            String url = req.getRequestURI();
+            if(!StringUtility.isEmpty(qString)) {
+                url += "?" + qString;
+            }
+            getExtContext().redirect(url);
         } catch (IOException ex) {
         }
     }

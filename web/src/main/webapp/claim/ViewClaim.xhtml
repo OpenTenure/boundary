@@ -15,11 +15,12 @@
             <ui:define name="head2">
                 <script>
                     function printClaim() {
-                        var wnd = window.open("#{request.contextPath}/claim/ClaimPrint.xhtml?id=#{claimPageBean.id}", "_blank", "width=900,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes");
+                        var wnd = window.open("#{request.contextPath}/claim/ClaimPrint.xhtml?id=#{claimPageBean.id}", "Print", 
+                        "width=900,height=600,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,titlebar=no,menubar=no,status=no,replace=true");
                                 return false;
                             }
                     function printClaimCert() {
-                        var wnd = window.open("#{request.contextPath}/claim/ClaimCertificatePrint.xhtml?id=#{claimPageBean.id}", "_blank", "width=900,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes");
+                        var wnd = window.open("#{request.contextPath}/claim/ClaimCertificatePrint.xhtml?id=#{claimPageBean.id}", "Print", "width=900,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes");
                                 return false;
                             }
                 </script>

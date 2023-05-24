@@ -122,7 +122,12 @@ public abstract class AbstractBackingBean implements Serializable {
      */
     public String getApplicationUrl() {
         HttpServletRequest r = getRequest();
-        return r.getRequestURL().substring(0, r.getRequestURL().length() - r.getRequestURI().length());
+        String url = r.getRequestURL().substring(0, r.getRequestURL().length() - r.getRequestURI().length());
+        String ctxPath = StringUtility.empty(r.getContextPath());
+        if(!ctxPath.equals("/") && !ctxPath.equals("")) {
+            url += r.getContextPath();
+        }
+        return url;
     }
 
     /**
