@@ -735,14 +735,28 @@ OT.Map = function (mapOptions) {
     this.renderMap = function () {
         setTimeout(function () {
             if (!isRendered) {
+                var mapWidth = $("#" + mapContainerName.replace(":", "\\:")).parent().width();
+                var winHeight = $(window).height();
+                
+                $("#loadDiv").width(mapWidth);
+                $("#loadDiv").height(winHeight);
+                $("#loadDiv").show();
+                
                 mapPanelContainer.render(mapContainerName);
-                map.zoomToExtent(initialZoomBounds);
-                mapPanelContainer.setWidth($("#" + mapContainerName.replace(":", "\\:")).parent().width());
                 map.addControl(new OpenLayers.Control.MousePosition({div: document.getElementById("lblMapMousePosition")}));
                 map.addControl(new OT.Map.Control.ScaleBar({div: document.getElementById("lblScaleBar")}));
+                mapPanelContainer.setWidth(mapWidth);
+                
                 isRendered = true;
+                mapPanelContainer.setHeight(winHeight);
+                
+                setTimeout(function () {
+                    mapPanelContainer.setHeight(mapHeight);
+                    $("#loadDiv").hide();
+                    map.zoomToExtent(that.maxExtentBounds);
+                }, 100);
             }
-        }, 0);
+        }, 10);
     };
 
     // Subscribe to map resize event to adjust map width/height

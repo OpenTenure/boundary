@@ -235,3 +235,14 @@ a.ui-state-focus{
     text-decoration: underline !important;
     color: #0000aa !important;
 }
+
+#loadDiv {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #e6eddf;
+    display: none;
+    z-index: 9999;
+}
