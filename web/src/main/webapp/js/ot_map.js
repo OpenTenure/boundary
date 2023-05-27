@@ -746,6 +746,7 @@ OT.Map = function (mapOptions) {
                 map.addControl(new OpenLayers.Control.MousePosition({div: document.getElementById("lblMapMousePosition")}));
                 map.addControl(new OT.Map.Control.ScaleBar({div: document.getElementById("lblScaleBar")}));
                 mapPanelContainer.setWidth(mapWidth);
+                map.zoomToExtent(initialZoomBounds);
                 
                 isRendered = true;
                 mapPanelContainer.setHeight(winHeight);
@@ -753,7 +754,6 @@ OT.Map = function (mapOptions) {
                 setTimeout(function () {
                     mapPanelContainer.setHeight(mapHeight);
                     $("#loadDiv").hide();
-                    map.zoomToExtent(that.maxExtentBounds);
                 }, 100);
             }
         }, 10);
