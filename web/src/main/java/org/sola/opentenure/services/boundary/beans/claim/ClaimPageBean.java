@@ -7,14 +7,14 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.faces.FacesException;
-import javax.faces.application.FacesMessage;
-import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
+import jakarta.faces.FacesException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.event.AjaxBehaviorEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.common.ClaimStatusConstants;
 import org.sola.common.ConfigConstants;
 import org.sola.common.DateUtility;
@@ -48,6 +48,7 @@ import org.sola.opentenure.services.boundary.beans.helpers.MessageBean;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.helpers.MessagesKeys;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 import org.sola.opentenure.services.boundary.beans.referencedata.ReferenceData;
 import org.sola.services.common.EntityAction;
 import org.sola.services.common.LocalInfo;
@@ -84,6 +85,9 @@ public class ClaimPageBean extends AbstractBackingBean {
     @Inject
     DateBean dateBean;
 
+    @Inject
+    ProjectBean projectBean;
+    
     @Inject
     DynaFormBean dynaFormBean;
 
@@ -208,7 +212,7 @@ public class ClaimPageBean extends AbstractBackingBean {
     }
 
     public boolean getIsGeometryRequired() {
-        String requireSpatial = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, "1");
+        String requireSpatial = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, projectBean.getProjectId(), "1");
         return !getIsSubmitted() && requireSpatial.equals("1");
     }
 
@@ -575,7 +579,7 @@ public class ClaimPageBean extends AbstractBackingBean {
 
     public Claim getChallengedClaim() {
         if (challengedClaim == null && claim != null && !StringUtility.isEmpty(claim.getChallengedClaimId())) {
-            challengedClaim = claimEjb.getClaim(claim.getChallengedClaimId());
+            challengedClaim = claimEjb.getClaim(claim.getChallengedClaimId(), true);
         }
         return challengedClaim;
     }
@@ -691,7 +695,7 @@ public class ClaimPageBean extends AbstractBackingBean {
     private void loadClaim() {
         if (!StringUtility.isEmpty(id)) {
             if (claim == null) {
-                claim = claimEjb.getClaim(id);
+                claim = claimEjb.getClaim(id, true);
                 if (claim == null
                         || (claim.getStatusCode().equalsIgnoreCase(ClaimStatusConstants.CREATED)
                         && !claim.getRecorderName().equalsIgnoreCase(getUserName()))) {
@@ -767,11 +771,12 @@ public class ClaimPageBean extends AbstractBackingBean {
             claim = new Claim();
             claim.setId(UUID.randomUUID().toString());
             claim.setClaimArea(0L);
+            claim.setProjectId(projectBean.getProjectId());
 
             // Check if claim is challenge
             if (!StringUtility.isEmpty(challengedClaimId)) {
                 // Get challenged claim
-                challengedClaim = claimEjb.getClaim(challengedClaimId);
+                challengedClaim = claimEjb.getClaim(challengedClaimId, true);
 
                 if (challengedClaim != null) {
 
@@ -845,7 +850,7 @@ public class ClaimPageBean extends AbstractBackingBean {
 
     public String getLocation(){
         if(claim != null && !StringUtility.isEmpty(claim.getBoundaryId())){
-            return searchEjb.getFullLocation(claim.getBoundaryId(), langBean.getLocale());
+            return searchEjb.getFullLocation(claim.getBoundaryId(), projectBean.getProjectId(), langBean.getLocale());
         } else {
             return "";
         }
@@ -1222,7 +1227,7 @@ public class ClaimPageBean extends AbstractBackingBean {
         }
 
         // Mapped geometry
-        String requireSpatial = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, "1");
+        String requireSpatial = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, projectBean.getProjectId(), "1");
 
         if (fullValidation && requireSpatial.equals("1")
                 && StringUtility.isEmpty(claim.getMappedGeometry())) {

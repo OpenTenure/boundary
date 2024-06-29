@@ -2,25 +2,25 @@ package org.sola.opentenure.services.boundary.ws;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.ejb.EJB;
-import javax.inject.Inject;
-import javax.ws.rs.Path;
-import javax.ws.rs.GET;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import jakarta.ejb.EJB;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import org.sola.cs.services.boundary.transferobjects.claim.FormTemplateTO;
 import org.sola.opentenure.services.boundary.beans.AbstractWebRestService;
 import org.sola.opentenure.services.boundary.beans.referencedata.ReferenceData;
 import org.sola.opentenure.services.boundary.beans.responses.ResponseFactory;
 import org.sola.cs.services.ejbs.claim.entities.ClaimStatus;
 import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
-import org.sola.cs.services.boundary.transferobjects.configuration.CrsTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.AdministrativeBoundaryStatusTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.AdministrativeBoundaryTypeTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.ClaimStatusTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.IdTypeTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.LandUseTO;
+import org.sola.cs.services.boundary.transferobjects.referencedata.ProjectTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.RrrTypeTO;
 import org.sola.cs.services.boundary.transferobjects.referencedata.SourceTypeTO;
 import org.sola.cs.services.boundary.transferobjects.system.LanguageTO;
@@ -53,6 +53,22 @@ public class ReferenceDataResource extends AbstractWebRestService {
     public String getLanguages(@PathParam(value = LOCALE_CODE) String localeCode){
         try {
             return getMapper().writeValueAsString(CsGenericTranslator.toTOList(refData.getLanguages(localeCode), LanguageTO.class));
+        } catch (Exception e) {
+            throw processException(e, localeCode);
+        }
+    }
+    
+    /**
+     * Returns List of {@link ProjectTO} objects
+     * @param localeCode Locale code used to return localized values
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getprojects|getProjects}")
+    public String getProjects(@PathParam(value = LOCALE_CODE) String localeCode){
+        try {
+            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(searchEJB.searchCurrentUserProjectConfig(), ProjectTO.class));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -93,14 +109,15 @@ public class ReferenceDataResource extends AbstractWebRestService {
     /**
      * Returns maximum file sized allowed for uploading to the server
      * @param localeCode Locale code used to return localized values
+     * @param projectId Project ID
      * @return
      */
     @GET
     @Produces("application/json; charset=UTF-8")
-    @Path(value = "{a:getmaxfilesize|getMaxFileSize}")
-    public String getMaxFileSize(@PathParam(value = LOCALE_CODE) String localeCode){
+    @Path(value = "{a:getmaxfilesize|getMaxFileSize}/{projectId}")
+    public String getMaxFileSize(@PathParam(value = LOCALE_CODE) String localeCode, @PathParam(value = "projectId") String projectId){
         try {
-            return ResponseFactory.buildResultResponse(Integer.toString(claimEJB.getMaxFileSize()));
+            return ResponseFactory.buildResultResponse(Integer.toString(claimEJB.getMaxFileSize(projectId)));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -109,14 +126,15 @@ public class ReferenceDataResource extends AbstractWebRestService {
     /**
      * Returns upload limit in KB, allowed per user per day
      * @param localeCode Locale code used to return localized values
+     * @param projectId Project ID
      * @return
      */
     @GET
     @Produces("application/json; charset=UTF-8")
-    @Path(value = "{a:getuploadlimit|getUploadLimit}")
-    public String getUploadLimit(@PathParam(value = LOCALE_CODE) String localeCode){
+    @Path(value = "{a:getuploadlimit|getUploadLimit}/{projectId}")
+    public String getUploadLimit(@PathParam(value = LOCALE_CODE) String localeCode, @PathParam(value = "projectId") String projectId){
         try {
-            return ResponseFactory.buildResultResponse(Integer.toString(claimEJB.getUploadLimit()));
+            return ResponseFactory.buildResultResponse(Integer.toString(claimEJB.getUploadLimit(projectId)));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -201,50 +219,7 @@ public class ReferenceDataResource extends AbstractWebRestService {
             throw processException(e, localeCode);
         }
     }
-      
-    /**
-     * Returns list of CRS allowed on the server
-     * @param localeCode Locale code used to return localized values
-     * @return
-     */
-    @GET
-    @Produces("application/json; charset=UTF-8")
-    @Path(value = "{a:getcrs|getCrs}")
-    public String getCrs(@PathParam(value = LOCALE_CODE) String localeCode){
-        try {
-            return getMapper().writeValueAsString(CsGenericTranslator.toTOList(searchEJB.getCrsList(), CrsTO.class));
-        } catch (Exception e) {
-            throw processException(e, localeCode);
-        }
-    }
-    
-     /**
-     * Returns community area, defining where claims can be submitted. Returns in WKT format
-     * @param localeCode Locale code used to return localized values
-     * @return
-     */
-    @GET
-    @Produces("application/json; charset=UTF-8")
-    @Path(value = "{a:getcommunityarea|getCommunityArea}")
-    public String getCommunityArea(@PathParam(value = LOCALE_CODE) String localeCode){
-        try {
-            return ResponseFactory.buildResultResponse(refData.getCommunityArea());
-        } catch (Exception e) {
-            throw processException(e, localeCode);
-        }
-    }
-    
-    @GET
-    @Produces("application/json; charset=UTF-8")
-    @Path(value = "{a:getmapextent|getMapExtent}")
-    public String getMapExtent(@PathParam(value = LOCALE_CODE) String localeCode){
-        try {
-            return getMapper().writeValueAsString(refData.getMapExtent());
-        } catch (Exception e) {
-            throw processException(e, localeCode);
-        }
-    }
-    
+        
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getdefaultformtemplate|getDefaultFormTemplate}")

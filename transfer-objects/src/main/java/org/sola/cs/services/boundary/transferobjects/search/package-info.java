@@ -32,6 +32,6 @@
 @XmlSchema(namespace= ServiceConstants.SEARCH_TO_NAMESPACE)
 package org.sola.cs.services.boundary.transferobjects.search;
 
-import javax.xml.bind.annotation.XmlSchema;
+import jakarta.xml.bind.annotation.XmlSchema;
 import org.sola.services.common.ServiceConstants;
 

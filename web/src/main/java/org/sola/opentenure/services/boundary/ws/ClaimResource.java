@@ -4,24 +4,22 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.sanselan.util.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.sola.common.ClaimStatusConstants;
@@ -58,6 +56,7 @@ import org.sola.cs.services.ejb.search.repository.entities.GeoJsonAdministrative
 import org.sola.cs.services.ejb.search.repository.entities.GeoJsonClaim;
 import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 import org.sola.cs.services.ejbs.claim.entities.AdministrativeBoundary;
+import org.sola.services.common.faults.OTProjectNotAccessible;
 
 /**
  * Claim REST Web Service
@@ -74,7 +73,7 @@ public class ClaimResource extends AbstractWebRestService {
 
     @EJB
     SystemCSEJBLocal systemEjb;
-
+    
     private String hiddenString = "";
     private static final String X_REQ_WITH = "x-requested-with";
     private static final String ACA_HEADERS = "Access-Control-Allow-Headers";
@@ -103,7 +102,7 @@ public class ClaimResource extends AbstractWebRestService {
             @PathParam(value = LOCALE_CODE) String localeCode,
             @PathParam(value = "claimId") String claimId) {
         try {
-            ClaimTO claimTO = CsGenericTranslator.toTO(claimEjb.getClaim(claimId), ClaimTO.class);
+            ClaimTO claimTO = CsGenericTranslator.toTO(claimEjb.getClaim(claimId, true), ClaimTO.class);
             if (claimTO == null
                     || (StringUtility.empty(claimTO.getStatusCode()).equalsIgnoreCase(ClaimStatusConstants.CREATED)
                     && !StringUtility.empty(claimTO.getRecorderName()).equalsIgnoreCase(claimEjb.getUserName()))) {
@@ -187,7 +186,8 @@ public class ClaimResource extends AbstractWebRestService {
             @QueryParam(value = "miny") String minY,
             @QueryParam(value = "maxx") String maxX,
             @QueryParam(value = "maxy") String maxY,
-            @QueryParam(value = "limit") String limit) {
+            @QueryParam(value = "limit") String limit,
+            @QueryParam(value = "projectId") String projectId) {
         try {
             ClaimSpatialSearchParams params = new ClaimSpatialSearchParams();
 
@@ -205,6 +205,7 @@ public class ClaimResource extends AbstractWebRestService {
             params.setMinY(minY);
             params.setMaxX(maxX);
             params.setMaxY(maxY);
+            params.setProjectId(projectId);
             params.setLimit(limitInt);
 
             List<ClaimSpatialSearchResultTO> claimTOList = CsGenericTranslator
@@ -240,6 +241,7 @@ public class ClaimResource extends AbstractWebRestService {
             @PathParam(value = LOCALE_CODE) String localeCode,
             @QueryParam(value = "x") String x,
             @QueryParam(value = "y") String y,
+            @QueryParam(value = "projectId") String projectId,
             @Context HttpServletResponse response) {
         try {
             if (StringUtility.isEmpty(x) || StringUtility.isEmpty(y)) {
@@ -247,7 +249,7 @@ public class ClaimResource extends AbstractWebRestService {
             }
 
             ClaimSearchResultTO claimTO = CsGenericTranslator
-                    .toTO(searchEjb.getClaimByCoordinates(x, y, localeCode), ClaimSearchResultTO.class);
+                    .toTO(searchEjb.getClaimByCoordinates(x, y, projectId, localeCode), ClaimSearchResultTO.class);
             String result = "";
             response.addHeader(ACA_HEADERS, X_REQ_WITH);
             response.addHeader(ACA_ORIGIN, "*");
@@ -268,6 +270,7 @@ public class ClaimResource extends AbstractWebRestService {
             @PathParam(value = LOCALE_CODE) String localeCode,
             @QueryParam(value = "x") String x,
             @QueryParam(value = "y") String y,
+            @QueryParam(value = "projectId") String projectId,
             @Context HttpServletResponse response) {
         try {
             if (StringUtility.isEmpty(x) || StringUtility.isEmpty(y)) {
@@ -276,7 +279,7 @@ public class ClaimResource extends AbstractWebRestService {
 
             // First look for claims as most top object
             ClaimSearchResultTO claimTO = CsGenericTranslator
-                    .toTO(searchEjb.getClaimByCoordinates(x, y, localeCode), ClaimSearchResultTO.class);
+                    .toTO(searchEjb.getClaimByCoordinates(x, y, projectId, localeCode), ClaimSearchResultTO.class);
             String result = "";
             response.addHeader(ACA_HEADERS, X_REQ_WITH);
             response.addHeader(ACA_ORIGIN, "*");
@@ -286,7 +289,7 @@ public class ClaimResource extends AbstractWebRestService {
             } else {
                 // Look for boundary
                 AdministrativeBoundaryWithGeomSearchResultTO boundaryTO = CsGenericTranslator
-                        .toTO(searchEjb.getAdministrativeBoundaryByCoordinates(x, y, localeCode), AdministrativeBoundaryWithGeomSearchResultTO.class);
+                        .toTO(searchEjb.getAdministrativeBoundaryByCoordinates(x, y, projectId, localeCode), AdministrativeBoundaryWithGeomSearchResultTO.class);
                 if (boundaryTO != null) {
                     result = getMapper().writeValueAsString(boundaryTO);
                 }
@@ -303,13 +306,14 @@ public class ClaimResource extends AbstractWebRestService {
     public String searchMap(
             @PathParam(value = LOCALE_CODE) String localeCode,
             @QueryParam(value = "query") String query,
+            @QueryParam(value = "projectId") String projectId,
             @Context HttpServletResponse response) {
         try {
             if (StringUtility.isEmpty(query)) {
                 return null;
             }
 
-            List<MapSearchResultTO> searchresults = CsGenericTranslator.toTOList(searchEjb.searchMap(query), MapSearchResultTO.class);
+            List<MapSearchResultTO> searchresults = CsGenericTranslator.toTOList(searchEjb.searchMap(query, projectId), MapSearchResultTO.class);
             String result = "";
             response.addHeader(ACA_HEADERS, X_REQ_WITH);
             response.addHeader(ACA_ORIGIN, "*");
@@ -325,12 +329,13 @@ public class ClaimResource extends AbstractWebRestService {
 
     @GET
     @Produces("application/json; charset=UTF-8")
-    @Path(value = "{a:getallclaims|getAllClaims}")
+    @Path(value = "{a:getallclaims|getAllClaims}/{projectId}")
     public String getAllClaims(
-            @PathParam(value = LOCALE_CODE) String localeCode) {
+            @PathParam(value = LOCALE_CODE) String localeCode,
+            @PathParam(value = "projectId") String projectId) {
         try {
             List<ClaimSpatialSearchResultTO> claimsTOList = CsGenericTranslator
-                    .toTOList(searchEjb.getAllClaims(), ClaimSpatialSearchResultTO.class);
+                    .toTOList(searchEjb.getAllClaims(projectId), ClaimSpatialSearchResultTO.class);
             if (claimsTOList == null) {
                 return getMapper().writeValueAsString(new ArrayList<>());
             }
@@ -346,9 +351,10 @@ public class ClaimResource extends AbstractWebRestService {
     public String getJsonClaims(
             @PathParam(value = LOCALE_CODE) String localeCode,
             @QueryParam(value = "boundaryid") String boundaryId,
+            @QueryParam(value = "projectId") String projectId,
             @Context HttpServletResponse response) {
         try {
-            List<GeoJsonClaim> claims = searchEjb.getGeoJsonClaimsByBoundary(boundaryId);
+            List<GeoJsonClaim> claims = searchEjb.getGeoJsonClaimsByBoundary(boundaryId, projectId);
 
             String feature = "\n{"
                     + "\"type\": \"Feature\","
@@ -357,7 +363,7 @@ public class ClaimResource extends AbstractWebRestService {
                     + "}";
             String features = "";
 
-            if (claims != null && claims.size() > 0) {
+            if (claims != null && !claims.isEmpty()) {
                 for (GeoJsonClaim claim : claims) {
                     if (!StringUtility.isEmpty(claim.getGeom())) {
                         if (!StringUtility.isEmpty(features)) {
@@ -383,9 +389,10 @@ public class ClaimResource extends AbstractWebRestService {
     public String getJsonBoundary(
             @PathParam(value = LOCALE_CODE) String localeCode,
             @QueryParam(value = "id") String id,
+            @QueryParam(value = "projectId") String projectId,
             @Context HttpServletResponse response) {
         try {
-            GeoJsonAdministrativeBoundary boundary = searchEjb.getGeoJsonAdministrativeBoundary(id);
+            GeoJsonAdministrativeBoundary boundary = searchEjb.getGeoJsonAdministrativeBoundary(id, projectId);
 
             String feature = "\n{"
                     + "\"type\": \"Feature\","
@@ -409,10 +416,11 @@ public class ClaimResource extends AbstractWebRestService {
 
     @POST
     @Produces("application/json; charset=UTF-8")
-    @Path(value = "{a:uploadchunk|uploadChunk}")
+    @Path(value = "{a:uploadchunk|uploadChunk}/{projectId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public String uploadChunk(
             @PathParam(value = LOCALE_CODE) String localeCode,
+            @PathParam(value = "projectId") String projectId,
             @FormDataParam("chunk") InputStream chunkBinary,
             @FormDataParam("descriptor") String chunkDescriptor) {
         try {
@@ -427,7 +435,7 @@ public class ClaimResource extends AbstractWebRestService {
             AttachmentChunk chunk = CsGenericTranslator.fromTO(chunkTO, AttachmentChunk.class, null);
             chunk.setBody(IOUtils.getInputStreamBytes(chunkBinary));
 
-            claimEjb.saveAttachmentChunk(chunk);
+            claimEjb.saveAttachmentChunk(chunk, projectId);
             return ResponseFactory.buildOk();
         } catch (Exception e) {
             throw processException(e, localeCode);
@@ -476,8 +484,12 @@ public class ClaimResource extends AbstractWebRestService {
                 throw new OTRestException(400, e.getLocalizedMessage());
             }
 
-            Claim existingClaim = claimEjb.getClaim(claimTO.getId());
+            Claim existingClaim = claimEjb.getClaim(claimTO.getId(), true);
             Claim claim = CsGenericTranslator.fromTO(claimTO, Claim.class, existingClaim);
+            if(!systemEjb.canAccessProject(claim.getProjectId())) {
+                throw new OTProjectNotAccessible("");
+            }
+            
             final Claim[] claims = new Claim[]{claim};
 
             runUpdate(new Runnable() {
@@ -488,7 +500,7 @@ public class ClaimResource extends AbstractWebRestService {
                 }
             });
 
-            return ResponseFactory.buildClaimSubmission(claimEjb.getClaim(claim.getId()));
+            return ResponseFactory.buildClaimSubmission(claimEjb.getClaim(claim.getId(), false));
         } catch (Exception e) {
             throw processException(e, localeCode);
         }
@@ -518,6 +530,9 @@ public class ClaimResource extends AbstractWebRestService {
             }
             
             AdministrativeBoundary boundary = CsGenericTranslator.fromTO(boundaryTO, AdministrativeBoundary.class, existingBoundary);
+            if(!systemEjb.canAccessProject(boundary.getProjectId())) {
+                throw new OTProjectNotAccessible("");
+            }
             final AdministrativeBoundary[] boundarys = new AdministrativeBoundary[]{boundary};
 
             runUpdate(new Runnable() {
@@ -684,10 +699,10 @@ public class ClaimResource extends AbstractWebRestService {
 
     @GET
     @Produces("application/json; charset=UTF-8")
-    @Path(value = "{a:getparcelgeomrequired|getParcelGeomRequired}")
-    public String getParcelGeomRequired(@PathParam(value = LOCALE_CODE) String localeCode) {
+    @Path(value = "{a:getparcelgeomrequired|getParcelGeomRequired}/{projectId}")
+    public String getParcelGeomRequired(@PathParam(value = LOCALE_CODE) String localeCode, @PathParam(value = "projectId") String projectId) {
         try {
-            String result = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, "1");
+            String result = systemEjb.getSetting(ConfigConstants.REQUIRES_SPATIAL, projectId, "1");
             return "{result:\"" + result + "\"}";
         } catch (Exception e) {
             throw processException(e, localeCode);

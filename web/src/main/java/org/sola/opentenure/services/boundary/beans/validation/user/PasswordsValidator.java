@@ -27,8 +27,8 @@
  */
 package org.sola.opentenure.services.boundary.beans.validation.user;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.sola.opentenure.services.boundary.beans.security.UserBean;
 
 /**

@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import javax.annotation.Resource;
-import javax.ejb.EJBAccessException;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.transaction.Status;
-import javax.transaction.UserTransaction;
+import jakarta.annotation.Resource;
+import jakarta.ejb.EJBAccessException;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Status;
+import jakarta.transaction.UserTransaction;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.sola.common.DynamicFormException;
@@ -22,6 +22,7 @@ import org.sola.common.logging.LogUtility;
 import org.sola.cs.common.messaging.MessageUtility;
 import org.sola.cs.common.messaging.ServiceMessage;
 import org.sola.opentenure.services.boundary.beans.exceptions.ExceptionFactory;
+import org.sola.opentenure.services.boundary.beans.exceptions.OTWebException;
 import org.sola.services.common.EntityAction;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.faults.FaultUtility;
@@ -336,6 +337,9 @@ public abstract class AbstractBackingBean implements Serializable {
             } else if (FaultUtility.isOptimisticLocking(t, stackTraceAsStr) || t.getClass() == OptimisticLockingFault.class) {
                 // Optimistic locking exception
                 return new Exception(MessageUtility.getLocalizedMessageText(ServiceMessage.GENERAL_OPTIMISTIC_LOCK, localeCode));
+            } else if (FaultUtility.hasCause(t, OTWebException.class)) {
+                OTWebException ex = getCause(t, OTWebException.class);
+                return new Exception(ex.getMessage());
             } else if (FaultUtility.hasCause(t, SOLAException.class)) {
                 SOLAException ex = getCause(t, SOLAException.class);
                 Object[] msgParms = ex.getMessageParameters();

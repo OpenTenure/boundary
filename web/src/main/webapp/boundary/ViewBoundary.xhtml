@@ -19,7 +19,7 @@
                     <i class="glyphicon glyphicon-file"></i> #{boundaryPageBean.header} 
                     <br />
                     <div class="btn-group">
-                        <h:outputLink value="#{request.contextPath}/boundary/Boundary.xhtml?id=#{boundaryPageBean.id}" 
+                        <h:outputLink value="#{request.contextPath}/boundary/Boundary.xhtml?boundaryId=#{boundaryPageBean.id}" 
                                       class="btn btn-default" 
                                       onclick="blockUI()"
                                       rendered="#{boundaryPageBean.canEdit}">
@@ -119,7 +119,7 @@
 
                 <script language="javascript">
                     function printBoundary() {
-                        var wnd = window.open("#{request.contextPath}/boundary/BoundaryPrint.xhtml?id=#{boundaryPageBean.id}", "_blank", "width=1000,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes,fullscreen=yes");
+                        var wnd = window.open("#{request.contextPath}/boundary/BoundaryPrint.xhtml?boundaryId=#{boundaryPageBean.id}", "_blank", "width=1000,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes,fullscreen=yes");
                         return false;
                     }
                 </script>

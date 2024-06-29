@@ -3,6 +3,7 @@
 target/
 logs/
 wsdl/
+cs_reports/
 .scannerwork/
 
 # Files to ignore 

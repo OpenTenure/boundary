@@ -36,6 +36,7 @@ public class ClaimTO extends AbstractReadWriteTO {
     String serverUrl;
     private Date issuanceDate;
     private String boundaryId;
+    private String projectId;
     
     public ClaimTO(){
         super();
@@ -151,6 +152,14 @@ public class ClaimTO extends AbstractReadWriteTO {
 
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public Date getStartDate() {

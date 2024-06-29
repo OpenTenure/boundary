@@ -3,8 +3,8 @@ package org.sola.opentenure.services.boundary.beans.helpers;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 import org.sola.common.DateUtility;
 
 /**

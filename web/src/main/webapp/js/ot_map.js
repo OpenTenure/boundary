@@ -46,6 +46,8 @@ OT.Map = function (mapOptions) {
 
     // Boolean flag, indicating whether to show search field or not
     var showSearch = typeof mapOptions.showSearch !== 'undefined' ? mapOptions.showSearch : false;
+    
+    var projectId = typeof mapOptions.projectId !== 'undefined' ? mapOptions.projectId : "";
 
     // Boolean flag, indicating whether CS is offline or not
     var isOffline = mapOptions.isOffline ? mapOptions.isOffline : false;
@@ -228,7 +230,7 @@ OT.Map = function (mapOptions) {
                         var results = [];
                         $.ajax({
                             url: applicationUrl + "/ws/en-en/claim/searchmap",
-                            data: {query: request.term}
+                            data: {query: request.term, projectId: projectId}
                         }).done(function (data) {
                             results = data;
                         }).always(function () {
@@ -1034,7 +1036,7 @@ OT.Map = function (mapOptions) {
         }
 
         xhr = $.ajax({
-            url: getObjectUrl + '?x=' + coords.lon + '&y=' + coords.lat,
+            url: getObjectUrl + '?x=' + coords.lon + '&y=' + coords.lat + '&projectId=' + projectId,
             type: 'GET',
             crossDomain: true,
             dataType: 'json',
@@ -1103,7 +1105,7 @@ OT.Map = function (mapOptions) {
         var coords = map.getLonLatFromViewPortPx(evt.xy).transform(that.destCrs, that.sourceCrs);
 
         xhr = $.ajax({
-            url: getObjectUrl + '?x=' + coords.lon + '&y=' + coords.lat,
+            url: getObjectUrl + '?x=' + coords.lon + '&y=' + coords.lat + '&projectId=' + projectId,
             type: 'GET',
             crossDomain: true,
             dataType: 'json',

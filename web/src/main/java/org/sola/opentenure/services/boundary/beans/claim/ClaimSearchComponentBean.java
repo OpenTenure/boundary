@@ -1,10 +1,10 @@
 package org.sola.opentenure.services.boundary.beans.claim;
 
 import java.util.List;
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.common.DateUtility;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.helpers.DateBean;
@@ -14,6 +14,7 @@ import org.sola.cs.services.ejbs.claim.entities.ClaimStatus;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.search.repository.entities.ClaimSearchParams;
 import org.sola.cs.services.ejb.search.repository.entities.ClaimSearchResult;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 
 /**
  * Provides method and listeners for claim search component
@@ -31,6 +32,9 @@ public class ClaimSearchComponentBean extends AbstractBackingBean {
     @Inject
     ReferenceData refData;
 
+    @Inject
+    ProjectBean projectBean;
+    
     @Inject
     LanguageBean langBean;
     
@@ -91,6 +95,7 @@ public class ClaimSearchComponentBean extends AbstractBackingBean {
         getSearchParams().setLodgementDateFrom(DateUtility.convertToDate(lodgementDateFrom, dateBean.getDatePattern()));
         getSearchParams().setLodgementDateTo(DateUtility.convertToDate(lodgementDateTo, dateBean.getDatePattern()));
         getSearchParams().setLanguageCode(langBean.getLocale());
+        getSearchParams().setProjectId(projectBean.getProjectId());
         getSearchParams().setSearchByUser(onlyUserClaims);
         
         List<ClaimSearchResult> result = searchEjb.searchClaims(getSearchParams());
@@ -102,7 +107,7 @@ public class ClaimSearchComponentBean extends AbstractBackingBean {
     }
     
     public ClaimSearchResult[] searchAssigned() {
-        List<ClaimSearchResult> result = searchEjb.searchAssignedClaims(langBean.getLocale());
+        List<ClaimSearchResult> result = searchEjb.searchAssignedClaims(langBean.getLocale(), projectBean.getProjectId());
         if(result == null || result.size() < 1){
             return null;
         } else {
@@ -111,7 +116,7 @@ public class ClaimSearchComponentBean extends AbstractBackingBean {
     }
     
     public ClaimSearchResult[] searchForReview(boolean includeAssigned) {
-        List<ClaimSearchResult> result = searchEjb.searchClaimsForReview(langBean.getLocale(), includeAssigned);
+        List<ClaimSearchResult> result = searchEjb.searchClaimsForReview(langBean.getLocale(), projectBean.getProjectId(), includeAssigned);
         if(result == null || result.size() < 1){
             return null;
         } else {
@@ -120,7 +125,7 @@ public class ClaimSearchComponentBean extends AbstractBackingBean {
     }
     
     public ClaimSearchResult[] searchForModeration(boolean includeAssigned) {
-        List<ClaimSearchResult> result = searchEjb.searchClaimsForModeration(langBean.getLocale(), includeAssigned);
+        List<ClaimSearchResult> result = searchEjb.searchClaimsForModeration(langBean.getLocale(), projectBean.getProjectId(), includeAssigned);
         if(result == null || result.size() < 1){
             return null;
         } else {

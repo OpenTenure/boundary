@@ -27,10 +27,10 @@
  */
 package org.sola.opentenure.services.boundary.beans.validation.user;
 
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.sola.opentenure.services.boundary.beans.helpers.CaptchaImage;
 
 /**
@@ -55,7 +55,7 @@ public class CaptchaValidator implements ConstraintValidator<CaptchaCheck, Strin
         
         //constraintContext.disableDefaultConstraintViolation();
         
-        javax.servlet.http.HttpSession session = request.getSession();
+        jakarta.servlet.http.HttpSession session = request.getSession();
         String c = (String) session.getAttribute(CaptchaImage.CAPTCHA_KEY);
         
         if (!captcha.equals(c)) {

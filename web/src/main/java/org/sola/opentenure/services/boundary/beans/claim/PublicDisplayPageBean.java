@@ -1,16 +1,15 @@
 package org.sola.opentenure.services.boundary.beans.claim;
 
 import java.util.List;
-import javax.ejb.EJB;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.search.repository.entities.PublicDisplaySearchResult;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
-import org.sola.opentenure.services.boundary.beans.helpers.MessageBean;
-import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 
 /**
  * Provides method and listeners for boundary page
@@ -23,10 +22,7 @@ public class PublicDisplayPageBean extends AbstractBackingBean {
     SearchCSEJBLocal searchEjb;
 
     @Inject
-    MessageProvider msgProvider;
-
-    @Inject
-    MessageBean msg;
+    ProjectBean projectBean;
 
     @Inject
     LanguageBean langBean;
@@ -44,7 +40,7 @@ public class PublicDisplayPageBean extends AbstractBackingBean {
     }
 
     public void searchPublicDisplayRecords() {
-        List<PublicDisplaySearchResult> records = searchEjb.searchClaimsForPublicDisplay(langBean.getLocale(), boundaryId);
+        List<PublicDisplaySearchResult> records = searchEjb.searchClaimsForPublicDisplay(langBean.getLocale(), boundaryId, projectBean.getProjectId());
         if (records != null) {
             publicDisplayRecords = records.toArray(new PublicDisplaySearchResult[records.size()]);
         } else {

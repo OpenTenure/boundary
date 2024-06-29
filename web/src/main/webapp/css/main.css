@@ -2,16 +2,16 @@
 DarkBlue #217c95
 LightGrey #e6e7dd
 Green #87a968
-LightGreen #e6eddf
+LightBlues #e6edef
 Earth #754c29
 */
 
 body{
-    background-color: #e6eddf;
+    background-color: #e6edef;
 }
 
 #PageHeader, #PageHeaderCaption, #PageHeaderLogo, #PageHeaderLogin {
-    height: 76px;
+    height: 67px;
     background-color: #217c95;
     font-family: Arial, sans-serif;
     line-height: 60px;
@@ -29,21 +29,21 @@ body{
 }
 
 #PageHeaderLogo{
-    float: left; 
-    text-align: center; 
+    float: left;
+    text-align: center;
     padding: 0px 22px 0px 28px;
 }
 
 #PageHeaderLogin{
-    float: right; 
+    float: right;
     padding-right: 10px;
     text-align: right;
     font-size: small;
 }
 
 .MainLogo{
-    width: 67px;
-    height: 65px;
+    width: 62px;
+    height: 49px;
     vertical-align: top;
     margin-top: 3px;
 }
@@ -63,7 +63,8 @@ body{
     background-color:#ddcc00;
     color:#fff;
     font-size:14px;
-    padding:5px;-moz-border-radius: 3px;
+    padding:5px;
+    -moz-border-radius: 3px;
     border-radius: 3px;
     -webkit-border-radius: 3px;
 }
@@ -81,7 +82,7 @@ body{
     padding: 7px 15px 0px 15px;
     margin-top: 5px;
     font-size: 24pt;
-    color: #217c95;
+    color: #477998;
 }
 
 .LineSpace{
@@ -89,8 +90,8 @@ body{
 }
 
 .splitter{
-    height: 10px; 
-    margin-bottom: 10px; 
+    height: 10px;
+    margin-bottom: 10px;
     border-bottom: #ccc 2px dotted;
 }
 
@@ -124,15 +125,15 @@ body{
 }
 
 .ShareHeader{
-    color:white; 
+    color:white;
     margin:7px 0px;
-    background-color: #87A968;
+    background-color: #5789a8;
     font-weight: bold;
 }
 
 .ShareHeaderCaption{
     width:300px;
-    float:left; 
+    float:left;
     font-size:20px;
     padding-left:7px;
 }
@@ -163,7 +164,7 @@ body{
 
 .OwnerHeaderCaption{
     width:500px;
-    float:left; 
+    float:left;
     font-size:18px;
     padding-left:7px;
 }
@@ -192,8 +193,12 @@ body{
     padding-right:7px;
 }
 
-#languageBarWrapper{
+.headerBarsWrapper{
     padding-right: 20px;
+    color: #fff;
+}
+
+.headerBarsWrapper select{
     color: #000;
 }
 /*---------------------------------
@@ -236,8 +241,8 @@ ul{
         TABLES
 -----------------------------------*/
 .table-header th{
-    background-color:#87a968;
-    color:#fff;
+    background-color: #5789a8;
+    color: #fff;
     font-weight: bold;
 }
 
@@ -272,9 +277,13 @@ div.tooltip-inner {
     max-width: 400px;
 }
 
-img .olTileImage{max-width:none;}
+img .olTileImage{
+    max-width:none;
+}
 
-.olImageLoadError{display: none !important;}
+.olImageLoadError{
+    display: none !important;
+}
 
 .nav > li > a {
     padding: 8px 15px !important;
@@ -292,7 +301,8 @@ img .olTileImage{max-width:none;}
 }
 
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
-    background-color: #e6eddf !important;
+    background-color: #e6edef !important;
+    font-weight: bold;
 }
 
 .nav-tabs > li > a {
@@ -303,7 +313,7 @@ img .olTileImage{max-width:none;}
     border-right: 4px solid #eee !important;
 }
 .selectedMenuItem{
-    border-bottom: #87a968 solid 4px;
+    border-bottom: #477998 solid 4px;
 }
 
 .selectedMenuLink{

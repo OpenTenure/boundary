@@ -5,8 +5,12 @@
       xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
     <body>
         <ui:composition>
-            <nav class="navbar navbar-default" role="navigation">
-                <div class="collapse navbar-collapse" id="main-navbar">
+            <link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/jquery.smartmenus.bootstrap.css"></link>
+            <script type="text/javascript" src="#{request.contextPath}/js/jquery.smartmenus.min.js"></script>
+            <script type="text/javascript" src="#{request.contextPath}/js/jquery.smartmenus.bootstrap.min.js"></script>
+
+            <div class="navbar navbar-default" role="navigation">
+                <div class="navbar-collapse collapse" id="main-navbar">
                     <ul class="nav navbar-nav">
                         <li class='#{mainMenuBean.getItemClassByPath("/index.xhtml")}'>
                             <a href="#{request.contextPath}/index.xhtml">#{msg.MAIN_MENU_HOME}</a>
@@ -20,8 +24,8 @@
                         </c:if>
                         <c:if test="#{not activeUserBean.authenticated}">
                             <li class='#{mainMenuBean.getItemClassByPath("/user/")}'>
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                    #{msg.MAIN_MENU_REGISTRATION} <b class="caret"></b>
+                                <a href="#">
+                                    #{msg.MAIN_MENU_REGISTRATION}
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
@@ -34,8 +38,8 @@
                         </c:if>
                         <c:if test="#{activeUserBean.authenticated}">
                             <li class='#{mainMenuBean.getItemClassByPath("/claim/")}'>
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                    #{msg.MAIN_MENU_CLAIMS} <b class="caret"></b>
+                                <a href="#">
+                                    #{msg.MAIN_MENU_CLAIMS} 
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a href="#{request.contextPath}/claim/search.xhtml">
@@ -54,8 +58,8 @@
                             </li>
 
                             <li class='#{mainMenuBean.getItemClassByPath("/boundary/")}'>
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                    #{msg.MAIN_MENU_BOUNDARIES} <b class="caret"></b>
+                                <a href="#">
+                                    #{msg.MAIN_MENU_BOUNDARIES}
                                 </a>
                                 <ul class="dropdown-menu">
                                     <c:if test="#{activeUserBean.canModerateClaim}">
@@ -72,23 +76,42 @@
                         </c:if>
                         <c:if test="#{activeUserBean.canViewReports and mainMenuBean.showReports}">
                             <li class='#{mainMenuBean.getItemClassByPath("/report/")}'>
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                    #{msg.MAIN_MENU_REPORTS} <b class="caret"></b>
+                                <a href="#">
+                                    #{msg.MAIN_MENU_REPORTS}
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <ui:repeat value="#{mainMenuBean.reports}" var="r">
-                                        <li>
-                                            <a href="#{request.contextPath}/report/ViewReport.xhtml?report=#{r.uri}">
-                                                <i class="glyphicon glyphicon-list-alt"></i> #{r.label}
-                                            </a>
-                                        </li>
+                                    <ui:repeat value="#{mainMenuBean.reportGroups}" var="g" varStatus="status">
+                                        <ui:fragment rendered="#{status.index eq 0}">
+                                            <ui:repeat value="#{mainMenuBean.getReportsByGroup(g.code)}" var="r">
+                                                <li>
+                                                    <a href="#{request.contextPath}/report/ViewReport.xhtml?report=#{r.id}">
+                                                        <i class="glyphicon glyphicon-list-alt"></i> #{r.displayName}
+                                                    </a>
+                                                </li>
+                                            </ui:repeat>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{status.index > 0}">
+                                            <li>
+                                                <a href="#">#{g.displayValue}</a>
+                                                <ul class="dropdown-menu">
+                                                    <ui:repeat value="#{mainMenuBean.getReportsByGroup(g.code)}" var="r">
+                                                        <li>
+                                                            <a href="#{request.contextPath}/report/ViewReport.xhtml?report=#{r.id}">
+                                                                <i class="glyphicon glyphicon-list-alt"></i> #{r.displayName}
+                                                            </a>
+                                                        </li>
+                                                    </ui:repeat>
+                                                </ul>
+                                            </li>
+                                        </ui:fragment>
                                     </ui:repeat>
                                 </ul>
+
                             </li>
                         </c:if>
                     </ul>
                 </div>
-            </nav>
+            </div>
             <script language="javascript">
                 function openPublicDisplayMap() {
                     var wnd = window.open("#{request.contextPath}/claim/PublicDisplayMapPrint.xhtml", "_blank", "width=1000,height=600,menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes,fullscreen=yes");

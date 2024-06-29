@@ -9,12 +9,11 @@ import java.util.List;
 public class ReportParam {
     private String id;
     private String label;
-    private String uri;
     private String description;
     private String type;
-    private boolean valueBoolean;
+    private Boolean valueBoolean;
     private String valueString;
-    private boolean mandatory;
+    private Object value;
     private boolean readOnly;
     private boolean visible;
     private List<ReportParamOption> options;
@@ -36,12 +35,12 @@ public class ReportParam {
         this.label = label;
     }
 
-    public String getUri() {
-        return uri;
+    public Object getValue() {
+        return value;
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
+    public void setValue(Object value) {
+        this.value = value;
     }
 
     public String getDescription() {
@@ -56,11 +55,11 @@ public class ReportParam {
         return type;
     }
 
-    public boolean isValueBoolean() {
+    public Boolean getValueBoolean() {
         return valueBoolean;
     }
 
-    public void setValueBoolean(boolean valueBoolean) {
+    public void setValueBoolean(Boolean valueBoolean) {
         this.valueBoolean = valueBoolean;
     }
 
@@ -74,14 +73,6 @@ public class ReportParam {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public boolean isMandatory() {
-        return mandatory;
-    }
-
-    public void setMandatory(boolean mandatory) {
-        this.mandatory = mandatory;
     }
 
     public boolean isReadOnly() {

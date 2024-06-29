@@ -1,10 +1,12 @@
 package org.sola.opentenure.services.boundary.beans.security;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Named;
-import javax.validation.constraints.Pattern;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Named;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
+import java.util.ArrayList;
+import org.sola.common.StringUtility;
 import org.sola.opentenure.services.boundary.beans.AbstractModelBean;
 import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
 import org.sola.opentenure.services.boundary.beans.validation.Localized;
@@ -16,6 +18,7 @@ import org.sola.opentenure.services.boundary.beans.validation.user.PasswordsChec
 import org.sola.opentenure.services.boundary.beans.validation.user.UserProfileGroup;
 import org.sola.opentenure.services.boundary.beans.validation.user.UserRegistrationGroup;
 import org.sola.cs.services.ejbs.admin.businesslogic.repository.entities.User;
+import org.sola.cs.services.ejbs.admin.businesslogic.repository.entities.UserProject;
 
 /**
  * Wrapper user bean, exposing properties of
@@ -31,10 +34,15 @@ public class UserBean extends AbstractModelBean {
     private User user;
     private String passwordRepeat;
     private String oldPassword;
-
+    
     /** returns userName property name */
     public String getPropertyUserName(){
         return "userName";
+    }
+    
+    /** returns userName property name */
+    public String getPropertyProject(){
+        return "projectId";
     }
     
     /** returns firstName property name */
@@ -85,7 +93,7 @@ public class UserBean extends AbstractModelBean {
         this.user = user;
     }
     
-    @Length(min = 3, max = 20, message = ErrorKeys.USER_REGISTRATION_USERNAME_LENGTH, 
+    @Size(min = 3, max = 20, message = ErrorKeys.USER_REGISTRATION_USERNAME_LENGTH, 
             payload = Localized.class, groups = {UserRegistrationGroup.class})
     @NotEmpty(message = ErrorKeys.LOGIN_USERNAME_REQUIRED, 
             payload = Localized.class, groups = {UserRegistrationGroup.class, LoginGroup.class})
@@ -95,6 +103,31 @@ public class UserBean extends AbstractModelBean {
 
     public void setUserName(String userName){
         user.setUserName(userName);
+    }
+
+    @NotEmpty(message = ErrorKeys.PROJECT_REQUIRED, 
+            payload = Localized.class, groups = {UserRegistrationGroup.class})
+    public String getProjectId() {
+        if(user.getProjects() != null && !user.getProjects().isEmpty()){
+            return user.getProjects().get(0).getProjectId();
+        }
+        return null;
+    }
+
+    public void setProjectId(String projectId) {
+        if(StringUtility.isEmpty(projectId)){
+            return;
+        }
+        if(user.getProjects() == null){
+            user.setProjects(new ArrayList<UserProject>());
+        }
+        // check project exists
+        for(UserProject up: user.getProjects()) {
+            if(up.getProjectId().equalsIgnoreCase(projectId)){
+                return;
+            }
+        }
+        user.getProjects().add(new UserProject(projectId, user.getId()));
     }
     
     @NotEmpty(message = ErrorKeys.LOGIN_PASSWORD_REQUIRED, payload = Localized.class, 

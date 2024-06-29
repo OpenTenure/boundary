@@ -11,6 +11,7 @@ public class AdministrativeBoundaryTO extends AbstractReadWriteTO {
     private String recorderName;
     private String statusCode;
     private String geom;
+    private String projectId;
     private int rowVersion;
     
     public AdministrativeBoundaryTO(){
@@ -79,6 +80,14 @@ public class AdministrativeBoundaryTO extends AbstractReadWriteTO {
 
     public void setGeom(String geom) {
         this.geom = geom;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public int getRowVersion() {

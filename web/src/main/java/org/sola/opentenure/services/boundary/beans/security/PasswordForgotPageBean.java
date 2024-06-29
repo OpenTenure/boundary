@@ -2,12 +2,12 @@ package org.sola.opentenure.services.boundary.beans.security;
 
 import java.io.IOException;
 import java.util.logging.Level;
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-import javax.faces.application.FacesMessage;
-import javax.faces.event.AjaxBehaviorEvent;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.event.AjaxBehaviorEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.common.StringUtility;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.helpers.CaptchaImage;
@@ -17,6 +17,7 @@ import org.sola.opentenure.services.boundary.beans.validation.user.UserRegistrat
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.logging.LogUtility;
 import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 
 /**
  * Serves password restore page
@@ -31,6 +32,9 @@ public class PasswordForgotPageBean extends AbstractBackingBean {
     @Inject
     protected UserBean userBean;
 
+    @Inject
+    ProjectBean projectBean;
+    
     @EJB
     AdminCSEJBLocal adminEjb;
 
@@ -105,7 +109,7 @@ public class PasswordForgotPageBean extends AbstractBackingBean {
                 @Override
                 public void run() {
                     LocalInfo.setBaseUrl(getApplicationUrl());
-                    adminEjb.restoreUserPassword(userBean.getEmail());
+                    adminEjb.restoreUserPassword(userBean.getEmail(), projectBean.getProjectId());
                     try {
                         getExtContext().redirect(getRequest().getContextPath() + "/user/forgotpwd.xhtml?action=sent");
                     } catch (IOException ex) {

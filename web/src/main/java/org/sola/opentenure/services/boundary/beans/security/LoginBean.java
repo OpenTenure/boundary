@@ -2,18 +2,19 @@ package org.sola.opentenure.services.boundary.beans.security;
 
 import java.io.IOException;
 import java.io.Serializable;
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.validation.user.LoginGroup;
 import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 
 @Named
 @RequestScoped
@@ -24,6 +25,9 @@ public class LoginBean implements Serializable {
     
     @Inject
     ActiveUserBean activeUserBean;
+    
+    @Inject
+    ProjectBean projectBean;
     
     @EJB
     AdminCSEJBLocal admin;
@@ -52,6 +56,21 @@ public class LoginBean implements Serializable {
                 context.addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.LOGIN_ACCOUNT_BLOCKED)));
                 return;
             }
+            // Check user can access the server
+            if(!activeUserBean.getCanAccessServer()){
+                // Log out user
+                request.logout();
+                context.addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.GENERAL_NO_ACCESS_TO_SERVER)));
+                return;
+            }
+            // Check user has projects assigned
+            projectBean.init();
+            if(projectBean.getProjectNames().length < 1){
+                // Log out user
+                request.logout();
+                context.addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.GENERAL_NO_ACCESS_TO_PROJECTS)));
+                return;
+            }
             // Redirect
             if(activeUserBean.getCanModerateClaim() || activeUserBean.getCanRecordClaim() || activeUserBean.getCanReviewClaim()){
                 context.getExternalContext().redirect(request.getContextPath() + "/Dashboard.xhtml");
@@ -78,6 +97,7 @@ public class LoginBean implements Serializable {
         HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
         try {
             request.logout();
+            FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
             // Redirect
             context.getExternalContext().redirect(request.getContextPath() + "/login.xhtml");
         } catch (ServletException e) {

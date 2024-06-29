@@ -3,10 +3,10 @@ package org.sola.opentenure.services.boundary.beans;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
+import jakarta.validation.ConstraintViolation;
 import org.sola.opentenure.services.boundary.beans.validation.ValidatorFactory;
 
 /**

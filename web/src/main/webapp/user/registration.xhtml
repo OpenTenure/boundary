@@ -125,7 +125,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            
+
                         </div>
                     </div>
                     <div class="LineSpace"></div>
@@ -148,7 +148,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            
+
                         </div>
                     </div>
                     <div class="LineSpace"></div>
@@ -164,7 +164,25 @@
                                          class="form-control" />
                         </div>
                         <div class="col-md-6">
-                            
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h:outputLabel for="txtCommunityName">
+                                #{msg.REGISTRATIONPAGE_PROJECT} <i class="glyphicon glyphicon-required"></i>
+                            </h:outputLabel>
+                            <div id="divProject">
+                                <h:selectOneMenu id="selectProject" class="form-control" value="#{registrationPageBean.userBean.projectId}">
+                                    <f:selectItems value="#{projectBean.getAllProjecNames(true)}" 
+                                                   var="p" itemLabel="#{p.displayName}" itemValue="#{p.id}" />
+                                    <f:ajax event="change" listener="#{registrationPageBean.validateProject(event)}" render="msgProjectConfirmation" />
+                                </h:selectOneMenu>
+                                <h:outputText escape="false" id="msgProjectConfirmation" value="#{registrationPageBean.projectValidation}" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+
                         </div>
                     </div>
                     <div class="LineSpace"></div>
@@ -195,7 +213,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            
+
                         </div>
                     </div>
                     <div class="LineSpace"></div>

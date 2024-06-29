@@ -22,7 +22,7 @@
                     <i class="glyphicon glyphicon-file"></i> #{boundaryPageBean.header} 
                     <br />
                     <div class="btn-group">
-                        <h:outputLink value="#{request.contextPath}/boundary/ViewBoundary.xhtml?id=#{boundaryPageBean.id}" 
+                        <h:outputLink value="#{request.contextPath}/boundary/ViewBoundary.xhtml?boundaryId=#{boundaryPageBean.id}" 
                                       class="btn btn-default" rendered="#{not boundaryPageBean.boundary.isNew()}">
                             #{msg.GENERAL_LABEL_BACK}
                         </h:outputLink>

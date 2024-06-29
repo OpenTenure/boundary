@@ -8,12 +8,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.faces.application.FacesMessage;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.common.ConfigConstants;
 import org.sola.common.RolesConstants;
 import org.sola.common.StringUtility;
@@ -33,6 +33,7 @@ import org.sola.opentenure.services.boundary.beans.helpers.MessageBean;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.helpers.MessagesKeys;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 import org.sola.opentenure.services.boundary.beans.referencedata.ReferenceData;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.logging.LogUtility;
@@ -63,6 +64,9 @@ public class BoundaryPageBean extends AbstractBackingBean {
     SystemCSEJBLocal systemEjb;
     
     @Inject
+    ProjectBean projectBean;
+    
+    @Inject
     MessageBean msg;
 
     @Inject
@@ -85,7 +89,7 @@ public class BoundaryPageBean extends AbstractBackingBean {
 
     @PostConstruct
     private void init() {
-        id = getRequestParam("id");
+        id = getRequestParam("boundaryId");
         String action = getRequestParam("action");
 
         if (!StringUtility.isEmpty(action)) {
@@ -106,6 +110,7 @@ public class BoundaryPageBean extends AbstractBackingBean {
             }
         } else {
             boundary = new AdministrativeBoundary();
+            boundary.setProjectId(projectBean.getProjectId());
             boundary.setId(UUID.randomUUID().toString());
             boundary.setTypeCode(getBoundaryTypeCodeByParentId(null));
             boundary.setStatusCode(AdministrativeBoundaryStatus.STATUS_PENDING);
@@ -114,21 +119,21 @@ public class BoundaryPageBean extends AbstractBackingBean {
 
     public AdministrativeBoundarySearchResult[] getAllBoundariesFormatted(boolean addDummy) {
         if (allBoundariesFormatted == null) {
-            allBoundariesFormatted = getFormattedBoundaries(searchEjb.searchAllAdministrativeBoundaries(langBean.getLocale()), addDummy);
+            allBoundariesFormatted = getFormattedBoundaries(searchEjb.searchAllAdministrativeBoundaries(projectBean.getProjectId(), langBean.getLocale()), addDummy);
         }
         return allBoundariesFormatted;
     }
     
     public AdministrativeBoundarySearchResult[] getApprovedBoundariesFormatted(boolean addDummy) {
         if (approvedBoundariesFormatted == null) {
-            approvedBoundariesFormatted = getFormattedBoundaries(searchEjb.searchApprovedAdministrativeBoundaries(langBean.getLocale()), addDummy);
+            approvedBoundariesFormatted = getFormattedBoundaries(searchEjb.searchApprovedAdministrativeBoundaries(projectBean.getProjectId(), langBean.getLocale()), addDummy);
         }
         return approvedBoundariesFormatted;
     }
 
     public AdministrativeBoundarySearchResult[] getBoundaries() {
         if (allBoundaries == null) {
-            List<AdministrativeBoundarySearchResult> boundaries = searchEjb.searchAllAdministrativeBoundaries(langBean.getLocale());
+            List<AdministrativeBoundarySearchResult> boundaries = searchEjb.searchAllAdministrativeBoundaries(projectBean.getProjectId(), langBean.getLocale());
             if (boundaries != null) {
                 allBoundaries = boundaries.toArray(new AdministrativeBoundarySearchResult[boundaries.size()]);
             } else {
@@ -140,7 +145,7 @@ public class BoundaryPageBean extends AbstractBackingBean {
 
     public AdministrativeBoundarySearchResult[] getParentBoundaries() {
         if (parentBoundaries == null) {
-            parentBoundaries = getFormattedBoundaries(searchEjb.searchParentAdministrativeBoundaries(langBean.getLocale()), true);
+            parentBoundaries = getFormattedBoundaries(searchEjb.searchAllParentAdministrativeBoundaries(projectBean.getProjectId(), langBean.getLocale()), true);
         }
         return parentBoundaries;
     }
@@ -221,11 +226,11 @@ public class BoundaryPageBean extends AbstractBackingBean {
     }
 
     public String getBoundaryPrintCrsDescription(){
-        return systemEjb.getSetting(ConfigConstants.BOUNDARY_PRINT_CRS_DESCRIPTION, "");
+        return systemEjb.getSetting(ConfigConstants.BOUNDARY_PRINT_CRS_DESCRIPTION, projectBean.getProjectId(), "");
     }
     
     public String getBoundaryPrintProducedBy(){
-        return systemEjb.getSetting(ConfigConstants.BOUNDARY_PRINT_PRODUCED_BY, "");
+        return systemEjb.getSetting(ConfigConstants.BOUNDARY_PRINT_PRODUCED_BY, projectBean.getProjectId(), "");
     }
     
     public String getMonthAndYear(){
@@ -239,11 +244,11 @@ public class BoundaryPageBean extends AbstractBackingBean {
     
     public String getBoundaryPrintLocationDescription(){
         String location = "";
-        String countryName = systemEjb.getSetting(ConfigConstants.BOUNDARY_PRINT_COUNTRY_NAME, "");
+        String countryName = systemEjb.getSetting(ConfigConstants.BOUNDARY_PRINT_COUNTRY_NAME, projectBean.getProjectId(), "");
         
         if (boundary != null && !StringUtility.isEmpty(boundary.getName())) {
             location = String.format(msgProvider.getMessage(MessagesKeys.BOUNDARY_PAGE_TITLE), boundary.getName(), getBoundaryTypeName());
-            List<AdministrativeBoundarySearchResult> parents = searchEjb.searchParentAdministrativeBoundaries(boundary.getId(), langBean.getLocale());
+            List<AdministrativeBoundarySearchResult> parents = searchEjb.searchParentAdministrativeBoundaries(boundary.getId(), projectBean.getProjectId(), langBean.getLocale());
             if(parents != null && parents.size() > 0){
                 for (int i = 0; i < parents.size() - 1; i++) {
                     location += ", " + parents.get(i).getName() + " " + parents.get(i).getTypeName();
@@ -423,7 +428,7 @@ public class BoundaryPageBean extends AbstractBackingBean {
 
     private void redirectWithAction(String action) {
         try {
-            getContext().getExternalContext().redirect(getRequest().getContextPath() + "/boundary/ViewBoundary.xhtml?id=" + boundary.getId() + "&action=" + action);
+            getContext().getExternalContext().redirect(getRequest().getContextPath() + "/boundary/ViewBoundary.xhtml?boundaryId=" + boundary.getId() + "&action=" + action);
         } catch (Exception e) {
             LogUtility.log("Failed to redirect", e);
         }

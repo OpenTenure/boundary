@@ -1,6 +1,5 @@
 package org.sola.opentenure.services.boundary.beans.claim;
 
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,13 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
-import javax.annotation.ManagedBean;
-import javax.ejb.EJB;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.ejb.EJB;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.sola.common.StringUtility;
 import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 import org.sola.cs.services.ejbs.claim.entities.AttachmentBinary;
@@ -24,7 +22,6 @@ import org.sola.cs.services.ejbs.claim.entities.AttachmentBinary;
 /**
  * Returns Claim attachment, supporting resumable download
  */
-@ManagedBean
 public class GetAttachment extends HttpServlet {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.

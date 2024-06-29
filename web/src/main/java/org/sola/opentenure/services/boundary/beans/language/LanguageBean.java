@@ -7,18 +7,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.enterprise.context.SessionScoped;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ValueChangeEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.Locale;
 import org.sola.common.StringUtility;
+import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.helpers.LanguageBeanSorter;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
@@ -38,6 +40,9 @@ public class LanguageBean extends AbstractBackingBean {
     
     @Inject
     MapSettingsBean mapSettings;
+    
+    @EJB
+    CacheCSEJBLocal cacheEjb;
     
     private Language currentLanguage;
     private Language[] languages;
@@ -139,6 +144,16 @@ public class LanguageBean extends AbstractBackingBean {
         return getCurrentLanguage().getCode().replace("-", "_");
     }
 
+    public Locale getJavaLocale() {
+        String[] codes = getCurrentLanguage().getCode().split("-");
+        return new Locale(codes[0], codes[1]);
+    }
+    
+    public Locale getJavaLocale(String locale) {
+        String[] codes = locale.split("-");
+        return new Locale(codes[0], codes[1]);
+    }
+    
     public String getLocale() {
         return getCurrentLanguage().getCode();
     }
@@ -164,8 +179,10 @@ public class LanguageBean extends AbstractBackingBean {
 
     public void changeLocale(ValueChangeEvent e) {
         setLocale((String) e.getNewValue());
-        // Reset layers
+        // Reset cache and layers
+        cacheEjb.clearAll();
         mapSettings.init();
+        
         try {
             // Redirect to the same page to avoid postback
             HttpServletRequest req = (HttpServletRequest) getRequest();

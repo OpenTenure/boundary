@@ -242,7 +242,7 @@ a.ui-state-focus{
     position: absolute;
     top: 0;
     left: 0;
-    background-color: #e6eddf;
+    background-color: #e6edef;
     display: none;
     z-index: 9999;
 }

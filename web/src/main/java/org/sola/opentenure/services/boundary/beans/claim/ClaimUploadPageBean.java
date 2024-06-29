@@ -5,16 +5,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-import javax.faces.application.FacesMessage;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.Part;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.Part;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.sola.common.FileUtility;
 import org.sola.common.SOLAException;
+import org.sola.common.StringUtility;
 import org.sola.common.mapping.MappingManager;
 import org.sola.cs.common.messaging.ServiceMessage;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
@@ -28,6 +29,7 @@ import org.sola.cs.services.ejbs.claim.entities.Attachment;
 import org.sola.cs.services.ejbs.claim.entities.AttachmentBinary;
 import org.sola.cs.services.ejbs.claim.entities.Claim;
 import org.sola.cs.services.boundary.transferobjects.claim.ClaimTO;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 import org.sola.services.common.LocalInfo;
 import org.sola.services.common.contracts.CsGenericTranslator;
 import org.sola.services.common.logging.LogUtility;
@@ -48,6 +50,9 @@ public class ClaimUploadPageBean extends AbstractBackingBean {
     @Inject
     LanguageBean langBean;
 
+    @Inject
+    ProjectBean projectBean;
+    
     private Part fileClaim;
     private String filePassword;
 
@@ -137,7 +142,13 @@ public class ClaimUploadPageBean extends AbstractBackingBean {
 
                 // Process json
                 Claim claim = CsGenericTranslator.fromTO(getMapper().readValue(json, ClaimTO.class), Claim.class, null);
-
+                
+                // Check project
+                if(claim != null && (StringUtility.isEmpty(claim.getProjectId()) || !claim.getProjectId().equalsIgnoreCase(projectBean.getProjectId()))) {
+                    getContext().addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.CLAIM_PROJECT_MISMATCH)));
+                    return;
+                }
+                
                 // validate attachments
                 if (claim.getAttachments() != null || claim.getAttachments().size() > 0) {
                     if (!attachments.exists()) {

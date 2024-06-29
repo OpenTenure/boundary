@@ -28,13 +28,11 @@
 package org.sola.opentenure.services.boundary.beans.validation;
 
 import java.io.Serializable;
-import java.util.Locale;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.validation.*;
-import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.validation.*;
 
 /**
  * Holds a single instance of bean validator.
@@ -52,7 +50,7 @@ public class ValidatorFactory implements Serializable {
         Configuration<?> config = Validation.byDefaultProvider().configure();
         config.messageInterpolator(validatorInt);
         
-        javax.validation.ValidatorFactory factory = config.buildValidatorFactory();
+        jakarta.validation.ValidatorFactory factory = config.buildValidatorFactory();
         validator = factory.getValidator();
     }
     

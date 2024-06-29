@@ -1,10 +1,10 @@
 package org.sola.opentenure.services.boundary.beans.security;
 
-import javax.ejb.EJB;
-import javax.enterprise.context.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.inject.Named;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
+import jakarta.validation.constraints.NotEmpty;
 import org.sola.common.RolesConstants;
 import org.sola.opentenure.services.boundary.beans.AbstractModelBean;
 import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
@@ -64,6 +64,9 @@ public class ActiveUserBean extends AbstractModelBean {
     
     public boolean getCanViewReports(){
         return adminEjb.isInRole(RolesConstants.CS_VIEW_REPORTS);
+    }
+    public boolean getCanAccessServer(){
+        return adminEjb.isInRole(RolesConstants.CS_ACCESS_CS);
     }
     
     public boolean getHasAdminRights(){

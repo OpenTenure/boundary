@@ -2,14 +2,14 @@ package org.sola.opentenure.services.boundary.beans.security;
 
 import java.io.IOException;
 import java.util.logging.Level;
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AjaxBehaviorEvent;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AjaxBehaviorEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.helpers.CaptchaImage;
 import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
@@ -19,6 +19,7 @@ import org.sola.services.common.LocalInfo;
 import org.sola.services.common.logging.LogUtility;
 import org.sola.cs.services.ejbs.admin.businesslogic.AdminCSEJBLocal;
 import org.sola.cs.services.ejbs.admin.businesslogic.repository.entities.User;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 
 /**
  * Provides method and listeners for user registration page
@@ -32,7 +33,7 @@ public class RegistrationPageBean extends AbstractBackingBean {
 
     @Inject
     protected UserBean userBean;
-
+    
     @Inject
     MessageProvider msgProvider;
 
@@ -45,6 +46,7 @@ public class RegistrationPageBean extends AbstractBackingBean {
     private String emailValidation;
     private String mobileValidation;
     private String captchaValidation;
+    private String projectValidation;
 
     public String getCaptchaValue() {
         return captchaValue;
@@ -68,6 +70,14 @@ public class RegistrationPageBean extends AbstractBackingBean {
 
     public String getEmailValidation() {
         return emailValidation;
+    }
+
+    public String getProjectValidation() {
+        return projectValidation;
+    }
+
+    public void setProjectValidation(String projectValidation) {
+        this.projectValidation = projectValidation;
     }
 
     public String getMobileValidation() {
@@ -104,6 +114,18 @@ public class RegistrationPageBean extends AbstractBackingBean {
             }
         }
         userNameValidation = prepareUIValidationResult(error, "divUserName");
+    }
+    
+    public void validateProject(AjaxBehaviorEvent event) {
+        String error = userBean.getFirstError(userBean.validateProperty(userBean.getPropertyProject(), UserRegistrationGroup.class));
+
+        // Check user name
+        if (error.equals("")) {
+            if (checkUserNameExists()) {
+                error = msgProvider.getErrorMessage(ErrorKeys.PROJECT_REQUIRED);
+            }
+        }
+        projectValidation = prepareUIValidationResult(error, "divProject");
     }
      
     public void validateFirstName(AjaxBehaviorEvent event) {
@@ -210,7 +232,7 @@ public class RegistrationPageBean extends AbstractBackingBean {
         }
 
         // Check captcha
-        javax.servlet.http.HttpSession session = request.getSession();
+        jakarta.servlet.http.HttpSession session = request.getSession();
         String c = (String) session.getAttribute(CaptchaImage.CAPTCHA_KEY);
 
         if (!captchaValue.equals(c)) {

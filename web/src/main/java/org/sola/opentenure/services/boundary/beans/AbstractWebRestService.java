@@ -2,16 +2,16 @@ package org.sola.opentenure.services.boundary.beans;
 
 import java.text.SimpleDateFormat;
 import java.util.logging.Level;
-import javax.annotation.Resource;
-import javax.ejb.EJBAccessException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.transaction.Status;
-import javax.transaction.UserTransaction;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.ws.WebServiceContext;
+import jakarta.annotation.Resource;
+import jakarta.ejb.EJBAccessException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Status;
+import jakarta.transaction.UserTransaction;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+import jakarta.xml.ws.WebServiceContext;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
@@ -27,6 +27,7 @@ import org.sola.services.common.faults.OTMissingAttachmentsException;
 import org.sola.common.SOLAMD5Exception;
 import org.sola.common.SOLANoDataException;
 import org.sola.services.common.LocalInfo;
+import org.sola.services.common.faults.OTProjectNotAccessible;
 import org.sola.services.common.faults.SOLAObjectExistsException;
 import org.sola.services.common.faults.SOLAValidationException;
 
@@ -206,6 +207,9 @@ public class AbstractWebRestService {
             } else if (FaultUtility.hasCause(t, SOLANoDataException.class)) {
                 SOLANoDataException ex = FaultUtility.getCause(t, SOLANoDataException.class);
                 return ExceptionFactory.buildMissingData(ex.getMessage(), localeCode);
+            } else if (FaultUtility.hasCause(t, OTProjectNotAccessible.class)) {
+                OTProjectNotAccessible ex = FaultUtility.getCause(t, OTProjectNotAccessible.class);
+                return ExceptionFactory.buildProjectNotAccessibleError(localeCode);
             } else if (FaultUtility.hasCause(t, SOLAMD5Exception.class)) {
                 return ExceptionFactory.buildMD5Error(localeCode);
             } else if (FaultUtility.hasCause(t, SOLAValidationException.class)) {

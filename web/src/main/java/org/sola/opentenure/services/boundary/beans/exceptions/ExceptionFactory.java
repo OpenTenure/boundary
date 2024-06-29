@@ -2,7 +2,7 @@ package org.sola.opentenure.services.boundary.beans.exceptions;
 
 import org.sola.services.common.faults.OTRestException;
 import java.util.List;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import org.sola.cs.common.messaging.MessageUtility;
 import org.sola.cs.common.messaging.ServiceMessage;
 
@@ -227,5 +227,14 @@ public class ExceptionFactory {
      */
     public static OTRestException buildMissingData(String errorCode, String localeCode) {
         return buildGeneralException(456, errorCode, localeCode);
+    }
+    
+    /**
+     * Builds project not accessible exception with HTTP 460 code (Custom).
+     * @param localeCode Locale code (e.g. en-US)
+     * @return
+     */
+    public static OTRestException buildProjectNotAccessibleError(String localeCode) {
+        return buildGeneralException(460, ServiceMessage.GENERAL_PROJECT_NO_ACCESSIBLE, localeCode);
     }
 }

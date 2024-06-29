@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core" dir="#{languageBean.currentLanguage.ltr ? 'ltr' : 'rtl'}">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:ui="jakarta.faces.facelets"
+      xmlns:f="jakarta.faces.core" dir="#{languageBean.currentLanguage.ltr ? 'ltr' : 'rtl'}">
     <h:head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -30,12 +30,12 @@
         <link rel="icon" href="#{resource['default:images/favicon.ico']}" type="image/x-icon"></link>
         <ui:insert name="head"></ui:insert>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <f:verbatim escape="false">
+        <h:outputText escape="false">
             <!--[if lt IE 9]>
                 <script type="text/javascript" src="#{request.contextPath}/js/html5shiv.js"></script>
                 <script type="text/javascript" src="#{request.contextPath}/js/respond.min.js"></script>
             <![endif]-->
-        </f:verbatim>
+        </h:outputText>
     </h:head>
     <h:body>
         <f:view locale="#{languageBean.localeCodeForBundle}" />

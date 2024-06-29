@@ -2,13 +2,11 @@ package org.sola.opentenure.services.boundary.beans.helpers;
 
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-import javax.servlet.http.*;
-import javax.servlet.*;
+import jakarta.servlet.http.*;
+import jakarta.servlet.*;
 import java.io.*;
 import java.awt.*;
 import java.util.*;
-import java.awt.font.TextAttribute;
-import java.security.SecureRandom;
  
 public class CaptchaImage extends HttpServlet {
  

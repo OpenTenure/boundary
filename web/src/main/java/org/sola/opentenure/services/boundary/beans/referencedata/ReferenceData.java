@@ -1,23 +1,18 @@
 package org.sola.opentenure.services.boundary.beans.referencedata;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import javax.ejb.EJB;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
-import org.sola.common.ConfigConstants;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.common.StringUtility;
 import org.sola.cs.services.ejbs.claim.entities.ClaimStatus;
 import org.sola.cs.services.ejbs.claim.entities.FieldConstraintType;
 import org.sola.cs.services.ejbs.claim.entities.LandUse;
 import org.sola.cs.services.ejb.refdata.entities.LandUseType;
-import org.sola.cs.services.boundary.transferobjects.system.MapExtentTO;
 import org.sola.services.common.repository.entities.AbstractCodeEntity;
-import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
-import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
-import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 import org.sola.cs.services.ejb.refdata.businesslogic.RefDataCSEJBLocal;
 import org.sola.cs.services.ejb.refdata.entities.AdministrativeBoundaryStatus;
 import org.sola.cs.services.ejb.refdata.entities.AdministrativeBoundaryType;
@@ -26,9 +21,11 @@ import org.sola.cs.services.ejb.refdata.entities.GenderType;
 import org.sola.cs.services.ejb.refdata.entities.IdType;
 import org.sola.cs.services.ejb.refdata.entities.Language;
 import org.sola.cs.services.ejb.refdata.entities.RejectionReason;
+import org.sola.cs.services.ejb.refdata.entities.ReportGroup;
 import org.sola.cs.services.ejb.refdata.entities.RrrType;
 import org.sola.cs.services.ejb.refdata.entities.SourceType;
 import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 
 /**
  * Holds methods to retrieve reference data. ALl data are cached when first time
@@ -37,25 +34,15 @@ import org.sola.cs.services.ejbs.claim.businesslogic.ClaimEJBLocal;
 @Named
 @ApplicationScoped
 public class ReferenceData {
-    
-    @EJB
-    SearchCSEJBLocal searchEjb;
-
-    @EJB
-    SystemCSEJBLocal systemEjb;
-    
     @EJB
     RefDataCSEJBLocal refDataEjb;
     
     @EJB
     ClaimEJBLocal claimEjb;
     
-    @EJB
-    CacheCSEJBLocal cacheEjb;
-
-    private final String MAP_EXTENT = "MAP_EXTENT";
-    private final String COMMUNITY_AREA = "COMMUNITY_AREA";
-    
+    @Inject
+    ProjectBean projectBean;
+       
     public ReferenceData() {
         super();
     }
@@ -238,7 +225,7 @@ public class ReferenceData {
      * @return
      */
     public List<SourceType> getDocumentTypesForCertIssuance(String langCode) {
-        return claimEjb.getDocumentTypesForIssuance(langCode);
+        return claimEjb.getDocumentTypesForIssuance(projectBean.getProjectId(), langCode);
     }
 
     /**
@@ -298,33 +285,6 @@ public class ReferenceData {
     }
 
     /**
-     * Returns map extent
-     *
-     * @return
-     */
-    public MapExtentTO getMapExtent() {
-        if (cacheEjb.containsKey(MAP_EXTENT)) {
-            return (MapExtentTO) cacheEjb.get(MAP_EXTENT);
-        }
-
-        HashMap<String, String> mapSettings = searchEjb.getMapSettingList();
-        MapExtentTO result = null;
-
-        if (mapSettings != null) {
-            result = new MapExtentTO();
-            result.setMinX(mapSettings.get("map-west"));
-            result.setMaxY(mapSettings.get("map-north"));
-            result.setMaxX(mapSettings.get("map-east"));
-            result.setMinY(mapSettings.get("map-south"));
-        }
-
-        if (result != null) {
-            cacheEjb.put(MAP_EXTENT, result);
-        }
-        return result;
-    }
-
-    /**
      * Returns list of {@link SourceType}
      *
      * @param addDummy If true, empty item will be inserted on the top
@@ -356,6 +316,7 @@ public class ReferenceData {
      * Returns list of {@link ClaimStatus}
      *
      * @param addDummy If true, empty item will be inserted on the top
+     * @param langCode
      * @return
      */
     public ClaimStatus[] getClaimStatuses(boolean addDummy, String langCode) {
@@ -368,23 +329,31 @@ public class ReferenceData {
     }
 
     /**
-     * Returns community area, defining where claims can be submitted. Returns
-     * in WKT format.
-     * @return 
+     * Returns list of {@link ReportGroup}
+     *
+     * @param addDummy If true, empty item will be inserted on the top
+     * @param langCode
+     * @return
      */
-    public String getCommunityArea() {
-        if (cacheEjb.containsKey(COMMUNITY_AREA)) {
-            return cacheEjb.get(COMMUNITY_AREA).toString();
+    public ReportGroup[] getReportGroups(boolean addDummy, String langCode) {
+        ArrayList<ReportGroup> result = (ArrayList<ReportGroup>) getReportGroups(langCode);
+        if (addDummy) {
+            result = (ArrayList<ReportGroup>) result.clone();
+            result.add(0, createDummy(new ReportGroup()));
         }
-
-        String result = systemEjb.getSetting(ConfigConstants.OT_COMMUNITY_AREA, "");
-
-        if (result != null) {
-            cacheEjb.put(COMMUNITY_AREA, result);
-        }
-        return result;
+        return result.toArray(new ReportGroup[result.size()]);
     }
-
+    
+    /**
+     * Returns list of {@link ReportGroup}
+     *
+     * @param langCode Language code
+     * @return
+     */
+    public List<ReportGroup> getReportGroups(String langCode) {
+        return refDataEjb.getCodeEntityList(ReportGroup.class, langCode);
+    }
+    
     /**
      * Returns list of {@link AdministrativeBoundaryType}
      *

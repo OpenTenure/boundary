@@ -2,14 +2,13 @@ package org.sola.opentenure.services.boundary.beans.report;
 
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.faces.application.FacesMessage;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import org.sola.common.StringUtility;
+import jakarta.annotation.PostConstruct;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.sola.cs.services.ejb.system.repository.entities.ReportDescription;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
-import org.sola.opentenure.services.boundary.beans.exceptions.OTWebException;
 import org.sola.opentenure.services.boundary.beans.helpers.ErrorKeys;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 import org.sola.opentenure.services.boundary.beans.security.ActiveUserBean;
@@ -21,19 +20,19 @@ import org.sola.opentenure.services.boundary.beans.security.ActiveUserBean;
 @ViewScoped
 public class ReportPageBean extends AbstractBackingBean {
     
-    private String reportUri;
+    private String reportId;
     private String reportFormat;
     private ReportParam[] paramsArray;
-    private ResourceDescription report;
+    private ReportDescription report;
     
     @Inject
     MessageProvider msgProvider;
     
-    @Inject 
-    ReportServerBean server;
-
     @Inject
     ActiveUserBean activeUser;
+    
+    @Inject
+    ReportBean reportBean;
     
     public String getReportFormat() {
         return reportFormat;
@@ -47,7 +46,7 @@ public class ReportPageBean extends AbstractBackingBean {
         return paramsArray;
     }
 
-    public ResourceDescription getReport() {
+    public ReportDescription getReport() {
         return report;
     }
         
@@ -59,8 +58,8 @@ public class ReportPageBean extends AbstractBackingBean {
             return;
         }
         
-        reportUri = getRequestParam("report");
-        report = server.getReport(reportUri);
+        reportId = getRequestParam("report");
+        report = reportBean.getReport(reportId);
         
         if(report == null){
             getContext().addMessage(null, new FacesMessage(msgProvider.getErrorMessage(ErrorKeys.REPORT_NOT_FOUND)));
@@ -68,12 +67,12 @@ public class ReportPageBean extends AbstractBackingBean {
         }
         
         // Get parameters
-        List<ReportParam> params = server.getReportParameters(report.getUri());
+        List<ReportParam> params = reportBean.getReportParams(reportId);
         if (params != null) {
             // Exlude invisible params and language param
             for (Iterator<ReportParam> it = params.iterator(); it.hasNext();) {
                 ReportParam next = it.next();
-                if (!next.isVisible() || next.getId().equalsIgnoreCase("lang")) {
+                if (!next.isVisible() || next.getId().equalsIgnoreCase("lang") || next.getId().equalsIgnoreCase("projectId")) {
                     it.remove();
                 }
             }
@@ -86,6 +85,6 @@ public class ReportPageBean extends AbstractBackingBean {
     }
 
     public void runReport() {
-        server.runReport(report.getUri(), paramsArray, reportFormat);
+        reportBean.runReport(reportId, paramsArray, reportFormat);
     }
 }

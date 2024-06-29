@@ -2,11 +2,11 @@ package org.sola.opentenure.services.boundary.beans.map;
 
 import java.util.HashMap;
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.common.ConfigConstants;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
@@ -14,8 +14,8 @@ import org.sola.cs.services.ejb.cache.businesslogic.CacheCSEJBLocal;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.search.repository.entities.ConfigMapLayer;
 import org.sola.cs.services.ejb.search.repository.entities.ConfigMapLayerMetadata;
-import org.sola.cs.services.ejb.search.repository.entities.Crs;
 import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 
 /**
  * Contains methods to extract map settings to display claims and all relevant
@@ -33,6 +33,9 @@ public class MapSettingsBean extends AbstractBackingBean {
 
     @EJB
     SystemCSEJBLocal systemEjb;
+
+    @Inject
+    ProjectBean projectBean;
 
     @EJB
     CacheCSEJBLocal cacheEjb;
@@ -53,12 +56,16 @@ public class MapSettingsBean extends AbstractBackingBean {
         }
         return cacheEjb.get(CS_OFFLINE_MODE).toString().equals("1");
     }
-    
+
     public String getCommunityArea() {
         if (!cacheEjb.containsKey(MAP_COMMUNITY_AREA)) {
             init();
         }
         return cacheEjb.get(MAP_COMMUNITY_AREA);
+    }
+
+    public String getProjectId() {
+        return projectBean.getProjectId();
     }
 
     public String getExtTopX() {
@@ -95,7 +102,7 @@ public class MapSettingsBean extends AbstractBackingBean {
         }
         return cacheEjb.get(MAP_EPSG);
     }
-    
+
     public String getMapPrintProj4() {
         if (!cacheEjb.containsKey(MAP_PRINT_PROJ4)) {
             init();
@@ -103,12 +110,12 @@ public class MapSettingsBean extends AbstractBackingBean {
         return cacheEjb.get(MAP_PRINT_PROJ4);
     }
 
-    public List<ConfigMapLayer> getLayers() {
-        return searchEjb.getConfigMapLayerList(langBean.getLocale());
+    public List<ConfigMapLayer> getProjectLayers() {
+        return searchEjb.getMapLayersByProject(projectBean.getProjectId(), langBean.getLocale());
     }
 
     public ConfigMapLayer[] getLayersArray() {
-        List<ConfigMapLayer> layers = getLayers();
+        List<ConfigMapLayer> layers = getProjectLayers();
         if (layers == null) {
             return null;
         }
@@ -122,7 +129,9 @@ public class MapSettingsBean extends AbstractBackingBean {
         return layer.getMetadataList().toArray(new ConfigMapLayerMetadata[layer.getMetadataList().size()]);
     }
 
-    /** Returns WMS layer parameters sent to the server. */
+    /**
+     * Returns WMS layer parameters sent to the server.
+     */
     public String getLayerParamsString(ConfigMapLayer layer, boolean addCommaInFront) {
         if (layer == null || layer.getMetadataList() == null) {
             return "";
@@ -131,7 +140,7 @@ public class MapSettingsBean extends AbstractBackingBean {
         String result = "";
 
         for (ConfigMapLayerMetadata param : layer.getMetadataList()) {
-            if (!param.isForClient() && layer.getTypeCode().equalsIgnoreCase("wms") 
+            if (!param.isForClient() && layer.getTypeCode().equalsIgnoreCase("wms")
                     && !param.getName().equalsIgnoreCase(LEGEND_OPTIONS)) {
                 if (!result.equals("")) {
                     result += ", ";
@@ -146,7 +155,9 @@ public class MapSettingsBean extends AbstractBackingBean {
         return result;
     }
 
-    /** Returns WMS layer options used by map component. */
+    /**
+     * Returns WMS layer options used by map component.
+     */
     public String getLayerOptionsString(ConfigMapLayer layer, boolean addCommaInFront) {
         if (layer == null || layer.getMetadataList() == null) {
             return "";
@@ -155,7 +166,7 @@ public class MapSettingsBean extends AbstractBackingBean {
         String result = "";
 
         for (ConfigMapLayerMetadata param : layer.getMetadataList()) {
-            if (param.isForClient() && layer.getTypeCode().equalsIgnoreCase("wms") 
+            if (param.isForClient() && layer.getTypeCode().equalsIgnoreCase("wms")
                     && !param.getName().equalsIgnoreCase(LEGEND_OPTIONS)) {
                 if (!result.equals("")) {
                     result += ", ";
@@ -169,7 +180,7 @@ public class MapSettingsBean extends AbstractBackingBean {
         }
         return result;
     }
-    
+
     /**
      * Return WMS legend options
      */
@@ -189,38 +200,10 @@ public class MapSettingsBean extends AbstractBackingBean {
 
     @PostConstruct
     public void init() {
-        cacheEjb.clear(MAP_COMMUNITY_AREA);
-        cacheEjb.clear(MAP_EAST);
-        cacheEjb.clear(MAP_EPSG);
-        cacheEjb.clear(MAP_NORTH);
-        cacheEjb.clear(MAP_SOUTH);
-        cacheEjb.clear(MAP_WEST);
-        cacheEjb.clear(CS_OFFLINE_MODE);
-        cacheEjb.clear(MAP_PRINT_PROJ4);
-
-        HashMap<String, String> mapSettings = searchEjb.getMapSettingList();
-
-        List<Crs> crs = searchEjb.getCrsList();
-        cacheEjb.put(MAP_COMMUNITY_AREA, systemEjb.getSetting(ConfigConstants.OT_COMMUNITY_AREA, ""));
-        cacheEjb.put(CS_OFFLINE_MODE, systemEjb.getSetting(ConfigConstants.OT_OFFLINE_MODE, "0"));
-        cacheEjb.put(MAP_PRINT_PROJ4, systemEjb.getSetting(ConfigConstants.OT_TITLE_PLAN_CRS_PROJ4, ""));
-        
-        if (mapSettings != null) {
-            cacheEjb.put(MAP_WEST, mapSettings.get("map-west"));
-            cacheEjb.put(MAP_NORTH, mapSettings.get("map-north"));
-            cacheEjb.put(MAP_EAST, mapSettings.get("map-east"));
-            cacheEjb.put(MAP_SOUTH, mapSettings.get("map-south"));
-        } else {
-            cacheEjb.put(MAP_WEST, "");
-            cacheEjb.put(MAP_NORTH, "");
-            cacheEjb.put(MAP_EAST, "");
-            cacheEjb.put(MAP_SOUTH, "");
-        }
-
-        if (crs != null) {
-            cacheEjb.put(MAP_EPSG, "EPSG:" + crs.get(0).getSrid());
-        } else {
-            cacheEjb.put(MAP_EPSG, "");
+        if (projectBean.getCurrentProject() != null) {
+            cacheEjb.put(MAP_COMMUNITY_AREA, projectBean.getCurrentProject().getBoundary());
+            cacheEjb.put(CS_OFFLINE_MODE, systemEjb.getSetting(ConfigConstants.OT_OFFLINE_MODE, projectBean.getProjectId(), "0"));
+            cacheEjb.put(MAP_PRINT_PROJ4, systemEjb.getSetting(ConfigConstants.OT_TITLE_PLAN_CRS_PROJ4, projectBean.getProjectId(), ""));
         }
     }
 

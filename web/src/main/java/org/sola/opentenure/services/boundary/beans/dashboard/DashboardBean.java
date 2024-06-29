@@ -1,15 +1,16 @@
 package org.sola.opentenure.services.boundary.beans.dashboard;
 
 import java.util.List;
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.common.RolesConstants;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;
 import org.sola.opentenure.services.boundary.beans.language.LanguageBean;
 import org.sola.cs.services.ejb.search.businesslogic.SearchCSEJBLocal;
 import org.sola.cs.services.ejb.search.repository.entities.ClaimSearchResult;
+import org.sola.opentenure.services.boundary.beans.project.ProjectBean;
 
 /**
  * Provides method and listeners for dashboard
@@ -22,6 +23,9 @@ public class DashboardBean extends AbstractBackingBean {
     
     @Inject
     LanguageBean langBean;
+    
+    @Inject
+    ProjectBean projectBean;
     
     private boolean showAllForReview = false;
     private boolean showAllForModeration = false;
@@ -44,7 +48,7 @@ public class DashboardBean extends AbstractBackingBean {
     }
     
     public ClaimSearchResult[] searchAssigned() {
-        List<ClaimSearchResult> result = searchEjb.searchAssignedClaims(langBean.getLocale());
+        List<ClaimSearchResult> result = searchEjb.searchAssignedClaims(langBean.getLocale(), projectBean.getProjectId());
         if(result == null || result.size() < 1){
             return null;
         } else {
@@ -53,7 +57,7 @@ public class DashboardBean extends AbstractBackingBean {
     }
     
     public ClaimSearchResult[] searchForReview() {
-        List<ClaimSearchResult> result = searchEjb.searchClaimsForReview(langBean.getLocale(), showAllForReview);
+        List<ClaimSearchResult> result = searchEjb.searchClaimsForReview(langBean.getLocale(), projectBean.getProjectId(), showAllForReview);
         if(result == null || result.size() < 1){
             return null;
         } else {
@@ -62,7 +66,7 @@ public class DashboardBean extends AbstractBackingBean {
     }
     
     public ClaimSearchResult[] searchForModeration() {
-        List<ClaimSearchResult> result = searchEjb.searchClaimsForModeration(langBean.getLocale(), showAllForModeration);
+        List<ClaimSearchResult> result = searchEjb.searchClaimsForModeration(langBean.getLocale(), projectBean.getProjectId(), showAllForModeration);
         if(result == null || result.size() < 1){
             return null;
         } else {

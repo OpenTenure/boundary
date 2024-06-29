@@ -30,12 +30,12 @@
         <link rel="icon" href="#{resource['default:images/favicon.ico']}" type="image/x-icon"></link>
         <ui:insert name="head"></ui:insert>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <f:verbatim escape="false">
+        <h:outputText escape="false">
             <!--[if lt IE 9]>
                 <script type="text/javascript" src="#{request.contextPath}/js/html5shiv.js"></script>
                 <script type="text/javascript" src="#{request.contextPath}/js/respond.min.js"></script>
             <![endif]-->
-        </f:verbatim>
+        </h:outputText>
     </h:head>
     <h:body>
         <f:view locale="#{languageBean.localeCodeForBundle}" />

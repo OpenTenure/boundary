@@ -8,12 +8,12 @@ package org.sola.opentenure.services.boundary.beans.validation;
 
 import java.io.Serializable;
 import java.util.Locale;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.validation.Configuration;
-import javax.validation.MessageInterpolator;
-import javax.validation.Validation;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.validation.Configuration;
+import jakarta.validation.MessageInterpolator;
+import jakarta.validation.Validation;
 import org.sola.opentenure.services.boundary.beans.helpers.MessageProvider;
 
 /**

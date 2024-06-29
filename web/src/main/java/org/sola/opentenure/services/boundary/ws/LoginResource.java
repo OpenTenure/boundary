@@ -1,20 +1,21 @@
 package org.sola.opentenure.services.boundary.ws;
 
 import java.security.Principal;
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.SecurityContext;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.SecurityContext;
+import org.sola.cs.services.ejb.system.businesslogic.SystemCSEJBLocal;
 import org.sola.opentenure.services.boundary.beans.AbstractWebRestService;
 import org.sola.opentenure.services.boundary.beans.exceptions.ExceptionFactory;
 import org.sola.opentenure.services.boundary.beans.responses.ResponseFactory;
@@ -31,6 +32,8 @@ public class LoginResource extends AbstractWebRestService {
 
     @EJB
     AdminCSEJBLocal admin;
+    @EJB
+    SystemCSEJBLocal systemEjb;
 
     /**
      * Authenticates users through HTTP GET method
@@ -63,6 +66,31 @@ public class LoginResource extends AbstractWebRestService {
         }
     }
 
+    @GET
+    @Produces("text/plain")
+    @Path(value = "getcurrentuser")
+    public String getCurrentUser(
+            @Context HttpServletRequest request,
+            @PathParam(value = LOCALE_CODE) String localeCode) {
+        try {
+            return request.getRemoteUser();
+        } catch (Exception ex) {
+            throw processException(ex, localeCode);
+        }
+    }
+    
+    @GET
+    @Produces("text/plain")
+    @Path(value = "{a:canaccessproject|a:canAccessProject}/{projectId}")
+    public String checkUserCanAccessProject(
+            @PathParam(value = LOCALE_CODE) String localeCode, @PathParam(value = "projectId") String projectId) {
+        try {
+            return getMapper().writeValueAsString(systemEjb.canAccessProject(projectId));
+        } catch (Exception ex) {
+            throw processException(ex, localeCode);
+        }
+    }
+    
     /**
      * Authenticates users through HTTP POST method
      *

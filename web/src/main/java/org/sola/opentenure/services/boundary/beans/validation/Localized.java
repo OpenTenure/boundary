@@ -27,7 +27,7 @@
  */
 package org.sola.opentenure.services.boundary.beans.validation;
 
-import javax.validation.Payload;
+import jakarta.validation.Payload;
 
 /**
  * Used to identify validation constraints to pickup localized messages from the 

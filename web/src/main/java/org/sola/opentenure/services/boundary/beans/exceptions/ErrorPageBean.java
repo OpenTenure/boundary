@@ -1,9 +1,9 @@
 package org.sola.opentenure.services.boundary.beans.exceptions;
 
 import java.util.Map;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.sola.cs.common.messaging.MessageUtility;
 import org.sola.cs.common.messaging.ServiceMessage;
 import org.sola.opentenure.services.boundary.beans.AbstractBackingBean;

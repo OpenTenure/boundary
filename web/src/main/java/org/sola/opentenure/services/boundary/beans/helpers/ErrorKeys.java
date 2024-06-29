@@ -27,6 +27,11 @@ public class ErrorKeys {
      * Provide user name
      */
     public static final String LOGIN_USERNAME_REQUIRED = "LOGIN_USERNAME_REQUIRED";
+    
+    /**
+     * Select project
+     */
+    public static final String PROJECT_REQUIRED = "PROJECT_REQUIRED";
 
     /**
      * Provide password
@@ -352,6 +357,10 @@ public class ErrorKeys {
      */
     public static final String CLAIM_UPLOAD_JSON_NOT_FOUND = "CLAIM_UPLOAD_JSON_NOT_FOUND";
     /**
+     * Claim's project is not matching to the current project.
+     */
+    public static final String CLAIM_PROJECT_MISMATCH = "CLAIM_PROJECT_MISMATCH";
+    /**
      * Attachment file "%s" not found.
      */
     public static final String CLAIM_UPLOAD_ATTACHMENT_NOT_FOUND = "CLAIM_UPLOAD_ATTACHMENT_NOT_FOUND";
@@ -455,6 +464,10 @@ public class ErrorKeys {
      * Parameter "%s" is not a valid number
      */
     public static final String REPORTS_PARAM_IS_NOT_NUMBER = "REPORTS_PARAM_IS_NOT_NUMBER";
+    /**
+     * Reports folder path parameter is not configured
+     */
+    public static final String REPORTS_FOLDER_PATH_IS_NULL = "REPORTS_FOLDER_PATH_IS_NULL";
 
     /**
      * Requested report was not found.
@@ -520,4 +533,14 @@ public class ErrorKeys {
      * status is appropriate
      */
     public static final String BOUNDARY_EDIT_NOT_ALLOWED = "BOUNDARY_EDIT_NOT_ALLOWED";
+    
+    /**
+     * You don't have rights to access the server
+     */
+    public static final String GENERAL_NO_ACCESS_TO_SERVER = "GENERAL_NO_ACCESS_TO_SERVER";
+    
+    /**
+     * You don't have access any of the projects
+     */
+    public static final String GENERAL_NO_ACCESS_TO_PROJECTS = "GENERAL_NO_ACCESS_TO_PROJECTS";
 }

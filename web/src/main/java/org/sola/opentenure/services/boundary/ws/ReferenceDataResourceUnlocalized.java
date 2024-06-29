@@ -1,7 +1,7 @@
 package org.sola.opentenure.services.boundary.ws;
 
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.Path;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.ws.rs.Path;
 
 @Path("/ref")
 @RequestScoped
