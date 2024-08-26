@@ -9,6 +9,7 @@ MSG.MAP_CONTROL_ZOOM_IN = "Zoom in";
 MSG.MAP_CONTROL_ZOOM_OUT = "Zoom out";
 MSG.MAP_CONTROL_EDIT_MAP = "Edit map";
 MSG.MAP_CONTROL_DRAW_POLYGON = "Draw polygon";
+MSG.MAP_CONTROL_IMPORT_POINTS = "Import polygon",
 MSG.MAP_CONTROL_DRAW_LINE = "Draw line";
 MSG.MAP_CONTROL_DRAW_POINT = "Draw point";
 MSG.MAP_CONTROL_EDIT_SHAPE = "Edit shape";
@@ -32,6 +33,16 @@ MSG.MAP_CONTROL_GOOGLE_EARTH = "Google Earth";
 MSG.MAP_CONTROL_SEARCH = "Search";
 MSG.MAP_CONTROL_TYPE = "Type";
 MSG.MAP_CONTROL_PARENT = "Parent";
+MSG.MAP_CONTROL_CLOSE = "Clode";
+MSG.MAP_CONTROL_IMPORT = "Import";
+MSG.MAP_CONTROL_POINTS_TYPE = "Points type";
+MSG.MAP_CONTROL_POINTS = "Points";
+MSG.MAP_CONTROL_CRS = "CRS";
+MSG.MAP_CONTROL_WKT = "Well-known text (WKT)";
+MSG.MAP_CONTROL_COMMA_SEPARATED = "Comma-separated (,)";
+MSG.MAP_CONTROL_SEMICOLON = "Semicolon (;)";
+MAP_CONTROL_PARCEL_NOT_POLYGON = "Provide polygon";
+MAP_CONTROL_PARCEL_3POINT_MIN = "Provide at least 3 points";
 
 // Map control
 OT.Map = function (mapOptions) {
@@ -46,7 +57,7 @@ OT.Map = function (mapOptions) {
 
     // Boolean flag, indicating whether to show search field or not
     var showSearch = typeof mapOptions.showSearch !== 'undefined' ? mapOptions.showSearch : false;
-    
+
     var projectId = typeof mapOptions.projectId !== 'undefined' ? mapOptions.projectId : "";
 
     // Boolean flag, indicating whether CS is offline or not
@@ -263,7 +274,7 @@ OT.Map = function (mapOptions) {
 
                 $(inputField).data("ui-autocomplete")._resizeMenu = function () {
                     this.menu.element.outerWidth(300);
-                }
+                };
 
                 $(this.div).css({"z-index": "3000"});
                 $(this.div).append(inputField);
@@ -494,6 +505,18 @@ OT.Map = function (mapOptions) {
         });
 
         mapToolbarItems.push("-");
+
+        mapToolbarItems.push({
+            id: OT.Map.TOOLBAR_BUTTON_IDS.IMPORT_POINTS,
+            iconCls: 'importPointsIcon',
+            editingTool: true,
+            disabled: true,
+            toggleGroup: "draw",
+            group: "draw",
+            text: MSG.MAP_CONTROL_IMPORT_POINTS,
+            tooltip: MSG.MAP_CONTROL_IMPORT_POINTS,
+            handler: onImportPointsClick
+        });
 
         mapToolbarItems.push(new GeoExt.Action({
             id: OT.Map.TOOLBAR_BUTTON_IDS.DRAW_POLYGON,
@@ -739,20 +762,20 @@ OT.Map = function (mapOptions) {
             if (!isRendered) {
                 var mapWidth = $("#" + mapContainerName.replace(":", "\\:")).parent().width();
                 var winHeight = $(window).height();
-                
+
                 $("#loadDiv").width(mapWidth);
                 $("#loadDiv").height(winHeight);
                 $("#loadDiv").show();
-                
+
                 mapPanelContainer.render(mapContainerName);
                 map.addControl(new OpenLayers.Control.MousePosition({div: document.getElementById("lblMapMousePosition")}));
                 map.addControl(new OT.Map.Control.ScaleBar({div: document.getElementById("lblScaleBar")}));
                 mapPanelContainer.setWidth(mapWidth);
                 map.zoomToExtent(initialZoomBounds);
-                
+
                 isRendered = true;
                 mapPanelContainer.setHeight(winHeight);
-                
+
                 setTimeout(function () {
                     mapPanelContainer.setHeight(mapHeight);
                     $("#loadDiv").hide();
@@ -795,6 +818,126 @@ OT.Map = function (mapOptions) {
         enableMapEditing = pressed;
         customizeMapToolbar();
     }
+
+    function onImportPointsClick() {
+        if ($("#importPointsDialog").length === 0) {
+            var html = '<div class="modal fade" id="importPointsDialog" tabindex="-1" role="dialog" aria-hidden="true"> \
+                        <div class="modal-dialog" style="width:500px;"> \
+                            <div class="modal-content"> \
+                                <div class="modal-header"> \
+                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">' + MSG.MAP_CONTROL_CLOSE + '</span></button> \
+                                    <h4 class="modal-title">' + MSG.MAP_CONTROL_IMPORT + '</h4> \
+                                </div> \
+                                <div class="modal-body" style="padding: 0px 5px 0px 5px;"> \
+                                    <div class="content"> \
+                                        <div class="row"> \
+                                            <div class="col-md-6"> \
+                                                <label>' + MSG.MAP_CONTROL_POINTS_TYPE + '</label> \
+                                                <select id="cbxPointsType" class="form-control"></select> \
+                                            </div> \
+                                            <div class="col-md-4"> \
+                                                <label>' + MSG.MAP_CONTROL_CRS + '</label> \
+                                                <select id="cbxCrs" class="form-control"></select> \
+                                            </div> \
+                                        </div> \
+                                        <div class="LineSpace"></div> \
+                                        <label>' + MSG.MAP_CONTROL_POINTS + '</label> \
+                                        <textarea id="txtPoints" rows="6" style="font-size: smaller;" class="form-control"></textarea> \
+                                    </div> \
+                                </div> \
+                                <div class="modal-footer" style="margin-top: 0px;padding: 15px 20px 15px 20px;"> \
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">' + MSG.MAP_CONTROL_CLOSE + '</button> \
+                                    <button type="button" id="btnImportPoints" class="btn btn-primary" onclick="mapControl.importPoints()">' + MSG.MAP_CONTROL_IMPORT + '</button> \
+                                </div> \
+                            </div> \
+                        </div> \
+                    </div>';
+
+            var escContainerName = "#" + mapContainerName.replace(":", "\\:");
+            $(escContainerName).append(html);
+
+            // Populate lists
+            $("#cbxPointsType").append($("<option />").val("wkt").text(MSG.MAP_CONTROL_WKT));
+            $("#cbxPointsType").append($("<option />").val(",").text(MSG.MAP_CONTROL_COMMA_SEPARATED));
+            $("#cbxPointsType").append($("<option />").val(";").text(MSG.MAP_CONTROL_SEMICOLON));
+
+            $("#cbxCrs").append($("<option />").val(that.sourceCrs).text(that.sourceCrs));
+            if (!isNullOrEmpty(that.printCrs) && that.printCrs !== that.sourceCrs) {
+                $("#cbxCrs").append($("<option />").val(that.printCrs).text(that.printCrs));
+            }
+        }
+
+        $("#importPointsDialog").modal('show');
+    }
+
+    this.importPoints = function () {
+        var coords = $("#txtPoints").val().trim();
+        var pointsType = $("#cbxPointsType").val();
+        var crsCode = $("#cbxCrs").val();
+
+        if (isNullOrEmpty(coords)) {
+            alertErrorMessage($.i18n("err-parcel-no-coords"));
+            return;
+        }
+
+        try {
+            var parcel;
+            var separator;
+            coords = coords.replace(/(\r\n|\n|\r)/gm, "");
+
+            if (pointsType === "wkt") {
+                if (coords.toLowerCase().indexOf("polygon") < 0) {
+                    alert(MSG.MAP_CONTROL_PARCEL_NOT_POLYGON);
+                    return;
+                }
+            } else {
+                // Check number of coordinates and complete polygon if needed
+                var arrayCoords;
+                if (coords.endsWith(";") || coords.endsWith(",")) {
+                    coords = coords.substring(0, coords.length);
+                }
+
+                separator = pointsType;
+                arrayCoords = coords.split(separator);
+
+                if (arrayCoords.length > 2) {
+                    if (arrayCoords[0].replace(/ /g, "") !== arrayCoords[arrayCoords.length - 1].replace(/ /g, "")) {
+                        // Add last point to complete polygon
+                        arrayCoords.push(arrayCoords[0].trim());
+                    }
+                }
+
+                if (arrayCoords.length < 4) {
+                    alert(MSG.MAP_CONTROL_PARCEL_3POINT_MIN);
+                    return;
+                }
+
+                coords = "";
+                for (var i = 0; i < arrayCoords.length; i++) {
+                    if (coords !== "") {
+                        coords += ",";
+                    }
+                    coords += arrayCoords[i];
+                }
+
+                coords = "Polygon((" + coords + "))";
+            }
+
+            parcel = new OpenLayers.Format.WKT().read(coords);
+            parcel.geometry.transform(crsCode, that.destCrs);
+            selectedNode.layer.addFeatures(parcel);
+
+            // Zoom to boundary
+            map.zoomToExtent(parcel.geometry.getBounds(), closest = true);
+
+            // Show attributes popup
+            $("#importPointsDialog").modal('hide');
+            featureAdded(parcel);
+
+        } catch (ex) {
+            alert(ex);
+        }
+    };
 
     // Layer property change handler
     function handleLayerChange(evt) {
@@ -871,6 +1014,9 @@ OT.Map = function (mapOptions) {
 
                 } else if (tbButton.id === OT.Map.TOOLBAR_BUTTON_IDS.SNAP_SELECT) {
                     // Do nothing
+                } else if (tbButton.id === OT.Map.TOOLBAR_BUTTON_IDS.IMPORT_POINTS
+                        && allowDrawing && selectedLayer.allowPolygon) {
+                    tbButton.enable();
                 } else if (tbButton.id === OT.Map.TOOLBAR_BUTTON_IDS.DELETE_FEATURE) {
                     var control = tbButton.baseAction.control;
                     var active = control.active;
@@ -1082,7 +1228,7 @@ OT.Map = function (mapOptions) {
                     $("#boundaryName").attr('href', viewBoundaryUrl + '?id=' + response.id);
                     $("#boundaryName").text(response.name);
                     $("#boundaryType").text(response.typeName);
-                    if(response.parentName === null || response.parentName === ""){
+                    if (response.parentName === null || response.parentName === "") {
                         $("#boundaryDivParent").hide();
                     } else {
                         $("#boundaryParent").text(response.parentName);
@@ -1156,7 +1302,7 @@ OT.Map = function (mapOptions) {
                                     }
                                 }
                             }
-                            
+
                             // Add feature to the snapping layer
                             if (!featureExists) {
                                 var featureToAdd = new OpenLayers.Format.WKT().read(response.geom);
@@ -1189,6 +1335,7 @@ OT.Map.TOOLBAR_BUTTON_IDS = {
     CLAIM_INFO: "btnClaimInfo",
     EDIT_MAP: "btnEditMap",
     DRAW_POLYGON: "btnDrawPolygon",
+    IMPORT_POINTS: "btnImportPoints",
     DRAW_LINE: "btnDrawLine",
     DRAW_POINT: "btnDrawPoint",
     EDIT_SHAPE: "btnEditShape",

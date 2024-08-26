@@ -151,6 +151,9 @@ div.olControlMousePosition{
 .polygonIcon{
     background-image: url(images/polygon.png) !important;
 }
+.importPointsIcon {
+    background-image: url(images/import_points.png) !important;
+}
 .polylineIcon{
     background-image: url(images/linestring.png) !important;
 }

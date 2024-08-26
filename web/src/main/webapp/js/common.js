@@ -12,3 +12,11 @@ fixAppProto = function (appUrl) {
 
     return appUrl;
 };
+
+/** 
+ * Return true if provided string is null, undefined or empty. 
+ * @param obj Object to test.
+ */
+function isNullOrEmpty(obj) {
+    return obj === null || typeof obj === 'undefined' || obj === '';
+}
